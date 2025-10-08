@@ -111,4 +111,4 @@ Pengelola sistem yang bertugas menjaga kelancaran operasional dan keamanan data.
 
 ## Tautan Deployment & Desain
 - **Link Design (Figma):** [https://www.figma.com/team_invite/redeem/H4djMUeJW2NmihEoMSnvd2](https://www.figma.com/team_invite/redeem/H4djMUeJW2NmihEoMSnvd2)  
-- **Deployment (PWS):** *Akan ditambahkan setelah proses deployment selesai*  
+- **Deployment (PWS):** [https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id/] (https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id/)
