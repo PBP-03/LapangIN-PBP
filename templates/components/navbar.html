@@ -1,0 +1,283 @@
+<!-- Navbar Component -->
+<nav
+  class="bg-white/95 backdrop-blur-sm border-b border-neutral-200 sticky top-0 z-40 transition-all duration-300"
+  id="navbar"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo & Brand -->
+      <div class="flex items-center space-x-3">
+        <div class="flex-shrink-0">
+          <div
+            class="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center"
+          >
+            <svg
+              class="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+        <div class="hidden md:block">
+          <h1 class="text-xl font-display font-bold text-gradient">LapangIN</h1>
+          <p class="text-xs text-neutral-600 -mt-1">Sewa Lapangan Mudah</p>
+        </div>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:block">
+        <div class="ml-10 flex items-baseline space-x-8">
+          <a
+            href="/"
+            class="nav-link text-neutral-700 hover:text-primary-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Beranda
+          </a>
+          <a
+            href="/lapangan"
+            class="nav-link text-neutral-700 hover:text-primary-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Cari Lapangan
+          </a>
+          <a
+            href="/tentang"
+            class="nav-link text-neutral-700 hover:text-primary-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Tentang
+          </a>
+          <a
+            href="/kontak"
+            class="nav-link text-neutral-700 hover:text-primary-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Kontak
+          </a>
+        </div>
+      </div>
+
+      <!-- Right side actions -->
+      <div class="hidden md:flex items-center space-x-4">
+        <!-- Search (optional) -->
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Cari lapangan..."
+            class="bg-neutral-100 border-0 rounded-xl px-4 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
+          />
+          <svg
+            class="w-4 h-4 text-neutral-400 absolute right-3 top-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            ></path>
+          </svg>
+        </div>
+
+        <!-- Auth buttons -->
+        <div class="flex space-x-2">
+          <a
+            href="/login"
+            class="btn-secondary px-4 py-2 text-sm font-medium rounded-xl transition-all hover:scale-105"
+          >
+            Masuk
+          </a>
+          <a
+            href="/register"
+            class="btn-primary px-4 py-2 text-sm font-medium text-white rounded-xl transition-all hover:scale-105"
+          >
+            Daftar
+          </a>
+        </div>
+      </div>
+
+      <!-- Mobile menu button -->
+      <div class="md:hidden">
+        <button
+          type="button"
+          class="mobile-menu-btn bg-neutral-100 inline-flex items-center justify-center p-2 rounded-xl text-neutral-700 hover:text-primary-600 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 transition-colors"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+        >
+          <span class="sr-only">Buka menu utama</span>
+          <!-- Menu icon -->
+          <svg
+            class="menu-icon block h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+          <!-- Close icon -->
+          <svg
+            class="close-icon hidden h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu md:hidden hidden" id="mobile-menu">
+    <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-neutral-200">
+      <!-- Search mobile -->
+      <div class="px-3 pb-3">
+        <input
+          type="text"
+          placeholder="Cari lapangan..."
+          class="bg-neutral-100 border-0 rounded-xl px-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
+        />
+      </div>
+
+      <!-- Navigation links -->
+      <a
+        href="/"
+        class="nav-link-mobile text-neutral-700 hover:text-primary-600 hover:bg-neutral-100 block px-3 py-2 rounded-lg text-base font-medium transition-colors"
+      >
+        Beranda
+      </a>
+      <a
+        href="/lapangan"
+        class="nav-link-mobile text-neutral-700 hover:text-primary-600 hover:bg-neutral-100 block px-3 py-2 rounded-lg text-base font-medium transition-colors"
+      >
+        Cari Lapangan
+      </a>
+      <a
+        href="/tentang"
+        class="nav-link-mobile text-neutral-700 hover:text-primary-600 hover:bg-neutral-100 block px-3 py-2 rounded-lg text-base font-medium transition-colors"
+      >
+        Tentang
+      </a>
+      <a
+        href="/kontak"
+        class="nav-link-mobile text-neutral-700 hover:text-primary-600 hover:bg-neutral-100 block px-3 py-2 rounded-lg text-base font-medium transition-colors"
+      >
+        Kontak
+      </a>
+
+      <!-- Auth buttons mobile -->
+      <div class="pt-4 pb-3 border-t border-neutral-200">
+        <div class="flex space-x-2 px-3">
+          <a
+            href="/login"
+            class="btn-secondary flex-1 px-4 py-2 text-sm font-medium text-center rounded-xl transition-all"
+          >
+            Masuk
+          </a>
+          <a
+            href="/register"
+            class="btn-primary flex-1 px-4 py-2 text-sm font-medium text-white text-center rounded-xl transition-all"
+          >
+            Daftar
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Navbar JavaScript -->
+<script>
+  // Mobile menu toggle
+  document.addEventListener("DOMContentLoaded", function () {
+    const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
+    const mobileMenu = document.querySelector(".mobile-menu");
+    const menuIcon = document.querySelector(".menu-icon");
+    const closeIcon = document.querySelector(".close-icon");
+
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener("click", function () {
+        const isExpanded =
+          mobileMenuBtn.getAttribute("aria-expanded") === "true";
+
+        mobileMenuBtn.setAttribute("aria-expanded", !isExpanded);
+        mobileMenu.classList.toggle("hidden");
+        menuIcon.classList.toggle("hidden");
+        closeIcon.classList.toggle("hidden");
+      });
+    }
+
+    // Add scroll effect to navbar
+    const navbar = document.getElementById("navbar");
+    let lastScrollTop = 0;
+
+    window.addEventListener("scroll", function () {
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
+
+      if (scrollTop > 10) {
+        navbar.classList.add("shadow-soft");
+        navbar.classList.remove("bg-white/95");
+        navbar.classList.add("bg-white/98");
+      } else {
+        navbar.classList.remove("shadow-soft");
+        navbar.classList.remove("bg-white/98");
+        navbar.classList.add("bg-white/95");
+      }
+
+      lastScrollTop = scrollTop;
+    });
+  });
+</script>
+
+<style>
+  /* Button styles */
+  .btn-primary {
+    background: linear-gradient(to right, #5409da, #4e71ff);
+    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07),
+      0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 4px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .btn-secondary {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+  }
+
+  .btn-secondary:hover {
+    background-color: #e2e8f0;
+    border-color: #cbd5e1;
+  }
+
+  /* Active nav link styles */
+  .nav-link.active,
+  .nav-link-mobile.active {
+    color: #4a08c4;
+    background-color: #f0f2ff;
+  }
+</style>
