@@ -1,0 +1,271 @@
+{% extends 'base.html' %} {% block title %}Dashboard User - LapangIN{% endblock %} {% block content %}
+<div class="min-h-screen bg-neutral-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-display font-bold text-neutral-900">
+              Dashboard User
+            </h1>
+            <p class="text-neutral-600">
+              Selamat datang kembali, {{ user.first_name }}!
+            </p>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center text-sm text-neutral-600">
+              <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+              User/Penyewa
+            </div>
+            <a href="{% url 'main:logout' %}" class="btn btn-secondary">
+              Logout
+              <svg
+                class="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H3"
+                ></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- User Info Card -->
+      <div class="lg:col-span-1">
+        <div
+          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
+        >
+          <div class="text-center">
+            <div
+              class="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                class="w-10 h-10 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-neutral-900 mb-1">
+              {{ user.first_name }} {{ user.last_name }}
+            </h3>
+            <p class="text-neutral-600 text-sm mb-4">@{{ user.username }}</p>
+
+            <div class="space-y-3 text-left">
+              <div class="flex justify-between text-sm">
+                <span class="text-neutral-600">Email:</span>
+                <span class="text-neutral-900">{{ user.email }}</span>
+              </div>
+              {% if user.phone_number %}
+              <div class="flex justify-between text-sm">
+                <span class="text-neutral-600">Telepon:</span>
+                <span class="text-neutral-900">{{ user.phone_number }}</span>
+              </div>
+              {% endif %}
+              <div class="flex justify-between text-sm">
+                <span class="text-neutral-600">Bergabung:</span>
+                <span class="text-neutral-900"
+                  >{{ user.created_at|date:"d M Y" }}</span
+                >
+              </div>
+            </div>
+
+            <button class="btn btn-primary mt-6 w-full">Edit Profil</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Quick Actions -->
+        <div
+          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
+        >
+          <h2 class="text-lg font-semibold text-neutral-900 mb-4">
+            Aksi Cepat
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a
+              href="/lapangan"
+              class="btn btn-primary card-hover p-4 text-left"
+            >
+              <div class="flex items-center">
+                <div
+                  class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-3"
+                >
+                  <svg
+                    class="w-5 h-5 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-medium text-white">Cari Lapangan</div>
+                  <div class="text-white/80 text-sm">
+                    Temukan lapangan favorit
+                  </div>
+                </div>
+              </div>
+            </a>
+
+            <a
+              href="/booking-history"
+              class="btn btn-secondary card-hover p-4 text-left"
+            >
+              <div class="flex items-center">
+                <div
+                  class="w-10 h-10 bg-neutral-100 rounded-xl flex items-center justify-center mr-3"
+                >
+                  <svg
+                    class="w-5 h-5 text-neutral-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-medium text-neutral-900">
+                    Riwayat Booking
+                  </div>
+                  <div class="text-neutral-600 text-sm">
+                    Lihat semua booking Anda
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div
+          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-neutral-900">
+              Booking Terbaru
+            </h2>
+            <a
+              href="/booking-history"
+              class="text-primary-600 hover:text-primary-700 text-sm font-medium"
+            >
+              Lihat Semua
+            </a>
+          </div>
+
+          <!-- Booking Items - This would be populated with real data -->
+          <div class="space-y-4">
+            <!-- Empty State -->
+            <div class="text-center py-8">
+              <div
+                class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              >
+                <svg
+                  class="w-8 h-8 text-neutral-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-neutral-900 font-medium mb-2">
+                Belum ada booking
+              </h3>
+              <p class="text-neutral-600 text-sm mb-4">
+                Anda belum memiliki booking lapangan. Mulai cari lapangan
+                sekarang!
+              </p>
+              <a href="/lapangan" class="btn btn-primary">
+                Cari Lapangan Sekarang
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Favorite Venues -->
+        <div
+          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-neutral-900">
+              Lapangan Favorit
+            </h2>
+            <a
+              href="/favorites"
+              class="text-primary-600 hover:text-primary-700 text-sm font-medium"
+            >
+              Lihat Semua
+            </a>
+          </div>
+
+          <!-- Empty State -->
+          <div class="text-center py-8">
+            <div
+              class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                class="w-8 h-8 text-neutral-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-neutral-900 font-medium mb-2">Belum ada favorit</h3>
+            <p class="text-neutral-600 text-sm mb-4">
+              Tandai lapangan favorit Anda untuk akses yang lebih mudah
+            </p>
+            <a href="/lapangan" class="btn btn-primary"> Jelajahi Lapangan </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

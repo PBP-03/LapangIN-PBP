@@ -1,0 +1,301 @@
+{% extends 'base.html' %} 
+{% block title %}Login - LapangIN{% endblock %} 
+{%block content %}
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-12 px-4 sm:px-6 lg:px-8"
+>
+  <!-- Background decoration -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div
+      class="absolute -top-40 -right-40 w-80 h-80 rounded-full gradient-accent opacity-20 blur-3xl"
+    ></div>
+    <div
+      class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full gradient-primary opacity-20 blur-3xl"
+    ></div>
+  </div>
+
+  <div class="relative max-w-md w-full space-y-8">
+    <!-- Header -->
+    <div class="text-center">
+      <div
+        class="mx-auto w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mb-6"
+      >
+        <svg
+          class="w-8 h-8 text-white"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          ></path>
+        </svg>
+      </div>
+      <h2 class="text-3xl font-display font-bold text-neutral-900 mb-2">
+        Masuk ke <span class="text-gradient">LapangIN</span>
+      </h2>
+      <p class="text-neutral-600">
+        Silakan masuk untuk melanjutkan ke dashboard Anda
+      </p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="space-y-3">
+      {% for message in messages %}
+      <div
+        class="{% if message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% elif message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %} px-4 py-3 rounded-xl text-sm"
+      >
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Login Form -->
+    <div
+      class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-soft border border-neutral-200 p-8"
+    >
+      <form method="post" class="space-y-6" id="loginForm">
+        {% csrf_token %}
+
+        <!-- Username Field -->
+        <div>
+          <label
+            for="username"
+            class="block text-sm font-medium text-neutral-700 mb-2"
+          >
+            Username atau Email
+          </label>
+          {{ form.username }} {% if form.username.errors %}
+          <div class="mt-1 text-sm text-red-600">
+            {% for error in form.username.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label
+            for="password"
+            class="block text-sm font-medium text-neutral-700 mb-2"
+          >
+            Password
+          </label>
+          <div class="relative">
+            {{ form.password }}
+            <button
+              type="button"
+              id="togglePassword"
+              class="absolute right-3 top-3 text-neutral-400 hover:text-neutral-600 transition-colors"
+            >
+              <svg
+                id="eyeIcon"
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                ></path>
+              </svg>
+              <svg
+                id="eyeOffIcon"
+                class="w-5 h-5 hidden"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          {% if form.password.errors %}
+          <div class="mt-1 text-sm text-red-600">
+            {% for error in form.password.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input
+              type="checkbox"
+              id="remember_me"
+              name="remember_me"
+              class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+            />
+            <label
+              for="remember_me"
+              class="ml-2 block text-sm text-neutral-700"
+            >
+              Ingat saya
+            </label>
+          </div>
+          <div class="text-sm">
+            <a
+              href="#"
+              class="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+            >
+              Lupa password?
+            </a>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <button type="submit" class="btn btn-primary lg w-full group">
+            <span id="loginText">Masuk</span>
+            <div
+              id="loginSpinner"
+              class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"
+            ></div>
+            <svg
+              class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              ></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Non-field errors -->
+        {% if form.non_field_errors %}
+        <div
+          class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm"
+        >
+          {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </form>
+
+      <!-- Divider -->
+      <div class="mt-6">
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-neutral-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-neutral-500"
+              >Belum punya akun?</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Register Link -->
+      <div class="mt-6 text-center">
+        <a href="{% url 'main:register' %}" class="btn btn-secondary lg w-full">
+          Daftar Sekarang
+          <svg
+            class="w-4 h-4 ml-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+            ></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Role Info -->
+    <div class="bg-white/60 backdrop-blur-sm rounded-xl p-4 text-center">
+      <p class="text-sm text-neutral-600 mb-3">Login berdasarkan peran Anda:</p>
+      <div class="flex justify-center space-x-4">
+        <div class="flex items-center text-xs text-neutral-500">
+          <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+          User/Penyewa
+        </div>
+        <div class="flex items-center text-xs text-neutral-500">
+          <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+          Mitra/Pemilik
+        </div>
+        <div class="flex items-center text-xs text-neutral-500">
+          <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+          Admin
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<script>
+  // Toggle password visibility
+  document
+    .getElementById("togglePassword")
+    .addEventListener("click", function () {
+      const password = document.getElementById("password");
+      const eyeIcon = document.getElementById("eyeIcon");
+      const eyeOffIcon = document.getElementById("eyeOffIcon");
+
+      if (password.type === "password") {
+        password.type = "text";
+        eyeIcon.classList.add("hidden");
+        eyeOffIcon.classList.remove("hidden");
+      } else {
+        password.type = "password";
+        eyeIcon.classList.remove("hidden");
+        eyeOffIcon.classList.add("hidden");
+      }
+    });
+
+  // Form submission with loading state
+  document.getElementById("loginForm").addEventListener("submit", function () {
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const loginText = document.getElementById("loginText");
+    const loginSpinner = document.getElementById("loginSpinner");
+
+    submitBtn.disabled = true;
+    loginText.textContent = "Sedang masuk...";
+    loginSpinner.classList.remove("hidden");
+
+    // Re-enable after 10 seconds as fallback
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      loginText.textContent = "Masuk";
+      loginSpinner.classList.add("hidden");
+    }, 10000);
+  });
+
+  // Auto-focus on first input
+  document.getElementById("username").focus();
+</script>
+{% endblock %}
