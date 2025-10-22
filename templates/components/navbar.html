@@ -146,15 +146,12 @@
 
               <!-- Logout -->
               <div class="border-t border-neutral-100 py-1">
-                <form method="post" action="{% url 'main:logout' %}">
-                  {% csrf_token %}
-                  <button type="submit" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left" role="menuitem">
+                  <button onclick="logoutUser()" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left" role="menuitem">
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H3"></path>
                     </svg>
                     Logout
                   </button>
-                </form>
               </div>
             </div>
           </div>
@@ -208,10 +205,7 @@
               href="{% if user.role == 'admin' %}{% url 'main.admin:admin_dashboard' %}{% elif user.role == 'mitra' %}{% url 'main:mitra:mitra_dashboard' %}{% else %}{% url 'main:user_dashboard' %}{% endif %}"
               class="btn-secondary block w-full px-4 py-2 text-sm font-medium text-center rounded-xl transition-all"
             >Dashboard</a>
-            <form method="post" action="{% url 'main:logout' %}">
-              {% csrf_token %}
-              <button type="submit" class="btn-primary block w-full mt-2 px-4 py-2 text-sm font-medium text-white text-center rounded-xl transition-all">Logout</button>
-            </form>
+            <button onclick="logoutUser()" class="btn-primary block w-full mt-2 px-4 py-2 text-sm font-medium text-white text-center rounded-xl transition-all">Logout</button>
           </div>
         {% else %}
           <div class="flex space-x-2 px-3">
