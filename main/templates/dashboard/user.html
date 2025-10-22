@@ -288,11 +288,14 @@
             const userStatus = await checkUserStatus();
 
             // Load dashboard data
-            const dashboardData = await makeAjaxRequest("/user-dashboard/", {
-              headers: {
-                Accept: "application/json",
-              },
-            });
+            const dashboardData = await makeAjaxRequest(
+              "/api/user-dashboard/",
+              {
+                headers: {
+                  Accept: "application/json",
+                },
+              }
+            );
 
             if (dashboardData.success) {
               // Update welcome message

@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block title %}Dashboard Admin - LapangIN{% endblock %} {% block content %}
-<div class="min-h-screen bg-neutral-50">
+<div class="min-h-screen bg-neutral-50" id="adminDashboard">
   <!-- Header -->
   <div class="bg-white border-b border-neutral-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,444 +40,311 @@
     </div>
   </div>
 
+  <!-- Loading State -->
+  <div id="dashboardLoading" class="flex justify-center items-center py-20">
+    <div
+      class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"
+    ></div>
+  </div>
+
   <!-- Main Content -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div
-        class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-      >
-        <div class="flex items-center">
-          <div
-            class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4"
-          >
-            <svg
-              class="w-6 h-6 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm text-neutral-600">Total Users</p>
-            <p class="text-2xl font-bold text-neutral-900">{{ total_users }}</p>
-          </div>
-        </div>
-      </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden" id="dashboardContent">
+    <!-- Content will be loaded dynamically -->
+  </div>
 
-      <div
-        class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-      >
-        <div class="flex items-center">
-          <div
-            class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4"
-          >
-            <svg
-              class="w-6 h-6 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm text-neutral-600">Total Mitra</p>
-            <p class="text-2xl font-bold text-neutral-900">
-              {{ total_mitras }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-      >
-        <div class="flex items-center">
-          <div
-            class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-4"
-          >
-            <svg
-              class="w-6 h-6 text-purple-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm text-neutral-600">Lapangan Menunggu</p>
-            <p class="text-2xl font-bold text-neutral-900">0</p>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-      >
-        <div class="flex items-center">
-          <div
-            class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mr-4"
-          >
-            <svg
-              class="w-6 h-6 text-yellow-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm text-neutral-600">Total Booking</p>
-            <p class="text-2xl font-bold text-neutral-900">0</p>
-          </div>
-        </div>
-      </div>
+  <!-- Error State -->
+  <div id="dashboardError" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center hidden">
+    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
     </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Quick Actions -->
-      <div class="lg:col-span-1">
-        <div
-          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6 mb-6"
-        >
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">
-            Aksi Admin
-          </h2>
-          <div class="space-y-3">
-            <a
-              href="/admin/manage-users"
-              class="btn btn-primary w-full text-left"
-            >
-              <div class="flex items-center">
-                <svg
-                  class="w-5 h-5 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
-                  ></path>
-                </svg>
-                Kelola Users
-              </div>
-            </a>
-
-            <a
-              href="/admin/verify-venues"
-              class="btn btn-secondary w-full text-left"
-            >
-              <div class="flex items-center">
-                <svg
-                  class="w-5 h-5 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-                Verifikasi Lapangan
-              </div>
-            </a>
-
-            <a href="/admin/reports" class="btn btn-secondary w-full text-left">
-              <div class="flex items-center">
-                <svg
-                  class="w-5 h-5 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  ></path>
-                </svg>
-                Laporan Sistem
-              </div>
-            </a>
-
-            <a
-              href="/admin/categories"
-              class="btn btn-secondary w-full text-left"
-            >
-              <div class="flex items-center">
-                <svg
-                  class="w-5 h-5 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                  ></path>
-                </svg>
-                Kelola Kategori
-              </div>
-            </a>
-          </div>
-        </div>
-
-        <!-- Admin Profile -->
-        <div
-          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-        >
-          <div class="text-center">
-            <div
-              class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4"
-            >
-              <svg
-                class="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                ></path>
-              </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-neutral-900 mb-1">
-              {{ user.first_name }} {{ user.last_name }}
-            </h3>
-            <p class="text-neutral-600 text-sm mb-4">Administrator</p>
-
-            <div class="space-y-2 text-left text-sm">
-              <div class="flex justify-between">
-                <span class="text-neutral-600">Username:</span>
-                <span class="text-neutral-900">{{ user.username }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-neutral-600">Email:</span>
-                <span class="text-neutral-900">{{ user.email }}</span>
-              </div>
-            </div>
-
-            <button class="btn btn-secondary mt-4 w-full">Edit Profil</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Content Area -->
-      <div class="lg:col-span-2 space-y-6">
-        <!-- Recent Activity -->
-        <div
-          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-        >
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-neutral-900">
-              Aktivitas Terbaru
-            </h2>
-            <a
-              href="/admin/activity-log"
-              class="text-primary-600 hover:text-primary-700 text-sm font-medium"
-            >
-              Lihat Semua
-            </a>
-          </div>
-
-          {% if recent_activities %}
-          <div class="space-y-4">
-            {% for activity in recent_activities %}
-            <div
-              class="flex items-start space-x-4 p-3 hover:bg-neutral-50 rounded-lg transition-colors"
-            >
-              <div
-                class="w-8 h-8 rounded-full flex items-center justify-center {% if activity.action_type == 'login' %}bg-green-100 text-green-600 {% elif activity.action_type == 'create' %}bg-blue-100 text-blue-600 {% elif activity.action_type == 'update' %}bg-yellow-100 text-yellow-600 {% elif activity.action_type == 'delete' %}bg-red-100 text-red-600 {% else %}bg-neutral-100 text-neutral-600{% endif %}"
-              >
-                {% if activity.action_type == 'login' %}
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                  ></path>
-                </svg>
-                {% elif activity.action_type == 'create' %}
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  ></path>
-                </svg>
-                {% else %}
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-                {% endif %}
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <p class="text-sm text-neutral-900 truncate">
-                    <span class="font-medium"
-                      >{{ activity.user.username }}</span
-                    >
-                    {{ activity.description }}
-                  </p>
-                  <p class="text-xs text-neutral-500 whitespace-nowrap ml-2">
-                    {{ activity.timestamp|timesince }} ago
-                  </p>
-                </div>
-                <p class="text-xs text-neutral-500">
-                  {{ activity.get_action_type_display }} • {{
-                  activity.ip_address }}
-                </p>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-          {% else %}
-          <div class="text-center py-8">
-            <div
-              class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            >
-              <svg
-                class="w-8 h-8 text-neutral-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                ></path>
-              </svg>
-            </div>
-            <h3 class="text-neutral-900 font-medium mb-2">
-              Belum ada aktivitas
-            </h3>
-            <p class="text-neutral-600 text-sm">
-              Aktivitas sistem akan muncul di sini
-            </p>
-          </div>
-          {% endif %}
-        </div>
-
-        <!-- System Status -->
-        <div
-          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-        >
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">
-            Status Sistem
-          </h2>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div
-              class="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200"
-            >
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                <span class="text-sm font-medium text-green-900"
-                  >Server Status</span
-                >
-              </div>
-              <span class="text-sm text-green-700">Online</span>
-            </div>
-
-            <div
-              class="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200"
-            >
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                <span class="text-sm font-medium text-green-900">Database</span>
-              </div>
-              <span class="text-sm text-green-700">Connected</span>
-            </div>
-
-            <div
-              class="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200"
-            >
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                <span class="text-sm font-medium text-blue-900"
-                  >Last Backup</span
-                >
-              </div>
-              <span class="text-sm text-blue-700">2 hours ago</span>
-            </div>
-
-            <div
-              class="flex items-center justify-between p-4 bg-yellow-50 rounded-xl border border-yellow-200"
-            >
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                <span class="text-sm font-medium text-yellow-900"
-                  >Pending Reviews</span
-                >
-              </div>
-              <span class="text-sm text-yellow-700">0 items</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <h3 class="text-neutral-900 font-medium mb-2">Gagal memuat dashboard</h3>
+    <p class="text-neutral-600 text-sm mb-4">Terjadi kesalahan saat memuat data dashboard</p>
+    <button onclick="window.location.reload()" class="btn btn-primary">Coba Lagi</button>
   </div>
 </div>
 {% endblock %} {% block script %}
+<script>
+  // Load dashboard content on page load
+  document.addEventListener("DOMContentLoaded", async function () {
+    try {
+      // Check user authentication
+      const userStatus = await checkUserStatus();
+      
+      if (!userStatus.authenticated || userStatus.user.role !== 'admin') {
+        window.location.href = '/login';
+        return;
+      }
+
+      // Load dashboard data
+      const dashboardData = await makeAjaxRequest("/api/admin-dashboard/", {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (dashboardData.success) {
+        // Update welcome message
+        const welcomeMessage = document.getElementById("welcomeMessage");
+        welcomeMessage.textContent = `Selamat datang kembali, Admin ${dashboardData.data.user.first_name}!`;
+
+        // Render dashboard content
+        renderAdminDashboard(dashboardData.data);
+
+        // Hide loading and show content
+        document.getElementById("dashboardLoading").classList.add("hidden");
+        document.getElementById("dashboardContent").classList.remove("hidden");
+      }
+    } catch (error) {
+      console.error("Error loading dashboard:", error);
+      
+      // Hide loading and show error
+      document.getElementById("dashboardLoading").classList.add("hidden");
+      document.getElementById("dashboardError").classList.remove("hidden");
+    }
+  });
+
+  function renderAdminDashboard(data) {
+    const content = document.getElementById("dashboardContent");
+    const user = data.user;
+    const statistics = data.statistics;
+    const recentActivities = data.recent_activities || [];
+
+    content.innerHTML = `
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-600">Total User</p>
+              <p class="text-2xl font-bold text-neutral-900">${statistics.total_users}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-600">Total Mitra</p>
+              <p class="text-2xl font-bold text-neutral-900">${statistics.total_mitras}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-600">Total Lapangan</p>
+              <p class="text-2xl font-bold text-neutral-900">0</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-600">Aktivitas Hari Ini</p>
+              <p class="text-2xl font-bold text-neutral-900">${recentActivities.length}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Recent Activities -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-lg font-semibold text-neutral-900">Aktivitas Terbaru</h2>
+              <button onclick="viewAllActivities()" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                Lihat Semua
+              </button>
+            </div>
+
+            ${recentActivities.length > 0 ? `
+              <div class="space-y-4">
+                ${recentActivities.map(activity => `
+                  <div class="flex items-start space-x-4 p-4 border border-neutral-100 rounded-xl">
+                    <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        ${getActivityIcon(activity.action_type)}
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-neutral-900">${activity.description}</p>
+                      <div class="flex items-center text-xs text-neutral-500 mt-1">
+                        <span>Oleh: ${activity.user}</span>
+                        <span class="mx-2">•</span>
+                        <span>${new Date(activity.timestamp).toLocaleString('id-ID')}</span>
+                      </div>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full ${getActivityTypeClass(activity.action_type)}">
+                      ${activity.action_type}
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <div class="text-center py-8">
+                <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <h3 class="text-neutral-900 font-medium mb-2">Belum ada aktivitas</h3>
+                <p class="text-neutral-600 text-sm">Aktivitas pengguna akan muncul di sini</p>
+              </div>
+            `}
+          </div>
+        </div>
+
+        <!-- Quick Actions & System Info -->
+        <div class="lg:col-span-1 space-y-6">
+          <!-- Quick Actions -->
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+            <h2 class="text-lg font-semibold text-neutral-900 mb-4">Aksi Cepat</h2>
+            <div class="space-y-3">
+              <button onclick="manageUsers()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-neutral-900">Kelola Pengguna</h3>
+                    <p class="text-sm text-neutral-600">Lihat dan kelola user</p>
+                  </div>
+                </div>
+              </button>
+
+              <button onclick="manageVenues()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-neutral-900">Kelola Lapangan</h3>
+                    <p class="text-sm text-neutral-600">Moderasi lapangan</p>
+                  </div>
+                </div>
+              </button>
+
+              <button onclick="viewReports()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-neutral-900">Laporan Sistem</h3>
+                    <p class="text-sm text-neutral-600">Analisis platform</p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- System Status -->
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+            <h2 class="text-lg font-semibold text-neutral-900 mb-4">Status Sistem</h2>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-neutral-600">Server Status</span>
+                <div class="flex items-center">
+                  <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                  <span class="text-sm text-green-600 font-medium">Online</span>
+                </div>
+              </div>
+              
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-neutral-600">Database</span>
+                <div class="flex items-center">
+                  <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                  <span class="text-sm text-green-600 font-medium">Terhubung</span>
+                </div>
+              </div>
+              
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-neutral-600">API Services</span>
+                <div class="flex items-center">
+                  <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                  <span class="text-sm text-green-600 font-medium">Aktif</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function getActivityIcon(actionType) {
+    switch(actionType) {
+      case 'login':
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>';
+      case 'logout':
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H3"></path>';
+      case 'create':
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>';
+      default:
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+    }
+  }
+
+  function getActivityTypeClass(actionType) {
+    switch(actionType) {
+      case 'login':
+        return 'bg-green-100 text-green-800';
+      case 'logout':
+        return 'bg-red-100 text-red-800';
+      case 'create':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-neutral-100 text-neutral-800';
+    }
+  }
+
+  // Navigation functions
+  function manageUsers() {
+    showNotification("Fitur kelola pengguna akan segera hadir!", "info");
+  }
+
+  function manageVenues() {
+    showNotification("Fitur kelola lapangan akan segera hadir!", "info");
+  }
+
+  function viewReports() {
+    showNotification("Fitur laporan sistem akan segera hadir!", "info");
+  }
+
+  function viewAllActivities() {
+    showNotification("Fitur lihat semua aktivitas akan segera hadir!", "info");
+  }
+</script>
 {% endblock %}

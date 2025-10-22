@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block title %}Dashboard Mitra - LapangIN{% endblock %} {% block content %}
-<div class="min-h-screen bg-neutral-50">
+<div class="min-h-screen bg-neutral-50" id="mitraDashboard">
   <!-- Header -->
   <div class="bg-white border-b border-neutral-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,425 +40,262 @@
     </div>
   </div>
 
+  <!-- Loading State -->
+  <div id="dashboardLoading" class="flex justify-center items-center py-20">
+    <div
+      class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"
+    ></div>
+  </div>
+
   <!-- Main Content -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div
-        class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-      >
-        <div class="flex items-center">
-          <div
-            class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center mr-4"
-          >
-            <svg
-              class="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm text-neutral-600">Total Lapangan</p>
-            <p class="text-2xl font-bold text-neutral-900">
-              {{ venues.count }}
-            </p>
-          </div>
-        </div>
-      </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden" id="dashboardContent">
+    <!-- Content will be loaded dynamically -->
+  </div>
 
-      <div
-        class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-      >
-        <div class="flex items-center">
-          <div
-            class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4"
-          >
-            <svg
-              class="w-6 h-6 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm text-neutral-600">Lapangan Aktif</p>
-            <p class="text-2xl font-bold text-neutral-900">
-              {{ venues.count }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-      >
-        <div class="flex items-center">
-          <div
-            class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4"
-          >
-            <svg
-              class="w-6 h-6 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm text-neutral-600">Booking Bulan Ini</p>
-            <p class="text-2xl font-bold text-neutral-900">0</p>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-      >
-        <div class="flex items-center">
-          <div
-            class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mr-4"
-          >
-            <svg
-              class="w-6 h-6 text-yellow-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm text-neutral-600">Pendapatan Bulan Ini</p>
-            <p class="text-2xl font-bold text-neutral-900">Rp 0</p>
-          </div>
-        </div>
-      </div>
+  <!-- Error State -->
+  <div id="dashboardError" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center hidden">
+    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
     </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Quick Actions -->
-      <div class="lg:col-span-1">
-        <div
-          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6 mb-6"
-        >
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">
-            Aksi Cepat
-          </h2>
-          <div class="space-y-3">
-            <a href="/add-venue" class="btn btn-primary w-full text-left">
-              <div class="flex items-center">
-                <svg
-                  class="w-5 h-5 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  ></path>
-                </svg>
-                Tambah Lapangan
-              </div>
-            </a>
-
-            <a
-              href="/manage-bookings"
-              class="btn btn-secondary w-full text-left"
-            >
-              <div class="flex items-center">
-                <svg
-                  class="w-5 h-5 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  ></path>
-                </svg>
-                Kelola Booking
-              </div>
-            </a>
-
-            <a href="/reports" class="btn btn-secondary w-full text-left">
-              <div class="flex items-center">
-                <svg
-                  class="w-5 h-5 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  ></path>
-                </svg>
-                Laporan & Analitik
-              </div>
-            </a>
-          </div>
-        </div>
-
-        <!-- Profile Card -->
-        <div
-          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-        >
-          <div class="text-center">
-            <div
-              class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4"
-            >
-              <svg
-                class="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                ></path>
-              </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-neutral-900 mb-1">
-              {{ user.first_name }} {{ user.last_name }}
-            </h3>
-            <p class="text-neutral-600 text-sm mb-4">Mitra LapangIN</p>
-
-            <button class="btn btn-secondary w-full">Edit Profil</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Content Area -->
-      <div class="lg:col-span-2 space-y-6">
-        <!-- My Venues -->
-        <div
-          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-        >
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-neutral-900">
-              Lapangan Saya
-            </h2>
-            <a href="/add-venue" class="btn btn-primary">
-              <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                ></path>
-              </svg>
-              Tambah Lapangan
-            </a>
-          </div>
-
-          {% if venues %}
-          <div class="space-y-4">
-            {% for venue in venues %}
-            <div
-              class="border border-neutral-200 rounded-xl p-4 hover:shadow-md transition-shadow"
-            >
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <div
-                    class="w-12 h-12 bg-neutral-100 rounded-xl flex items-center justify-center mr-4"
-                  >
-                    <svg
-                      class="w-6 h-6 text-neutral-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"
-                      ></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="font-semibold text-neutral-900">
-                      {{ venue.name }}
-                    </h3>
-                    <p class="text-sm text-neutral-600">
-                      {{ venue.category.get_name_display }} • Rp {{
-                      venue.price_per_hour|floatformat:0 }}/jam
-                    </p>
-                    <div class="flex items-center mt-1">
-                      {% if venue.verification_status == 'approved' %}
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800"
-                      >
-                        <div
-                          class="w-1.5 h-1.5 bg-green-400 rounded-full mr-1"
-                        ></div>
-                        Terverifikasi
-                      </span>
-                      {% elif venue.verification_status == 'pending' %}
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800"
-                      >
-                        <div
-                          class="w-1.5 h-1.5 bg-yellow-400 rounded-full mr-1"
-                        ></div>
-                        Menunggu Verifikasi
-                      </span>
-                      {% else %}
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-800"
-                      >
-                        <div
-                          class="w-1.5 h-1.5 bg-red-400 rounded-full mr-1"
-                        ></div>
-                        Ditolak
-                      </span>
-                      {% endif %}
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <button class="btn btn-secondary btn-sm">Edit</button>
-                  <button class="btn btn-secondary btn-sm">Lihat</button>
-                </div>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-          {% else %}
-          <!-- Empty State -->
-          <div class="text-center py-8">
-            <div
-              class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            >
-              <svg
-                class="w-8 h-8 text-neutral-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"
-                ></path>
-              </svg>
-            </div>
-            <h3 class="text-neutral-900 font-medium mb-2">
-              Belum ada lapangan
-            </h3>
-            <p class="text-neutral-600 text-sm mb-4">
-              Mulai tambahkan lapangan pertama Anda untuk memulai bisnis
-            </p>
-            <a href="/add-venue" class="btn btn-primary">
-              <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                ></path>
-              </svg>
-              Tambah Lapangan Pertama
-            </a>
-          </div>
-          {% endif %}
-        </div>
-
-        <!-- Recent Bookings -->
-        <div
-          class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6"
-        >
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-neutral-900">
-              Booking Terbaru
-            </h2>
-            <a
-              href="/manage-bookings"
-              class="text-primary-600 hover:text-primary-700 text-sm font-medium"
-            >
-              Lihat Semua
-            </a>
-          </div>
-
-          <!-- Empty State -->
-          <div class="text-center py-8">
-            <div
-              class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            >
-              <svg
-                class="w-8 h-8 text-neutral-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                ></path>
-              </svg>
-            </div>
-            <h3 class="text-neutral-900 font-medium mb-2">Belum ada booking</h3>
-            <p class="text-neutral-600 text-sm">
-              Booking akan muncul di sini setelah ada yang memesan lapangan Anda
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <h3 class="text-neutral-900 font-medium mb-2">Gagal memuat dashboard</h3>
+    <p class="text-neutral-600 text-sm mb-4">Terjadi kesalahan saat memuat data dashboard</p>
+    <button onclick="window.location.reload()" class="btn btn-primary">Coba Lagi</button>
   </div>
 </div>
 {% endblock %} {% block script %}
 <script>
-  // Load dashboard content on page loa
+  // Load dashboard content on page load
+  document.addEventListener("DOMContentLoaded", async function () {
+    try {
+      // Check user authentication
+      const userStatus = await checkUserStatus();
+      
+      if (!userStatus.authenticated || userStatus.user.role !== 'mitra') {
+        window.location.href = '/login';
+        return;
+      }
+
+      // Load dashboard data
+      const dashboardData = await makeAjaxRequest("/api/mitra-dashboard/", {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (dashboardData.success) {
+        // Update welcome message
+        const welcomeMessage = document.getElementById("welcomeMessage");
+        welcomeMessage.textContent = `Selamat datang kembali, ${dashboardData.data.user.first_name}!`;
+
+        // Render dashboard content
+        renderMitraDashboard(dashboardData.data);
+
+        // Hide loading and show content
+        document.getElementById("dashboardLoading").classList.add("hidden");
+        document.getElementById("dashboardContent").classList.remove("hidden");
+      }
+    } catch (error) {
+      console.error("Error loading dashboard:", error);
+      
+      // Hide loading and show error
+      document.getElementById("dashboardLoading").classList.add("hidden");
+      document.getElementById("dashboardError").classList.remove("hidden");
+    }
+  });
+
+  function renderMitraDashboard(data) {
+    const content = document.getElementById("dashboardContent");
+    const user = data.user;
+    const venues = data.venues || [];
+    const activeVenues = venues.filter(v => v.is_available).length;
+
+    content.innerHTML = `
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-600">Total Lapangan</p>
+              <p class="text-2xl font-bold text-neutral-900">${venues.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-600">Lapangan Aktif</p>
+              <p class="text-2xl font-bold text-neutral-900">${activeVenues}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-600">Booking Hari Ini</p>
+              <p class="text-2xl font-bold text-neutral-900">0</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-600">Pendapatan Bulan Ini</p>
+              <p class="text-2xl font-bold text-neutral-900">Rp 0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-lg font-semibold text-neutral-900">Lapangan Anda</h2>
+              <button onclick="addVenue()" class="btn btn-primary">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Tambah Lapangan
+              </button>
+            </div>
+
+            ${venues.length > 0 ? `
+              <div class="space-y-4">
+                ${venues.map(venue => `
+                  <div class="flex items-center justify-between p-4 border border-neutral-200 rounded-xl">
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 class="font-medium text-neutral-900">${venue.name}</h3>
+                        <p class="text-sm text-neutral-600">${venue.location}</p>
+                        <p class="text-sm text-neutral-500">Kapasitas: ${venue.capacity} orang | Rp ${parseInt(venue.price_per_hour).toLocaleString('id-ID')}/jam</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="px-2 py-1 text-xs font-medium rounded-full ${venue.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${venue.is_available ? 'Aktif' : 'Nonaktif'}
+                      </span>
+                      <button onclick="editVenue('${venue.id}')" class="text-neutral-400 hover:text-neutral-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <div class="text-center py-8">
+                <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+                  </svg>
+                </div>
+                <h3 class="text-neutral-900 font-medium mb-2">Belum ada lapangan</h3>
+                <p class="text-neutral-600 text-sm mb-4">Mulai tambahkan lapangan untuk memulai bisnis Anda</p>
+                <button onclick="addVenue()" class="btn btn-primary">Tambah Lapangan Pertama</button>
+              </div>
+            `}
+          </div>
+        </div>
+
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+            <h2 class="text-lg font-semibold text-neutral-900 mb-4">Aksi Cepat</h2>
+            <div class="space-y-3">
+              <button onclick="addVenue()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-neutral-900">Tambah Lapangan</h3>
+                    <p class="text-sm text-neutral-600">Daftarkan lapangan baru</p>
+                  </div>
+                </div>
+              </button>
+
+              <button onclick="viewBookings()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-neutral-900">Kelola Booking</h3>
+                    <p class="text-sm text-neutral-600">Lihat dan kelola pesanan</p>
+                  </div>
+                </div>
+              </button>
+
+              <button onclick="viewReports()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-neutral-900">Laporan Keuangan</h3>
+                    <p class="text-sm text-neutral-600">Analisis pendapatan</p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Navigation functions
+  function addVenue() {
+    showNotification("Fitur tambah lapangan akan segera hadir!", "info");
+  }
+
+  function editVenue(venueId) {
+    showNotification("Fitur edit lapangan akan segera hadir!", "info");
+  }
+
+  function viewBookings() {
+    showNotification("Fitur kelola booking akan segera hadir!", "info");
+  }
+
+  function viewReports() {
+    showNotification("Fitur laporan keuangan akan segera hadir!", "info");
+  }
 </script>
 {% endblock %}

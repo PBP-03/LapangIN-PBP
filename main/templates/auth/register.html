@@ -519,7 +519,7 @@
       };
 
       try {
-        const response = await fetch("{% url 'backend:api_register' %}", {
+        const response = await fetch("/api/register/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -7,13 +7,13 @@ urlpatterns = [
     path('', views.index, name='index'),
     
     # API Authentication URLs
-    path('api/login/', views.api_login, name='api_login'),
-    path('api/register/', views.api_register, name='api_register'),
-    path('api/logout/', views.api_logout, name='api_logout'),
-    path('api/user-status/', views.api_user_status, name='api_user_status'),
+    path('login/', views.api_login, name='api_login'),
+    path('register/', views.api_register, name='api_register'),
+    path('logout/', views.api_logout, name='api_logout'),
+    path('user-status/', views.api_user_status, name='api_user_status'),
     
-    # Dashboard URLs  
-    path('user-dashboard/', views.user_dashboard, name='user_dashboard'),
-    path('mitra-dashboard/', views.mitra_dashboard, name='mitra_dashboard'),
-    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    # API Dashboard URLs  
+    path('user-dashboard/', views.api_user_dashboard, name='api_user_dashboard'),
+    path('mitra-dashboard/', views.api_mitra_dashboard, name='api_mitra_dashboard'),
+    path('admin-dashboard/', views.api_admin_dashboard, name='api_admin_dashboard'),
 ]
