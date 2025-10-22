@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 from . import views
 from backend import views as backend_views
 
@@ -13,9 +13,9 @@ urlpatterns = [
     path('logout/', backend_views.logout_view, name='logout'),
     
     # Role-specific dashboard URLs
-    path('mitra/', backend_views.mitra_dashboard, name='mitra'),
-    path('admin/', backend_views.admin_dashboard, name='admin'),
-    
+    path('mitra/', include('main.mitra.urls')),
+    path('master/', include('main.admin.urls')),
+
     # Additional dashboard URLs for better UX
     path('mitra-dashboard/', backend_views.mitra_dashboard, name='mitra_dashboard'),
     path('admin-dashboard/', backend_views.admin_dashboard, name='admin_dashboard'),
