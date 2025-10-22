@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'backend',
+    'main.mitra.apps.MitraConfig',
+    'main.admin.apps.MainAdminConfig'
 ]
 
 MIDDLEWARE = [
