@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
+from django.shortcuts import render
+from backend.decorators import  mitra_required
 
 @mitra_required
 def mitra_dashboard(request):
