@@ -9,7 +9,6 @@ urlpatterns = [
     # Authentication URLs - now handled by main app views (HTML only)
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
-    path('logout/', views.logout_view, name='logout'),
     
     # Role-specific dashboard URLs
     path('mitra/', include('main.mitra.urls',"mitra"),name='mitra'),
