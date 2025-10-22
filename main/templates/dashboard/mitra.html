@@ -9,8 +9,8 @@
             <h1 class="text-2xl font-display font-bold text-neutral-900">
               Dashboard Mitra
             </h1>
-            <p class="text-neutral-600">
-              Kelola lapangan dan pantau bisnis Anda, {{ user.first_name }}!
+            <p class="text-neutral-600" id="welcomeMessage">
+              Kelola lapangan dan pantau bisnis Anda!
             </p>
           </div>
           <div class="flex items-center space-x-4">
@@ -18,7 +18,7 @@
               <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
               Mitra/Pemilik
             </div>
-            <a href="{% url 'main:logout' %}" class="btn btn-secondary">
+            <button onclick="logoutUser()" class="btn btn-secondary">
               Logout
               <svg
                 class="w-4 h-4 ml-2"
@@ -33,7 +33,7 @@
                   d="M17 16l4-4m0 0l-4-4m4 4H3"
                 ></path>
               </svg>
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -457,4 +457,8 @@
     </div>
   </div>
 </div>
+{% endblock %} {% block script %}
+<script>
+  // Load dashboard content on page loa
+</script>
 {% endblock %}
