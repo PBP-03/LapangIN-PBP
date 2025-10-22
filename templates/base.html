@@ -184,7 +184,10 @@
         class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"
       ></div>
     </div>
-    {% include 'components/navbar.html' %} {% block content %} {% endblock content %}
+    {% include 'components/navbar.html' %} 
+    {% block content %} 
+    {% endblock content %}
+    {% include 'components/footer.html' %}
 
     <!-- Optional JavaScript -->
     <script src="{% static 'js/ajax-utils.js' %}"></script>
