@@ -80,9 +80,9 @@ def anonymous_required(redirect_url='/'):
             if request.user.is_authenticated:
                 # Redirect based on user role
                 if request.user.role == 'admin':
-                    return redirect('/admin-dashboard')
+                    return redirect('/admin/dashboard')
                 elif request.user.role == 'mitra':
-                    return redirect('/mitra-dashboard')
+                    return redirect('/mitra/dashboard')
                 else:
                     return redirect(redirect_url)
             return view_func(request, *args, **kwargs)

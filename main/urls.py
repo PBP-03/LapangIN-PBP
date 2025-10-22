@@ -5,7 +5,7 @@ from backend import views as backend_views
 app_name = 'main'
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.index, name='home'),
     
     # Authentication URLs
     path('login/', backend_views.login_view, name='login'),
@@ -13,11 +13,9 @@ urlpatterns = [
     path('logout/', backend_views.logout_view, name='logout'),
     
     # Role-specific dashboard URLs
-    path('mitra/', include('main.mitra.urls')),
-    path('master/', include('main.admin.urls')),
+    path('mitra/', include('main.mitra.urls',"mitra"),name='mitra'),
+    path('admin/', include('main.admin.urls',"admin"),name='admin'),
 
     # Additional dashboard URLs for better UX
-    path('mitra-dashboard/', backend_views.mitra_dashboard, name='mitra_dashboard'),
-    path('admin-dashboard/', backend_views.admin_dashboard, name='admin_dashboard'),
-    path('user-dashboard/', backend_views.user_dashboard, name='user_dashboard'),
+    path('dashboard/', backend_views.user_dashboard, name='user_dashboard'),
 ]

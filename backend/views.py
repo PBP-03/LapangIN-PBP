@@ -52,10 +52,10 @@ def login_view(request):
                     # Return user data and redirect URL
                     redirect_url = '/'
                     if user.role == 'admin':
-                        redirect_url = '/admin-dashboard'
+                        redirect_url = '/admin/dashboard'
                     elif user.role == 'mitra':
-                        redirect_url = '/mitra-dashboard'
-                    
+                        redirect_url = '/mitra/dashboard'
+
                     return JsonResponse({
                         'success': True,
                         'message': f'Login berhasil! Selamat datang, {user.first_name}',
@@ -101,10 +101,10 @@ def login_view(request):
                 # Redirect based on role
                 if user.role == 'admin':
                     messages.success(request, f'Selamat datang, Admin {user.first_name}!')
-                    return redirect('/admin-dashboard')
+                    return redirect('/admin/dashboard')
                 elif user.role == 'mitra':
                     messages.success(request, f'Selamat datang, {user.first_name}!')
-                    return redirect('/mitra-dashboard')
+                    return redirect('/mitra/dashboard')
                 else:
                     messages.success(request, f'Selamat datang, {user.first_name}!')
                     return redirect('/')
@@ -360,9 +360,9 @@ def api_login(request):
             # Return user data and redirect URL
             redirect_url = '/'
             if user.role == 'admin':
-                redirect_url = '/admin-dashboard'
+                redirect_url = '/admin/dashboard'
             elif user.role == 'mitra':
-                redirect_url = '/mitra-dashboard'
+                redirect_url = '/mitra/dashboard'
             
             return JsonResponse({
                 'success': True,
