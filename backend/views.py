@@ -1143,7 +1143,6 @@ def api_court_detail(request, court_id):
             }, status=500)
 
 
-@require_http_methods(["GET"])
 # Review Management APIs
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
@@ -1190,33 +1189,25 @@ def api_venue_reviews(request, venue_id):
             rating = data.get('rating')
             comment = data.get('comment', '')
 
-            if not rating or not isinstance(rating, (int, float)) or rating < 0 or rating > 5:
+            if not rating or not isinstance(rating, (int, float)) or rating < 1 or rating > 5:
                 return JsonResponse({
                     'status': 'error',
-                    'message': 'Rating harus antara 0 dan 5'
+                    'message': 'Rating harus antara 1 dan 5'
                 }, status=400)
 
-            # Find the most recent booking for this user at this venue
+            # Find the most recent completed booking for this user at this venue
             booking = Booking.objects.filter(
                 court__venue=venue,
                 user=request.user,
                 booking_status='completed'
+            ).exclude(
+                review__isnull=False  # Exclude bookings that already have reviews
             ).order_by('-booking_date').first()
 
             if not booking:
-                # Allow reviews without bookings
-                booking = None
-
-            # Check if user has already reviewed this venue
-            existing_review = Review.objects.filter(
-                booking__court__venue=venue,
-                booking__user=request.user
-            ).exists()
-
-            if existing_review:
                 return JsonResponse({
                     'status': 'error',
-                    'message': 'Anda sudah memberikan review untuk venue ini'
+                    'message': 'Anda harus menyelesaikan booking terlebih dahulu untuk memberikan review'
                 }, status=400)
 
             # Create the review

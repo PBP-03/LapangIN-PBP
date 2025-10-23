@@ -180,7 +180,7 @@ function applyFilters(venues, params) {
 
 function fetchAndRenderVenueList(params = {}) {
   // params is an object of form values
-  const url = new URL('/backend/venues/', window.location.origin);
+  const url = new URL('/api/venues/', window.location.origin);
   Object.keys(params).forEach(k => {
     if (params[k]) url.searchParams.append(k, params[k]);
   });

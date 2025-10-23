@@ -6,7 +6,7 @@ import json
 from backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
 from backend.models import (
     Venue, VenueImage, VenueFacility, Facility, 
-    Court, Review, OperationalHour
+    Court, Review, OperationalHour, Booking
 )
 
 
@@ -67,6 +67,17 @@ def venue_detail_view(request, venue_id):
     reviews = Review.objects.filter(booking__court__venue=venue).select_related('booking__user')
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
     
+    # Check if user has completed booking at this venue (eligible to review)
+    can_review = False
+    if request.user.is_authenticated:
+        can_review = Booking.objects.filter(
+            court__venue=venue,
+            user=request.user,
+            booking_status='completed'
+        ).exclude(
+            review__isnull=False  # Exclude bookings that already have reviews
+        ).exists()
+    
     context = {
         'title': venue.name,
         'venue': venue,
@@ -77,7 +88,8 @@ def venue_detail_view(request, venue_id):
         'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
         'review_count': reviews.count(),
-        'is_authenticated': request.user.is_authenticated
+        'is_authenticated': request.user.is_authenticated,
+        'can_review': can_review
     }
     return render(request, 'venue_detail.html', context)
 

@@ -182,11 +182,19 @@
                 <p class="text-neutral-600 mt-1">{{ review_count }} reviews • {{ avg_rating }} average rating</p>
             </div>
             
-            {% if is_authenticated %}
+            {% if can_review %}
             <button onclick="openReviewModal()" 
                     class="gradient-primary text-white px-6 py-3 rounded-xl font-medium hover:shadow-medium transition-all transform hover:scale-105">
                 Write a Review
             </button>
+            {% elif is_authenticated %}
+            <div class="text-neutral-500 text-sm italic px-6 py-3">
+                Selesaikan booking untuk memberikan review
+            </div>
+            {% else %}
+            <a href="/login" class="gradient-primary text-white px-6 py-3 rounded-xl font-medium hover:shadow-medium transition-all transform hover:scale-105">
+                Login to Review
+            </a>
             {% endif %}
         </div>
 
@@ -236,11 +244,9 @@
             <div class="flex items-center mb-6">
                 <div class="flex items-center" id="star-rating">
                     {% for i in "12345"|make_list %}
-                    <svg class="w-10 h-10 text-neutral-300 cursor-pointer hover:text-yellow-400 transition-colors" 
+                    <svg class="star-icon w-10 h-10 text-neutral-300 cursor-pointer transition-colors" 
                          data-rating="{{ forloop.counter }}"
-                         fill="currentColor" viewBox="0 0 20 20"
-                         onmouseover="highlightStars({{ forloop.counter }})"
-                         onclick="setRating({{ forloop.counter }})">
+                         fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
                     </svg>
                     {% endfor %}
@@ -259,7 +265,8 @@
                         class="px-6 py-3 border border-neutral-300 rounded-xl hover:bg-neutral-50 transition-colors font-medium text-neutral-700">
                     Cancel
                 </button>
-                <button onclick="submitReview()" 
+                <button onclick="submitReview(event)" 
+                        id="submit-review-btn"
                         class="px-6 py-3 gradient-primary text-white rounded-xl hover:shadow-medium transition-all font-medium">
                     Submit Review
                 </button>
@@ -271,6 +278,29 @@
     <script>
         let currentRating = 0;
         const venueId = '{{ venue.id }}';
+
+        // Initialize star rating functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star-icon');
+            
+            stars.forEach((star, index) => {
+                // Hover effect
+                star.addEventListener('mouseenter', function() {
+                    highlightStars(index + 1);
+                });
+                
+                // Click to set rating
+                star.addEventListener('click', function() {
+                    setRating(index + 1);
+                });
+            });
+            
+            // Reset stars when mouse leaves the rating container
+            const starRating = document.getElementById('star-rating');
+            starRating.addEventListener('mouseleave', function() {
+                highlightStars(currentRating);
+            });
+        });
 
         function openReviewModal() {
             document.getElementById('review-modal').classList.remove('hidden');
@@ -284,9 +314,15 @@
         }
 
         function highlightStars(rating) {
-            const stars = document.querySelectorAll('#star-rating svg');
+            const stars = document.querySelectorAll('.star-icon');
             stars.forEach((star, index) => {
-                star.classList.toggle('text-yellow-400', index < rating);
+                if (index < rating) {
+                    star.classList.remove('text-neutral-300');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-neutral-300');
+                }
             });
         }
 
@@ -294,6 +330,13 @@
             currentRating = rating;
             document.getElementById('rating-value').textContent = rating.toFixed(1);
             highlightStars(rating);
+            
+            // Add a visual feedback animation
+            const ratingValue = document.getElementById('rating-value');
+            ratingValue.classList.add('scale-110');
+            setTimeout(() => {
+                ratingValue.classList.remove('scale-110');
+            }, 200);
         }
 
         function resetReviewForm() {
@@ -303,40 +346,97 @@
             highlightStars(0);
         }
 
-        function submitReview() {
+        function submitReview(event) {
             if (currentRating === 0) {
-                alert('Please select a rating');
+                showNotification('Please select a rating', 'error');
                 return;
             }
 
             const comment = document.getElementById('review-comment').value;
             
-            fetch(`/backend/venues/${venueId}/reviews/`, {
+            // Show loading state
+            const submitBtn = event ? event.target : document.querySelector('#submit-review-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            console.log('Submitting review:', { rating: currentRating, comment: comment, venueId: venueId });
+            
+            fetch(`/api/venues/${venueId}/reviews/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
                 body: JSON.stringify({
-                    rating: currentRating,
+                    rating: parseInt(currentRating),
                     comment: comment
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                // Check if response is ok before parsing JSON
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        console.error('Error response:', data);
+                        throw new Error(data.message || `Server error: ${response.status}`);
+                    }).catch(err => {
+                        // If JSON parsing fails, throw a generic error
+                        if (err.message && err.message.includes('Server error')) {
+                            throw err;
+                        }
+                        throw new Error(`Server error: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Success response:', data);
                 if (data.status === 'success') {
-                    alert('Review submitted successfully!');
+                    // Show success message
+                    showNotification(data.message || 'Review submitted successfully!', 'success');
                     closeReviewModal();
                     // Reload the page to show the new review
-                    window.location.reload();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
                 } else {
-                    alert(data.message || 'Error submitting review');
+                    showNotification(data.message || 'Error submitting review', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
                 }
             })
             .catch(error => {
-                alert('Error submitting review');
-                console.error('Error:', error);
+                console.error('Catch error:', error);
+                showNotification(error.message || 'Error submitting review', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             });
+        }
+
+        // Show notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-4 rounded-xl shadow-strong text-white font-medium transition-all transform z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateY(0)';
+            }, 10);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
 
         // Utility function to get CSRF token
@@ -355,5 +455,21 @@
             return cookieValue;
         }
     </script>
+    
+    <!-- Additional styling for animations -->
+    <style>
+        .scale-110 {
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+        
+        .star-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .star-icon {
+            transition: all 0.2s ease;
+        }
+    </style>
 </div>
 {% endblock %}
