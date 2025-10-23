@@ -43,4 +43,5 @@ urlpatterns = [
     # Admin Mitra management
     path('mitra/', views.api_mitra_list, name='api_mitra_list'),
     path('mitra/<uuid:mitra_id>/', views.api_mitra_update_status, name='api_mitra_update_status'),
+    path('mitra/<uuid:mitra_id>/venues/', views.api_mitra_venue_details, name='api_mitra_venue_details'),
 ]
