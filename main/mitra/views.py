@@ -14,9 +14,9 @@ def venues_list(request):
 
 
 @mitra_required
-def courts_list(request):
-    """Courts list page - only renders HTML, data fetched via API"""
-    return render(request, 'mitra/courts.html')
+def lapangan_list(request):
+    """Lapangan list page - only renders HTML, data fetched via API"""
+    return render(request, 'mitra/lapangan.html')
 
 
 @mitra_required
@@ -29,3 +29,9 @@ def pendapatan(request):
 def bookings(request):
     """Bookings management page - only renders HTML, data fetched via API"""
     return render(request, 'mitra/bookings.html')
+
+
+@mitra_required
+def lapangan_detail(request, lapangan_id):
+    """Lapangan detail page - only renders HTML, data fetched via API"""
+    return render(request, 'mitra/lapangan_detail.html', {'lapangan_id': lapangan_id})

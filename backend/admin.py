@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     User, SportsCategory, Venue, VenueImage, Facility, VenueFacility,
-    Court, CourtImage, OperationalHour, Booking, Payment, Review, ActivityLog, Pendapatan
+    Court, CourtSession, CourtImage, OperationalHour, Booking, Payment, Review, ActivityLog, Pendapatan
 )
 
 # Register your models here.
@@ -30,6 +30,13 @@ class CourtAdmin(admin.ModelAdmin):
     list_display = ('name', 'venue', 'category', 'price_per_hour', 'is_active')
     list_filter = ('is_active', 'venue', 'category')
     search_fields = ('name', 'venue__name')
+
+
+@admin.register(CourtSession)
+class CourtSessionAdmin(admin.ModelAdmin):
+    list_display = ('court', 'session_name', 'start_time', 'end_time', 'is_active')
+    list_filter = ('is_active', 'court')
+    search_fields = ('session_name', 'court__name')
 
 
 @admin.register(Booking)

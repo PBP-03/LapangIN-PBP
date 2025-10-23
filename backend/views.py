@@ -9,7 +9,7 @@ from django.forms.models import model_to_dict
 from django.db.models import Sum, Count, Q
 from decimal import Decimal
 import json
-from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment
+from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, CourtSession
 from .forms import CustomLoginForm, CustomUserCreationForm, VenueForm, CourtForm
 from .decorators import login_required, role_required, anonymous_required
 
@@ -656,6 +656,24 @@ def api_courts(request):
                         is_primary=(idx == 0)  # First image is primary
                     )
                 
+                # Handle session slots
+                import json
+                sessions_json = request.POST.get('sessions', '[]')
+                try:
+                    sessions = json.loads(sessions_json)
+                    from .models import CourtSession
+                    for session_data in sessions:
+                        CourtSession.objects.create(
+                            court=court,
+                            session_name=session_data.get('session_name', ''),
+                            start_time=session_data.get('start_time'),
+                            end_time=session_data.get('end_time'),
+                            is_active=session_data.get('is_active', True)
+                        )
+                except (json.JSONDecodeError, ValueError) as e:
+                    # If session parsing fails, continue without sessions
+                    pass
+                
                 # Log the activity
                 ActivityLog.objects.create(
                     user=request.user,
@@ -725,18 +743,40 @@ def api_court_detail(request, court_id):
                 'caption': img.caption
             })
         
+        # Get court sessions
+        from .models import CourtSession
+        sessions = []
+        for session in court.sessions.all():
+            # Count total bookings for this session (pending or confirmed)
+            total_bookings = Booking.objects.filter(
+                court=court,
+                session=session,
+                booking_status__in=['pending', 'confirmed']
+            ).count()
+            
+            sessions.append({
+                'id': session.id,
+                'session_name': session.session_name,
+                'start_time': session.start_time.strftime('%H:%M'),
+                'end_time': session.end_time.strftime('%H:%M'),
+                'is_active': session.is_active,
+                'total_bookings': total_bookings
+            })
+        
         court_data = {
             'id': court.id,
             'name': court.name,
             'venue_id': str(court.venue.id),
             'venue_name': court.venue.name,
+            'venue_address': court.venue.address,
             'category': court.category.get_name_display() if court.category else None,
             'category_id': court.category.id if court.category else None,
             'price_per_hour': str(court.price_per_hour),
             'is_active': court.is_active,
             'maintenance_notes': court.maintenance_notes,
             'description': court.description,
-            'images': images
+            'images': images,
+            'sessions': sessions
         }
         
         return JsonResponse({
@@ -765,6 +805,46 @@ def api_court_detail(request, court_id):
                             image=image,
                             is_primary=is_primary
                         )
+                
+                # Handle session slots update
+                import json
+                sessions_json = request.POST.get('sessions', '[]')
+                try:
+                    sessions = json.loads(sessions_json)
+                    from .models import CourtSession
+                    
+                    # Get existing session IDs from the form data
+                    existing_session_ids = [s.get('id') for s in sessions if s.get('id')]
+                    
+                    # Delete sessions that are not in the updated list
+                    court.sessions.exclude(id__in=existing_session_ids).delete()
+                    
+                    # Create or update sessions
+                    for session_data in sessions:
+                        session_id = session_data.get('id')
+                        if session_id:
+                            # Update existing session
+                            try:
+                                session = CourtSession.objects.get(id=session_id, court=court)
+                                session.session_name = session_data.get('session_name', '')
+                                session.start_time = session_data.get('start_time')
+                                session.end_time = session_data.get('end_time')
+                                session.is_active = session_data.get('is_active', True)
+                                session.save()
+                            except CourtSession.DoesNotExist:
+                                pass
+                        else:
+                            # Create new session
+                            CourtSession.objects.create(
+                                court=court,
+                                session_name=session_data.get('session_name', ''),
+                                start_time=session_data.get('start_time'),
+                                end_time=session_data.get('end_time'),
+                                is_active=session_data.get('is_active', True)
+                            )
+                except (json.JSONDecodeError, ValueError) as e:
+                    # If session parsing fails, continue without updating sessions
+                    pass
                 
                 # Log the activity
                 ActivityLog.objects.create(
@@ -824,6 +904,75 @@ def api_court_detail(request, court_id):
                 'success': False,
                 'message': f'Terjadi kesalahan: {str(e)}'
             }, status=500)
+
+
+@require_http_methods(["GET"])
+def api_court_sessions(request, court_id):
+    """API endpoint for getting available sessions for a specific court with booking status"""
+    try:
+        court = Court.objects.get(id=court_id)
+        
+        # Get date parameter (optional, for checking booking status on specific date)
+        booking_date = request.GET.get('date')  # Format: YYYY-MM-DD
+        
+        # Get all active sessions for this court
+        sessions = CourtSession.objects.filter(
+            court=court,
+            is_active=True
+        ).order_by('start_time')
+        
+        sessions_data = []
+        for session in sessions:
+            session_info = {
+                'id': session.id,
+                'session_name': session.session_name,
+                'start_time': session.start_time.strftime('%H:%M'),
+                'end_time': session.end_time.strftime('%H:%M'),
+                'is_active': session.is_active,
+                'is_booked': False,
+                'booking_id': None
+            }
+            
+            # Check if this session is booked on the specified date
+            if booking_date:
+                try:
+                    from datetime import datetime
+                    date_obj = datetime.strptime(booking_date, '%Y-%m-%d').date()
+                    
+                    # Check for confirmed or pending bookings for this session on this date
+                    booking = Booking.objects.filter(
+                        court=court,
+                        session=session,
+                        booking_date=date_obj,
+                        booking_status__in=['pending', 'confirmed']
+                    ).first()
+                    
+                    if booking:
+                        session_info['is_booked'] = True
+                        session_info['booking_id'] = str(booking.id)
+                except ValueError:
+                    pass  # Invalid date format, continue without booking check
+            
+            sessions_data.append(session_info)
+        
+        return JsonResponse({
+            'success': True,
+            'court_id': court.id,
+            'court_name': court.name,
+            'sessions': sessions_data,
+            'date': booking_date
+        })
+        
+    except Court.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Lapangan tidak ditemukan'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Terjadi kesalahan: {str(e)}'
+        }, status=500)
 
 
 @require_http_methods(["GET"])
@@ -1016,12 +1165,15 @@ def api_bookings(request):
         # Get filter parameters
         status_filter = request.GET.get('status', 'all')
         venue_filter = request.GET.get('venue_id', '')
+        court_filter = request.GET.get('court_id', '')
+        court_param = request.GET.get('court', '')  # Alternative court parameter
         date_filter = request.GET.get('date', '')
+        session_filter = request.GET.get('session', '')
         
         # Get all bookings for mitra's courts
         bookings_qs = Booking.objects.filter(
             court__venue__owner=request.user
-        ).select_related('user', 'court', 'court__venue', 'payment').order_by('-created_at')
+        ).select_related('user', 'court', 'court__venue', 'payment', 'session').order_by('-created_at')
         
         # Apply filters
         if status_filter != 'all':
@@ -1029,6 +1181,15 @@ def api_bookings(request):
         
         if venue_filter:
             bookings_qs = bookings_qs.filter(court__venue_id=venue_filter)
+        
+        if court_filter:
+            bookings_qs = bookings_qs.filter(court_id=court_filter)
+        
+        if court_param:
+            bookings_qs = bookings_qs.filter(court_id=court_param)
+        
+        if session_filter:
+            bookings_qs = bookings_qs.filter(session_id=session_filter)
         
         if date_filter:
             from datetime import datetime
@@ -1061,6 +1222,9 @@ def api_bookings(request):
             
             bookings_list.append({
                 'id': str(booking.id),
+                'user_name': booking.user.get_full_name() or booking.user.username,
+                'user_email': booking.user.email,
+                'user_phone': booking.user.phone_number,
                 'customer_name': booking.user.get_full_name() or booking.user.username,
                 'customer_email': booking.user.email,
                 'customer_phone': booking.user.phone_number,
@@ -1068,6 +1232,8 @@ def api_bookings(request):
                 'venue_id': booking.court.venue.id,
                 'court_name': booking.court.name,
                 'court_id': booking.court.id,
+                'session_name': booking.session.session_name if booking.session else None,
+                'session_id': booking.session.id if booking.session else None,
                 'booking_date': booking.booking_date.isoformat(),
                 'start_time': booking.start_time.strftime('%H:%M'),
                 'end_time': booking.end_time.strftime('%H:%M'),
@@ -1161,7 +1327,12 @@ def api_booking_detail(request, booking_id):
     elif request.method == 'POST':
         # Update booking status
         try:
-            data = json.loads(request.body)
+            # Try to get data from JSON first, then fall back to FormData
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+            
             new_status = data.get('booking_status')
             cancellation_reason = data.get('cancellation_reason', '')
             
@@ -1176,6 +1347,15 @@ def api_booking_detail(request, booking_id):
                 booking.cancellation_reason = cancellation_reason
             
             booking.save()
+            
+            # Log the activity
+            ActivityLog.objects.create(
+                user=request.user,
+                action_type='update',
+                description=f'Updated booking {booking.id} status to {new_status}',
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
             
             return JsonResponse({
                 'success': True,

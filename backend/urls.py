@@ -24,6 +24,7 @@ urlpatterns = [
     # API Mitra URLs - Courts
     path('courts/', views.api_courts, name='api_courts'),
     path('courts/<int:court_id>/', views.api_court_detail, name='api_court_detail'),
+    path('courts/<int:court_id>/sessions/', views.api_court_sessions, name='api_court_sessions'),
     
     # API Mitra URLs - Pendapatan
     path('pendapatan/', views.api_pendapatan, name='api_pendapatan'),

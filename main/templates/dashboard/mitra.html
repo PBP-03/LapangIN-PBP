@@ -177,13 +177,13 @@
         <div class="lg:col-span-2">
           <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
             <div class="flex items-center justify-between mb-6">
-              <h2 class="text-lg font-semibold text-neutral-900">Lapangan Anda</h2>
+              <h2 class="text-lg font-semibold text-neutral-900">Venue/Lapangan Anda</h2>
             </div>
 
             ${venues.length > 0 ? `
               <div class="space-y-4">
                 ${venues.map(venue => `
-                  <div class="flex items-center justify-between p-4 border border-neutral-200 rounded-xl hover:border-primary-300 transition-colors cursor-pointer" onclick="window.location.href='/mitra/courts/?venue=${venue.id}'">
+                  <div class="flex items-center justify-between p-4 border border-neutral-200 rounded-xl hover:border-primary-300 transition-colors cursor-pointer" onclick="window.location.href='/mitra/lapangan/?venue=${venue.id}'">
                     <div class="flex items-center flex-1">
                       ${venue.image_url ? `
                         <img src="${venue.image_url}" alt="${venue.name}" class="w-16 h-16 rounded-xl object-cover mr-4">
@@ -250,7 +250,7 @@
                 </div>
               </a>
 
-              <a href="/mitra/courts/" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+              <a href="/mitra/lapangan/" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
                 <div class="flex items-center">
                   <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

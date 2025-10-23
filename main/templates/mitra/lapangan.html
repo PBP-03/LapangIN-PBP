@@ -149,6 +149,20 @@
           placeholder="Catatan tentang kondisi atau jadwal maintenance"></textarea>
       </div>
 
+      <!-- Session Time Management Section -->
+      <div class="border-t border-neutral-200 pt-4">
+        <div class="flex items-center justify-between mb-3">
+          <label class="block text-sm font-medium text-neutral-700">Jadwal Sesi Lapangan</label>
+          <button type="button" onclick="addSessionSlot()" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+            + Tambah Sesi
+          </button>
+        </div>
+        <p class="text-xs text-neutral-500 mb-3">Tentukan waktu sesi untuk booking lapangan ini</p>
+        <div id="sessionSlotsContainer" class="space-y-2">
+          <!-- Session slots will be added here -->
+        </div>
+      </div>
+
       <!-- Image Upload Section -->
       <div>
         <label class="block text-sm font-medium text-neutral-700 mb-2">Gambar Lapangan</label>
@@ -193,6 +207,8 @@ let editingLapanganId = null;
 let selectedVenueFilter = '';
 let selectedLapanganImages = [];
 let currentLapanganImages = [];
+let sessionSlots = [];
+let sessionSlotCounter = 0;
 
 // Load data on page load
 document.addEventListener('DOMContentLoaded', async function() {
@@ -315,6 +331,103 @@ function displayExistingLapanganImages(images) {
     uploadLabel.classList.remove('hidden');
     container.classList.add('hidden');
   }
+}
+
+// Session Slot Management Functions
+function addSessionSlot(sessionData = null) {
+  const container = document.getElementById('sessionSlotsContainer');
+  const slotId = sessionData ? sessionData.id : `new-${sessionSlotCounter++}`;
+  
+  const slotDiv = document.createElement('div');
+  slotDiv.className = 'flex items-center space-x-2 p-3 bg-neutral-50 rounded-lg';
+  slotDiv.id = `session-slot-${slotId}`;
+  
+  slotDiv.innerHTML = `
+    <input type="text" 
+           class="flex-1 px-3 py-2 text-sm rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" 
+           placeholder="Nama Sesi (misal: Sesi Pagi)" 
+           value="${sessionData ? sessionData.session_name : ''}"
+           data-session-id="${slotId}"
+           data-field="name">
+    <input type="time" 
+           class="px-3 py-2 text-sm rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" 
+           value="${sessionData ? sessionData.start_time : ''}"
+           data-session-id="${slotId}"
+           data-field="start">
+    <span class="text-neutral-500">-</span>
+    <input type="time" 
+           class="px-3 py-2 text-sm rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" 
+           value="${sessionData ? sessionData.end_time : ''}"
+           data-session-id="${slotId}"
+           data-field="end">
+    <label class="flex items-center">
+      <input type="checkbox" 
+             class="w-4 h-4 text-primary-600 bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500 focus:ring-2"
+             ${sessionData && sessionData.is_active ? 'checked' : 'checked'}
+             data-session-id="${slotId}"
+             data-field="active">
+      <span class="ml-1 text-xs text-neutral-600">Aktif</span>
+    </label>
+    <button type="button" onclick="removeSessionSlot('${slotId}')" class="text-red-600 hover:text-red-700 p-1">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  `;
+  
+  container.appendChild(slotDiv);
+  
+  // Store in sessionSlots array
+  if (!sessionData) {
+    sessionSlots.push({
+      id: slotId,
+      isNew: true
+    });
+  }
+}
+
+function removeSessionSlot(slotId) {
+  const slotDiv = document.getElementById(`session-slot-${slotId}`);
+  if (slotDiv) {
+    slotDiv.remove();
+  }
+  
+  // Remove from sessionSlots array
+  sessionSlots = sessionSlots.filter(slot => slot.id !== slotId);
+}
+
+function getSessionSlotsData() {
+  const container = document.getElementById('sessionSlotsContainer');
+  const slots = [];
+  
+  container.querySelectorAll('[id^="session-slot-"]').forEach(slotDiv => {
+    const inputs = slotDiv.querySelectorAll('input');
+    const sessionId = inputs[0].getAttribute('data-session-id');
+    
+    const nameInput = slotDiv.querySelector('[data-field="name"]');
+    const startInput = slotDiv.querySelector('[data-field="start"]');
+    const endInput = slotDiv.querySelector('[data-field="end"]');
+    const activeInput = slotDiv.querySelector('[data-field="active"]');
+    
+    if (nameInput.value && startInput.value && endInput.value) {
+      slots.push({
+        id: sessionId.startsWith('new-') ? null : parseInt(sessionId),
+        session_name: nameInput.value,
+        start_time: startInput.value,
+        end_time: endInput.value,
+        is_active: activeInput.checked
+      });
+    }
+  });
+  
+  return slots;
+}
+
+function clearSessionSlots() {
+  const container = document.getElementById('sessionSlotsContainer');
+  container.innerHTML = '';
+  sessionSlots = [];
+  sessionSlotCounter = 0;
 }
 
 async function loadCategories() {
@@ -533,6 +646,8 @@ function openAddLapanganModal() {
   editingLapanganId = null;
   selectedLapanganImages = [];
   currentLapanganImages = [];
+  clearSessionSlots();
+  
   document.getElementById('modalTitle').textContent = 'Tambah Lapangan';
   document.getElementById('lapanganForm').reset();
   document.getElementById('lapanganId').value = '';
@@ -542,6 +657,9 @@ function openAddLapanganModal() {
   document.getElementById('existingLapanganImages').classList.add('hidden');
   document.getElementById('existingLapanganImages').innerHTML = '';
   document.getElementById('lapanganModal').classList.remove('hidden');
+  
+  // Add one default session slot
+  addSessionSlot();
 }
 
 async function editLapangan(lapanganId) {
@@ -565,6 +683,15 @@ async function editLapangan(lapanganId) {
       // Display existing images
       displayExistingLapanganImages(lapangan.images || []);
       
+      // Clear and load sessions
+      clearSessionSlots();
+      if (lapangan.sessions && lapangan.sessions.length > 0) {
+        lapangan.sessions.forEach(session => addSessionSlot(session));
+      } else {
+        // Add one default session slot if no sessions exist
+        addSessionSlot();
+      }
+      
       // Clear new image preview
       document.getElementById('lapanganImagePreview').classList.add('hidden');
       document.getElementById('lapanganImagePreview').innerHTML = '';
@@ -586,6 +713,7 @@ function closeLapanganModal() {
   document.getElementById('existingLapanganImages').classList.add('hidden');
   document.getElementById('existingLapanganImages').innerHTML = '';
   document.getElementById('lapanganUploadLabel').classList.remove('hidden');
+  clearSessionSlots();
   editingLapanganId = null;
   selectedLapanganImages = [];
   currentLapanganImages = [];
@@ -597,6 +725,9 @@ document.getElementById('lapanganForm').addEventListener('submit', async functio
   const submitBtn = document.getElementById('submitBtn');
   setLoadingState(submitBtn, true);
   
+  // Get session slots data
+  const sessions = getSessionSlotsData();
+  
   // Use FormData for file uploads
   const formData = new FormData();
   formData.append('venue', document.getElementById('venue').value);
@@ -606,6 +737,9 @@ document.getElementById('lapanganForm').addEventListener('submit', async functio
   formData.append('is_active', document.getElementById('is_active').checked);
   formData.append('description', document.getElementById('description').value);
   formData.append('maintenance_notes', document.getElementById('maintenance_notes').value);
+  
+  // Append session data as JSON
+  formData.append('sessions', JSON.stringify(sessions));
   
   // Append images
   const imageFiles = document.getElementById('lapanganImages').files;
