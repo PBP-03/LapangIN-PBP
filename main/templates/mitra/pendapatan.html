@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% block title %}Pendapatan - LapangIN{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-neutral-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center space-x-2 text-sm text-neutral-600 mb-2">
+              <a href="/mitra/dashboard" class="hover:text-primary-600">Dashboard</a>
+              <span>/</span>
+              <span class="text-neutral-900">Pendapatan</span>
+            </div>
+            <h1 class="text-2xl font-display font-bold text-neutral-900">
+              Pendapatan & Keuangan
+            </h1>
+            <p class="text-neutral-600">
+              Pantau pendapatan dan laporan keuangan Anda
+            </p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <select id="periodFilter" onchange="changePeriod()"
+              class="px-4 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
+              <option value="all">Semua Waktu</option>
+              <option value="month" selected>30 Hari Terakhir</option>
+              <option value="year">1 Tahun Terakhir</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div id="pendapatanLoading" class="flex justify-center items-center py-20">
+    <div class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden" id="pendapatanContent">
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-medium text-neutral-600">Total Pendapatan</h3>
+          <div class="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            </svg>
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-neutral-900" id="totalPendapatan">Rp 0</p>
+        <p class="text-xs text-neutral-500 mt-1">Setelah komisi platform</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-medium text-neutral-600">Total Komisi</h3>
+          <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-neutral-900" id="totalCommission">Rp 0</p>
+        <p class="text-xs text-neutral-500 mt-1">Biaya platform</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-medium text-neutral-600">Sudah Dibayar</h3>
+          <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-neutral-900" id="paidAmount">Rp 0</p>
+        <p class="text-xs text-neutral-500 mt-1">Pembayaran selesai</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-medium text-neutral-600">Pending</h3>
+          <div class="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-neutral-900" id="pendingAmount">Rp 0</p>
+        <p class="text-xs text-neutral-500 mt-1">Menunggu pembayaran</p>
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 overflow-hidden">
+      <div class="p-6 border-b border-neutral-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-neutral-900">Riwayat Transaksi</h2>
+            <p class="text-sm text-neutral-600">Detail pendapatan dari booking</p>
+          </div>
+          <span class="text-sm text-neutral-600" id="totalBookings">0 Transaksi</span>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-neutral-50 border-b border-neutral-200">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Tanggal</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Venue</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Lapangan</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Jumlah</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Komisi</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Bersih</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsTable" class="bg-white divide-y divide-neutral-200">
+            <!-- Transactions will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State for Table -->
+      <div id="emptyTransactions" class="p-12 text-center hidden">
+        <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+        </div>
+        <h3 class="text-neutral-900 font-medium mb-2">Belum ada transaksi</h3>
+        <p class="text-neutral-600 text-sm">Transaksi akan muncul setelah ada booking dari customer</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="pendapatanError" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center hidden">
+    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <h3 class="text-neutral-900 font-medium mb-2">Gagal memuat data pendapatan</h3>
+    <p class="text-neutral-600 text-sm mb-4">Terjadi kesalahan saat memuat data</p>
+    <button onclick="window.location.reload()" class="btn btn-primary">Coba Lagi</button>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+let currentPeriod = 'month';
+
+// Load data on page load
+document.addEventListener('DOMContentLoaded', async function() {
+  await loadPendapatan();
+});
+
+function changePeriod() {
+  currentPeriod = document.getElementById('periodFilter').value;
+  document.getElementById('pendapatanLoading').classList.remove('hidden');
+  document.getElementById('pendapatanContent').classList.add('hidden');
+  loadPendapatan();
+}
+
+async function loadPendapatan() {
+  try {
+    const response = await makeAjaxRequest(`/api/pendapatan/?period=${currentPeriod}`);
+    
+    if (response.success) {
+      renderPendapatan(response.data);
+      
+      document.getElementById('pendapatanLoading').classList.add('hidden');
+      document.getElementById('pendapatanContent').classList.remove('hidden');
+    }
+  } catch (error) {
+    console.error('Error loading pendapatan:', error);
+    document.getElementById('pendapatanLoading').classList.add('hidden');
+    document.getElementById('pendapatanError').classList.remove('hidden');
+  }
+}
+
+function renderPendapatan(data) {
+  const stats = data.statistics;
+  const transactions = data.pendapatan_list;
+  
+  // Update statistics cards
+  document.getElementById('totalPendapatan').textContent = formatCurrency(parseFloat(stats.total_pendapatan));
+  document.getElementById('totalCommission').textContent = formatCurrency(parseFloat(stats.total_commission));
+  document.getElementById('paidAmount').textContent = formatCurrency(parseFloat(stats.paid_amount));
+  document.getElementById('pendingAmount').textContent = formatCurrency(parseFloat(stats.pending_amount));
+  document.getElementById('totalBookings').textContent = `${stats.total_bookings} Transaksi`;
+  
+  // Render transactions table
+  const table = document.getElementById('transactionsTable');
+  const emptyState = document.getElementById('emptyTransactions');
+  
+  if (transactions.length === 0) {
+    table.innerHTML = '';
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  
+  emptyState.classList.add('hidden');
+  
+  table.innerHTML = transactions.map(t => `
+    <tr class="hover:bg-neutral-50">
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+        ${formatDate(t.booking_date)}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+        ${t.venue_name}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
+        ${t.court_name}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+        Rp ${parseInt(t.amount).toLocaleString('id-ID')}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
+        Rp ${parseInt(t.commission_amount).toLocaleString('id-ID')}
+        <span class="text-xs text-neutral-500">(${parseFloat(t.commission_rate)}%)</span>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+        Rp ${parseInt(t.net_amount).toLocaleString('id-ID')}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusClass(t.payment_status)}">
+          ${getPaymentStatusText(t.payment_status)}
+        </span>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function getPaymentStatusClass(status) {
+  switch(status) {
+    case 'paid': return 'bg-green-100 text-green-800';
+    case 'pending': return 'bg-yellow-100 text-yellow-800';
+    case 'cancelled': return 'bg-red-100 text-red-800';
+    default: return 'bg-neutral-100 text-neutral-800';
+  }
+}
+
+function getPaymentStatusText(status) {
+  switch(status) {
+    case 'paid': return 'Dibayar';
+    case 'pending': return 'Pending';
+    case 'cancelled': return 'Dibatalkan';
+    default: return status;
+  }
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+</script>
+{% endblock %}
