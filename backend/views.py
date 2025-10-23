@@ -365,14 +365,15 @@ def api_profile(request):
             'role': user.role,
             'phone_number': user.phone_number,
             'address': user.address,
+            'profile_picture': user.profile_picture,  # Return URL directly
             'created_at': user.created_at.isoformat() if getattr(user, 'created_at', None) else None,
         }
-        # Standardized: return under data.user
         return JsonResponse({'success': True, 'data': {'user': user_data}})
 
     # Update
     if request.method == 'PUT':
         try:
+            # Always expect JSON since profile_picture is a URL field
             data = json.loads(request.body or '{}')
             password = data.pop('password', None)
 
@@ -404,6 +405,7 @@ def api_profile(request):
                     'email': user.email,
                     'phone_number': user.phone_number,
                     'address': user.address,
+                    'profile_picture': user.profile_picture,  # Return URL directly
                 }
                 return JsonResponse({'success': True, 'message': 'Profile updated', 'data': {'user': updated}})
             else:
@@ -412,9 +414,9 @@ def api_profile(request):
                     errors[field] = [str(e) for e in field_errors]
                 return JsonResponse({'success': False, 'message': 'Validation failed', 'errors': errors}, status=400)
         except json.JSONDecodeError:
-             return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
-        except Exception:
-             return JsonResponse({'success': False, 'message': 'Server error'}, status=500)
+            return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Server error: {str(e)}'}, status=500)
         
     # Delete
     if request.method == 'DELETE':
@@ -434,7 +436,6 @@ def api_profile(request):
             return JsonResponse({'success': True, 'message': f'Account {username} deleted'})
         except Exception:
             return JsonResponse({'success': False, 'message': 'Server error'}, status=500)
-
 
 @require_http_methods(["DELETE"])
 def api_booking_detail(request, booking_id):
