@@ -20,12 +20,17 @@
               Kelola lapangan dari setiap venue Anda
             </p>
           </div>
-          <button onclick="openAddLapanganModal()" class="btn btn-primary">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Tambah Lapangan
-          </button>
+          <div class="flex items-center space-x-3">
+            <button onclick="openAddLapanganModal()" class="btn btn-primary">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Tambah Lapangan
+            </button>
+            <a href="/mitra/dashboard" class="btn btn-secondary">
+              Kembali
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -202,7 +207,6 @@ let venuesData = [];
 let categoriesData = [];
 let editingLapanganId = null;
 let selectedVenueFilter = '';
-let selectedLapanganImages = [];
 let currentLapanganImages = [];
 let sessionSlots = [];
 let sessionSlotCounter = 0;
@@ -228,57 +232,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   await loadLapangan();
 });
 
-function handleLapanganImageSelect(event) {
-  const files = Array.from(event.target.files);
-  selectedLapanganImages = files;
-  
-  const uploadLabel = document.getElementById('lapanganUploadLabel');
-  const previewContainer = document.getElementById('lapanganImagePreview');
-  previewContainer.innerHTML = '';
-  
-  if (files.length > 0) {
-    // Hide upload label and show preview
-    uploadLabel.classList.add('hidden');
-    previewContainer.classList.remove('hidden');
-    
-    files.forEach((file, index) => {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const div = document.createElement('div');
-        div.className = 'relative group';
-        div.innerHTML = `
-          <img src="${e.target.result}" class="w-full h-24 object-cover rounded-lg">
-          <button type="button" onclick="removeNewLapanganImage(${index})" 
-            class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        `;
-        previewContainer.appendChild(div);
-      };
-      reader.readAsDataURL(file);
-    });
-  } else {
-    // Show upload label if no files
-    uploadLabel.classList.remove('hidden');
-    previewContainer.classList.add('hidden');
-  }
-}
-
-function removeNewLapanganImage(index) {
-  const dt = new DataTransfer();
-  const input = document.getElementById('lapanganImages');
-  const files = Array.from(input.files);
-  
-  files.forEach((file, i) => {
-    if (i !== index) dt.items.add(file);
-  });
-  
-  input.files = dt.files;
-  handleLapanganImageSelect({ target: input });
-}
-
 async function deleteLapanganImage(imageId) {
   if (!confirm('Hapus gambar ini?')) return;
   
@@ -289,44 +242,11 @@ async function deleteLapanganImage(imageId) {
     
     if (response.success) {
       showNotification('Gambar berhasil dihapus', 'success');
-      // Reload lapangan data
-      if (editingLapanganId) {
-        const lapanganResponse = await makeAjaxRequest(`/api/courts/${editingLapanganId}/`);
-        if (lapanganResponse.success) {
-          displayExistingLapanganImages(lapanganResponse.data.images || []);
-        }
-      }
+      // Reload lapangan list
+      await loadLapangan();
     }
   } catch (error) {
     showNotification('Gagal menghapus gambar', 'error');
-  }
-}
-
-function displayExistingLapanganImages(images) {
-  currentLapanganImages = images;
-  const uploadLabel = document.getElementById('lapanganUploadLabel');
-  const container = document.getElementById('existingLapanganImages');
-  
-  if (images && images.length > 0) {
-    // Hide upload label and show existing images
-    uploadLabel.classList.add('hidden');
-    container.classList.remove('hidden');
-    container.innerHTML = images.map(img => `
-      <div class="relative group">
-        <img src="${img.url}" class="w-full h-24 object-cover rounded-lg">
-        <button type="button" onclick="deleteLapanganImage(${img.id})" 
-          class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-        ${img.is_primary ? '<span class="absolute bottom-1 left-1 bg-primary-500 text-white text-xs px-2 py-0.5 rounded">Utama</span>' : ''}
-      </div>
-    `).join('');
-  } else {
-    // Show upload label if no existing images
-    uploadLabel.classList.remove('hidden');
-    container.classList.add('hidden');
   }
 }
 
@@ -804,14 +724,22 @@ async function editLapangan(lapanganId) {
 function closeLapanganModal() {
   document.getElementById('lapanganModal').classList.add('hidden');
   document.getElementById('lapanganForm').reset();
-  document.getElementById('lapanganImagePreview').classList.add('hidden');
-  document.getElementById('lapanganImagePreview').innerHTML = '';
+  
+  // Clear image preview
+  const previewContainer = document.getElementById('lapanganImagePreview');
+  if (previewContainer) {
+    previewContainer.classList.add('hidden');
+    previewContainer.innerHTML = '';
+  }
+  
+  // Clear image URL inputs
   clearImageUrls();
-  document.getElementById('existingLapanganImages').innerHTML = '';
-  document.getElementById('lapanganUploadLabel').classList.remove('hidden');
+  
+  // Clear session slots
   clearSessionSlots();
+  
+  // Reset state
   editingLapanganId = null;
-  selectedLapanganImages = [];
   currentLapanganImages = [];
 }
 
@@ -830,7 +758,10 @@ document.getElementById('lapanganForm').addEventListener('submit', async functio
   formData.append('name', document.getElementById('lapanganName').value);
   formData.append('category', document.getElementById('category').value);
   formData.append('price_per_hour', document.getElementById('price_per_hour').value);
-  formData.append('is_active', document.getElementById('is_active').checked);
+  // Send 'on' for checked checkbox (Django BooleanField expects 'on' or nothing)
+  if (document.getElementById('is_active').checked) {
+    formData.append('is_active', 'on');
+  }
   formData.append('description', document.getElementById('description').value);
   formData.append('maintenance_notes', document.getElementById('maintenance_notes').value);
   

@@ -635,19 +635,30 @@ def api_venue_detail(request, venue_id):
             if form.is_valid():
                 venue = form.save()
                 
-                # Handle new image URLs (JSON array of URLs)
+                # Handle image URLs update
+                # Delete images not in the submitted list, add new ones
                 image_urls_str = request.POST.get('image_urls', '')
                 if image_urls_str:
                     try:
                         image_urls = json.loads(image_urls_str)
                         from .models import VenueImage
-                        for idx, url in enumerate(image_urls):
-                            if url and url.strip():
-                                # If this is the first image and venue has no primary image, make it primary
+                        
+                        # Clean and normalize submitted URLs
+                        submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
+                        
+                        # Delete images that are not in the submitted list
+                        venue.images.exclude(image_url__in=submitted_urls).delete()
+                        
+                        # Get current image URLs after deletion
+                        existing_urls = set(venue.images.values_list('image_url', flat=True))
+                        
+                        # Add new images that don't exist yet
+                        for idx, url in enumerate(submitted_urls):
+                            if url not in existing_urls:
                                 is_primary = (idx == 0 and not venue.images.filter(is_primary=True).exists())
                                 VenueImage.objects.create(
                                     venue=venue,
-                                    image_url=url.strip(),
+                                    image_url=url,
                                     is_primary=is_primary
                                 )
                     except (json.JSONDecodeError, ValueError):
@@ -788,7 +799,6 @@ def api_courts(request):
                     pass  # Continue without images if parsing fails
                 
                 # Handle session slots
-                import json
                 sessions_json = request.POST.get('sessions', '[]')
                 try:
                     sessions = json.loads(sessions_json)
@@ -923,26 +933,36 @@ def api_court_detail(request, court_id):
             if form.is_valid():
                 court = form.save()
                 
-                # Handle new image URLs (JSON array of URLs)
+                # Handle image URLs update
+                # Delete images not in the submitted list, add new ones
                 image_urls_str = request.POST.get('image_urls', '')
                 if image_urls_str:
                     try:
                         image_urls = json.loads(image_urls_str)
                         from .models import CourtImage
-                        for idx, url in enumerate(image_urls):
-                            if url and url.strip():
-                                # If this is the first image and court has no primary image, make it primary
+                        
+                        # Clean and normalize submitted URLs
+                        submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
+                        
+                        # Delete images that are not in the submitted list
+                        court.images.exclude(image_url__in=submitted_urls).delete()
+                        
+                        # Get current image URLs after deletion
+                        existing_urls = set(court.images.values_list('image_url', flat=True))
+                        
+                        # Add new images that don't exist yet
+                        for idx, url in enumerate(submitted_urls):
+                            if url not in existing_urls:
                                 is_primary = (idx == 0 and not court.images.filter(is_primary=True).exists())
                                 CourtImage.objects.create(
                                     court=court,
-                                    image_url=url.strip(),
+                                    image_url=url,
                                     is_primary=is_primary
                                 )
                     except (json.JSONDecodeError, ValueError):
                         pass  # Continue without images if parsing fails
                 
                 # Handle session slots update
-                import json
                 sessions_json = request.POST.get('sessions', '[]')
                 try:
                     sessions = json.loads(sessions_json)
