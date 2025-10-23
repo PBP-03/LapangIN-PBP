@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin - Kelola Mitra{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-semibold mb-6 text-gradient">Kelola Mitra</h1>
+
+  <div class="bg-white shadow-medium rounded-xl p-4">
+    <table class="w-full text-left table-auto" id="mitra-table">
+      <thead>
+        <tr class="border-b">
+          <th class="p-3">#</th>
+          <th class="p-3">Nama</th>
+          <th class="p-3">Email</th>
+          <th class="p-3">Deskripsi</th>
+          <th class="p-3">Gambar</th>
+          <th class="p-3">Tanggal Daftar</th>
+          <th class="p-3">Status</th>
+          <th class="p-3">Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="mitra-body">
+        <tr><td colspan="8" class="p-4 text-center text-neutral-500">Memuat data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+const apiListUrl = '/api/mitra/';
+
+async function fetchMitras() {
+  const body = document.getElementById('mitra-body');
+  body.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-neutral-500">Memuat data...</td></tr>';
+  try {
+    const res = await fetch(apiListUrl, { credentials: 'same-origin' });
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message || 'Failed to load');
+
+    const data = json.data || [];
+    if (data.length === 0) {
+      body.innerHTML = '<tr><td colspan="8" class="p-4 text-center">Tidak ada mitra</td></tr>';
+      return;
+    }
+
+    body.innerHTML = '';
+    data.forEach((m, idx) => {
+      const statusBadge = m.status === 'approved' ?
+        `<span class="px-3 py-1 rounded-full text-white bg-green-500">Approved</span>` :
+        (m.status === 'rejected' ?
+          `<span class="px-3 py-1 rounded-full text-white bg-red-500">Rejected</span>` :
+          `<span class="px-3 py-1 rounded-full text-white bg-yellow-500">Pending</span>`);
+
+      const imgHtml = m.gambar ? `<img src="${m.gambar}" alt="${m.nama}" class="w-16 h-12 object-cover rounded"/>` : `-`;
+
+      const row = document.createElement('tr');
+      row.className = 'border-b';
+      row.innerHTML = `
+        <td class="p-3 align-top">${idx + 1}</td>
+        <td class="p-3 align-top">${escapeHtml(m.nama)}</td>
+        <td class="p-3 align-top">${escapeHtml(m.email)}</td>
+        <td class="p-3 align-top">${escapeHtml(m.deskripsi || '')}</td>
+        <td class="p-3 align-top">${imgHtml}</td>
+        <td class="p-3 align-top">${m.tanggal_daftar ? new Date(m.tanggal_daftar).toLocaleString() : '-'}</td>
+        <td class="p-3 align-top" id="status-${m.id}">${statusBadge}</td>
+        <td class="p-3 align-top">
+          <div class="flex gap-2">
+            <button class="btn btn-primary btn-sm" onclick="updateStatus('${m.id}', 'approved')">Approve</button>
+            <button class="btn btn-secondary btn-sm" onclick="updateStatus('${m.id}', 'rejected')">Reject</button>
+          </div>
+        </td>
+      `;
+      body.appendChild(row);
+    });
+
+  } catch (err) {
+    body.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-red-600">${escapeHtml(err.message)}</td></tr>`;
+    console.error(err);
+  }
+}
+
+function escapeHtml(unsafe) {
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function updateStatus(id, status) {
+  const confirmMsg = status === 'approved' ? 'Setujui mitra ini?' : 'Tolak mitra ini?';
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    const res = await fetch(`/api/mitra/${id}/`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+      credentials: 'same-origin'
+    });
+
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message || 'Update failed');
+
+    // update status cell
+    const statusCell = document.getElementById(`status-${id}`);
+    if (statusCell) {
+      if (status === 'approved') {
+        statusCell.innerHTML = `<span class="px-3 py-1 rounded-full text-white bg-green-500">Approved</span>`;
+      } else {
+        statusCell.innerHTML = `<span class="px-3 py-1 rounded-full text-white bg-red-500">Rejected</span>`;
+      }
+    }
+
+  } catch (err) {
+    alert('Gagal mengubah status: ' + (err.message || err));
+    console.error(err);
+  }
+}
+
+// init
+fetchMitras();
+</script>
+{% endblock %}

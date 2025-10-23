@@ -19,3 +19,10 @@ def register_view(request):
 def user_dashboard(request):
     """User dashboard page - only renders HTML, data fetched via API"""
     return render(request, 'dashboard/user.html')
+
+
+@admin_required
+def admin_mitra_page(request):
+    """Convenience route to the admin mitra management page."""
+    # reuse the admin sub-app view
+    return render(request, 'dashboard/admin_mitra.html')

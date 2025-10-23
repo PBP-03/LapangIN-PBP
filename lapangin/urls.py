@@ -21,7 +21,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin-django/', admin.site.urls),
-    path('', include('main.urls', "main"),name='main'),
+    # Include main app URLs (main/urls.py defines app_name='main' and includes sub-namespaces)
+    path('', include('main.urls')),
     path('api/', include('backend.urls')),
 ]
 

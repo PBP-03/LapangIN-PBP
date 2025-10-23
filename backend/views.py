@@ -10,6 +10,7 @@ from django.db.models import Sum, Count, Q
 from decimal import Decimal
 import json
 from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, CourtSession
+from django.views.decorators.csrf import csrf_exempt
 from .forms import CustomLoginForm, CustomUserCreationForm, VenueForm, CourtForm
 from .decorators import login_required, role_required, anonymous_required
 
@@ -341,6 +342,81 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+# ============================================
+# MITRA MANAGEMENT (Admin-facing) API
+# ============================================
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def api_mitra_list(request):
+    """Return list of mitra users as JSON. Uses existing User model (role='mitra')."""
+    try:
+        mitras = User.objects.filter(role='mitra')
+        data = []
+        for m in mitras:
+            # derive status
+            if m.is_verified:
+                status = 'approved'
+            else:
+                status = 'pending' if m.is_active else 'rejected'
+
+            data.append({
+                'id': str(m.id),
+                'nama': m.get_full_name() or m.first_name or m.username,
+                'email': m.email,
+                'deskripsi': m.address or '',
+                'gambar': m.profile_picture or '',
+                'tanggal_daftar': m.created_at.isoformat() if hasattr(m, 'created_at') else None,
+                'status': status,
+            })
+
+        return JsonResponse({'status': 'ok', 'data': data})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["PATCH"])
+def api_mitra_update_status(request, mitra_id):
+    """Patch endpoint to update mitra status. Body: {"status": "approved"|"rejected"} """
+    try:
+        try:
+            mitra = User.objects.get(id=mitra_id, role='mitra')
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Mitra not found'}, status=404)
+
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
+        new_status = data.get('status')
+        if new_status not in ['approved', 'rejected']:
+            return JsonResponse({'status': 'error', 'message': 'Invalid status'}, status=400)
+
+        if new_status == 'approved':
+            mitra.is_verified = True
+            mitra.is_active = True
+        else:  # rejected
+            mitra.is_verified = False
+            # mark as inactive to reflect rejection without changing models
+            mitra.is_active = False
+
+        mitra.save()
+
+        return JsonResponse({
+            'status': 'ok',
+            'message': f'Mitra {new_status} successfully',
+            'data': {
+                'id': str(mitra.id),
+                'status': new_status
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
 # ============================================
