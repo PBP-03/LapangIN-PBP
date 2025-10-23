@@ -16,7 +16,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=10, choices=USER_ROLES, default='user')
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True, max_length=500)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -55,7 +55,7 @@ class SportsCategory(models.Model):
     
     name = models.CharField(max_length=20, choices=CATEGORY_CHOICES, unique=True)
     description = models.TextField(blank=True, null=True)
-    icon = models.ImageField(upload_to='category_icons/', blank=True, null=True)
+    icon = models.ImageField(upload_to='category_icons/', blank=True, null=True, max_length=500)
     
     def __str__(self):
         return self.get_name_display()
@@ -70,7 +70,6 @@ class Venue(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    category = models.ForeignKey(SportsCategory, on_delete=models.CASCADE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'mitra'})
     address = models.TextField()
     location_url = models.URLField(blank=True, null=True)
@@ -78,7 +77,6 @@ class Venue(models.Model):
     description = models.TextField(blank=True, null=True)
     
     # Operational details
-    price_per_hour = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     number_of_courts = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
     
     # Verification
@@ -93,7 +91,7 @@ class Venue(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.name} - {self.category}"
+        return self.name
     
     @property
     def is_verified(self):
@@ -102,7 +100,7 @@ class Venue(models.Model):
 # Venue Images Model
 class VenueImage(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='venue_images/')
+    image = models.ImageField(upload_to='venue_images/', max_length=500)
     is_primary = models.BooleanField(default=False)
     caption = models.CharField(max_length=255, blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
@@ -113,7 +111,7 @@ class VenueImage(models.Model):
 # Facility Model
 class Facility(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    icon = models.ImageField(upload_to='facility_icons/', blank=True, null=True)
+    icon = models.ImageField(upload_to='facility_icons/', blank=True, null=True, max_length=500)
     description = models.TextField(blank=True, null=True)
     
     def __str__(self):
@@ -137,14 +135,43 @@ class VenueFacility(models.Model):
 class Court(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='courts')
     name = models.CharField(max_length=100)  # e.g., "Court 1", "Court A"
+    category = models.ForeignKey(SportsCategory, on_delete=models.CASCADE, null=True, blank=True)
+    price_per_hour = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=0)
     is_active = models.BooleanField(default=True)
     maintenance_notes = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)  # Additional court description
     
     def __str__(self):
-        return f"{self.venue.name} - {self.name}"
+        return f"{self.venue.name} - {self.name} ({self.category.get_name_display() if self.category else 'No Category'})"
     
     class Meta:
         unique_together = ('venue', 'name')
+
+# Court Time Slots / Sessions Model
+class CourtSession(models.Model):
+    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='sessions')
+    session_name = models.CharField(max_length=100)  # e.g., "Morning Session", "Session 1"
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f"{self.court.name} - {self.session_name} ({self.start_time}-{self.end_time})"
+    
+    class Meta:
+        unique_together = ('court', 'start_time')
+        ordering = ['start_time']
+
+# Court Images Model
+class CourtImage(models.Model):
+    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='court_images/', max_length=500)
+    is_primary = models.BooleanField(default=False)
+    caption = models.CharField(max_length=255, blank=True, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.court.venue.name} - {self.court.name} - Image"
 
 # Operational Hours Model
 class OperationalHour(models.Model):
@@ -188,6 +215,7 @@ class Booking(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'user'})
     court = models.ForeignKey(Court, on_delete=models.CASCADE)
+    session = models.ForeignKey('CourtSession', on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
     booking_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -226,7 +254,7 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD)
     transaction_id = models.CharField(max_length=255, blank=True, null=True)
-    payment_proof = models.ImageField(upload_to='payment_proofs/', blank=True, null=True)
+    payment_proof = models.ImageField(upload_to='payment_proofs/', blank=True, null=True, max_length=500)
     verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
                                   related_name='verified_payments')
     notes = models.TextField(blank=True, null=True)
@@ -244,6 +272,34 @@ class Review(models.Model):
     
     def __str__(self):
         return f"Review for {self.booking.court.venue.name} - {self.rating} stars"
+
+# Pendapatan/Revenue Model (for mitra revenue tracking)
+class Pendapatan(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    mitra = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'mitra'}, related_name='pendapatan')
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='pendapatan')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=10.00, validators=[MinValueValidator(0), MaxValueValidator(100)])  # Platform commission percentage
+    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)])
+    net_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)])  # Amount after commission
+    payment_status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('paid', 'Paid'), ('cancelled', 'Cancelled')], default='pending')
+    paid_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        # Calculate commission and net amount
+        self.commission_amount = (self.amount * self.commission_rate) / 100
+        self.net_amount = self.amount - self.commission_amount
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.mitra.username} - {self.booking.court.venue.name} - Rp {self.net_amount}"
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Pendapatan"
 
 # Activity Log Model (for admin monitoring)
 class ActivityLog(models.Model):
