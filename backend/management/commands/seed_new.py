@@ -551,14 +551,14 @@ class Command(BaseCommand):
         sessions = [
             ('Morning Session', time(6, 0), time(12, 0)),
             ('Afternoon Session', time(12, 0), time(18, 0)),
-            ('Evening Session', time(18, 0), time(24, 0)),
+            ('Evening Session', time(18, 0), time(23, 59)),
         ]
         
         # Hourly sessions for more detailed booking
         hourly_sessions = []
-        for hour in range(6, 24):  # 6 AM to 11 PM
+        for hour in range(6, 23):  # 6 AM to 10 PM
             start_time = time(hour, 0)
-            end_time = time(hour + 1, 0) if hour < 23 else time(23, 59)
+            end_time = time(hour + 1, 0)
             hourly_sessions.append((f"Session {hour:02d}:00", start_time, end_time))
         
         for court in courts:
