@@ -44,10 +44,11 @@ def role_required(allowed_roles):
                 return redirect('/login')
             
             if request.user.role not in allowed_roles:
+                # For AJAX/JSON requests return 403 JSON, otherwise redirect to login with message
                 if request.headers.get('Content-Type') == 'application/json' or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return JsonResponse({'error': 'Permission denied'}, status=403)
-                messages.error(request, 'Anda tidak memiliki izin untuk mengakses halaman ini.')
-                raise PermissionDenied("You don't have permission to access this page.")
+                messages.error(request, 'Anda tidak memiliki izin untuk mengakses halaman ini. Silakan login sebagai admin.')
+                return redirect('/login')
             
             return view_func(request, *args, **kwargs)
         return _wrapped_view

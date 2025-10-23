@@ -8,6 +8,8 @@ from django.core.serializers import serialize
 from django.forms.models import model_to_dict
 import json
 from .models import User, ActivityLog
+from .models import Mitra
+from .decorators import admin_required
 from .forms import CustomLoginForm, CustomUserCreationForm
 from .decorators import login_required, role_required, anonymous_required
 
@@ -326,3 +328,56 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+@admin_required
+def admin_mitra_page(request):
+    """Render admin page for managing mitra (template only)"""
+    from django.shortcuts import render
+    return render(request, 'admin_mitra.html')
+
+
+def api_admin_mitra_redirect(request):
+    """Redirect API path /api/admin/mitra/ to the HTML admin page /admin/mitra/"""
+    return redirect('/admin/mitra/')
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def mitra_list(request):
+    """Return JSON list of all mitra"""
+    mitras = Mitra.objects.all().order_by('-tanggal_daftar')
+    data = [
+        {
+            'id': m.id,
+            'nama': m.nama,
+            'email': m.email,
+            'status': m.status,
+            'tanggal_daftar': m.tanggal_daftar.isoformat(),
+        }
+        for m in mitras
+    ]
+    return JsonResponse({'status': 'ok', 'data': data})
+
+
+@csrf_exempt
+@require_http_methods(["PATCH"])
+def mitra_detail(request, pk):
+    """Patch mitra status"""
+    try:
+        mitra = Mitra.objects.get(pk=pk)
+    except Mitra.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Mitra not found'}, status=404)
+
+    try:
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+    except Exception:
+        payload = {}
+
+    new_status = payload.get('status')
+    if new_status not in [Mitra.STATUS_APPROVED, Mitra.STATUS_REJECTED]:
+        return JsonResponse({'status': 'error', 'message': 'Invalid status'}, status=400)
+
+    mitra.status = new_status
+    mitra.save()
+    return JsonResponse({'status': 'ok', 'message': f'Mitra {new_status} successfully', 'data': {'id': mitra.id, 'status': mitra.status}})

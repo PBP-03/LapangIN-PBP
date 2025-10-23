@@ -16,4 +16,14 @@ urlpatterns = [
     path('user-dashboard/', views.api_user_dashboard, name='api_user_dashboard'),
     path('mitra-dashboard/', views.api_mitra_dashboard, name='api_mitra_dashboard'),
     path('admin-dashboard/', views.api_admin_dashboard, name='api_admin_dashboard'),
+    
+    # Mitra API endpoints (mounted under project as /api/mitra/)
+    path('mitra/', views.mitra_list, name='mitra_list'),
+    path('mitra/<int:pk>/', views.mitra_detail, name='mitra_detail'),
+    # Legacy-style names requested by asdos
+    path('mitra_list/', views.mitra_list, name='mitra_list_alt'),
+    path('mitra_detail/<int:pk>/', views.mitra_detail, name='mitra_detail_alt'),
+    
+    # API-level admin path should redirect to the HTML admin page (project-level)
+    path('admin/mitra/', views.api_admin_mitra_redirect, name='api_admin_mitra_redirect'),
 ]

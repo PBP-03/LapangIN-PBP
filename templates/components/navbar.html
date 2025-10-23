@@ -33,6 +33,9 @@
           <a href="" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'lapangan_list' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Cari Lapangan</a>
           <a href="" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'about' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Tentang</a>
           <a href="" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'contact' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Kontak</a>
+          {% if user.is_authenticated and user.role == 'admin' %}
+            <a href="{% url 'main:admin_mitra_page' %}" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'admin_mitra_page' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Daftar Mitra</a>
+          {% endif %}
         </div>
       </div>
 
@@ -114,11 +117,15 @@
               <!-- Menu Items -->
               <div class="py-1">
                 {% if user.role == 'admin' %}
-                  <a href="{% url 'main.admin:admin_dashboard' %}" class="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50" role="menuitem">
+                  <a href="{% url 'main:admin:admin_dashboard' %}" class="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50" role="menuitem">
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                     </svg>
                     Dashboard Admin
+                  </a>
+                  <a href="{% url 'main:admin_mitra_page' %}" class="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 font-medium hover:text-indigo-500" role="menuitem">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"></path></svg>
+                    Daftar Mitra
                   </a>
                 {% elif user.role == 'mitra' %}
                   <a href="{% url 'main:mitra:mitra_dashboard' %}" class="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50" role="menuitem">
@@ -198,11 +205,15 @@
       <a href="" class="nav-link-mobile block px-3 py-2 rounded-lg text-base font-medium transition-colors {% if current == 'about' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600 hover:bg-neutral-100{% endif %}">Tentang</a>
       <a href="" class="nav-link-mobile block px-3 py-2 rounded-lg text-base font-medium transition-colors {% if current == 'contact' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600 hover:bg-neutral-100{% endif %}">Kontak</a>
 
+      {% if user.is_authenticated and user.role == 'admin' %}
+        <a href="{% url 'main:admin_mitra_page' %}" class="nav-link-mobile block px-3 py-2 rounded-lg text-base font-medium transition-colors {% if current == 'admin_mitra_page' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600 hover:bg-neutral-100{% endif %}">Daftar Mitra</a>
+      {% endif %}
+
       <div class="pt-4 pb-3 border-t border-neutral-200">
         {% if user.is_authenticated %}
           <div class="px-3">
-            <a
-              href="{% if user.role == 'admin' %}{% url 'main.admin:admin_dashboard' %}{% elif user.role == 'mitra' %}{% url 'main:mitra:mitra_dashboard' %}{% else %}{% url 'main:user_dashboard' %}{% endif %}"
+              <a
+              href="{% if user.role == 'admin' %}{% url 'main:admin:admin_dashboard' %}{% elif user.role == 'mitra' %}{% url 'main:mitra:mitra_dashboard' %}{% else %}{% url 'main:user_dashboard' %}{% endif %}"
               class="btn-secondary block w-full px-4 py-2 text-sm font-medium text-center rounded-xl transition-all"
             >Dashboard</a>
             <button onclick="logoutUser()" class="btn-primary block w-full mt-2 px-4 py-2 text-sm font-medium text-white text-center rounded-xl transition-all">Logout</button>

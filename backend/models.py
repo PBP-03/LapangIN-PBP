@@ -270,3 +270,24 @@ class ActivityLog(models.Model):
     
     class Meta:
         ordering = ['-timestamp']
+
+
+# Mitra model for admin approval workflow
+class Mitra(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Rejected'),
+    ]
+
+    id = models.AutoField(primary_key=True)
+    nama = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    tanggal_daftar = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nama} <{self.email}> ({self.status})"

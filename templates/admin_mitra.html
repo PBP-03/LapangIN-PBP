@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="max-w-6xl mx-auto mt-8">
+  <div class="bg-white rounded-2xl shadow-md p-6">
+    <h1 class="text-center text-3xl font-bold mb-6 text-neutral-900">Daftar Mitra</h1>
+
+    <div class="flex items-center justify-end mb-4 gap-3">
+      <div id="table-loading" class="flex items-center gap-2 text-sm text-neutral-500 hidden">
+        <svg class="animate-spin h-4 w-4 text-neutral-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <span>Memuat...</span>
+      </div>
+      <button id="refresh-btn" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition">
+        <span class="text-lg">🔄</span>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-neutral-100">
+        <thead class="bg-neutral-50">
+          <tr class="text-left text-sm text-neutral-600">
+            <th data-sort-key="nama" class="px-4 py-3 cursor-pointer">Nama <span class="sort-indicator text-xs ml-1"></span></th>
+            <th data-sort-key="email" class="px-4 py-3 cursor-pointer">Email <span class="sort-indicator text-xs ml-1"></span></th>
+            <th data-sort-key="status" class="px-4 py-3 cursor-pointer">Status <span class="sort-indicator text-xs ml-1"></span></th>
+            <th data-sort-key="tanggal_daftar" class="px-4 py-3 cursor-pointer">Tanggal Daftar <span class="sort-indicator text-xs ml-1"></span></th>
+            <th class="px-4 py-3">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="mitra-tbody" class="bg-white divide-y divide-neutral-100 text-sm text-neutral-700">
+          <!-- rows injected by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/admin_mitra.js' %}"></script>
+<script>
+// Inline JS: fetch mitra list and wire approve/reject buttons
+async function loadMitra() {
+  // try alias endpoint first for compatibility
+  const endpoints = ['/api/mitra_list/', '/api/mitra/', '/backend/api/mitra/'];
+  let res;
+  for (const ep of endpoints) {
+    try {
+      res = await fetch(ep, { credentials: 'same-origin' });
+      if (res && res.ok) {
+        const json = await res.json();
+        renderMitra(json.data || json);
+        return;
+      }
+    } catch (e) {
+      // continue
+    }
+  }
+  showToast('Gagal memuat data mitra', 'error');
+}
+
+function renderMitra(list) {
+  const tbody = document.getElementById('mitra-tbody');
+  tbody.innerHTML = '';
+  list.forEach(m => {
+    const tr = document.createElement('tr');
+    tr.className = 'align-top';
+    tr.innerHTML = `
+      <td class="px-4 py-3">${escapeHtml(m.nama)}</td>
+      <td class="px-4 py-3">${escapeHtml(m.email)}</td>
+      <td class="px-4 py-3 status-cell" data-id="${m.id}">${escapeHtml(m.status)}</td>
+      <td class="px-4 py-3">${new Date(m.tanggal_daftar).toLocaleString('id-ID')}</td>
+      <td class="px-4 py-3">
+        <div class="flex items-center gap-2">
+          <button class="btn btn-sm btn-success approve-btn" data-id="${m.id}">ACC</button>
+          <button class="btn btn-sm btn-danger reject-btn" data-id="${m.id}">Tolak</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function patchStatus(id, status) {
+  const endpoints = [`/api/mitra_detail/${id}/`, `/api/mitra/${id}/`, `/backend/api/mitra/${id}/`];
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(ep, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+        credentials: 'same-origin'
+      });
+      if (res && res.ok) {
+        const json = await res.json();
+        showToast(json.message || 'Berhasil', 'success');
+        // update cell
+        const cell = document.querySelector(`.status-cell[data-id="${id}"]`);
+        if (cell) cell.textContent = json.data?.status || status;
+        return;
+      } else {
+        const err = await res.json().catch(()=>({message:'Terjadi kesalahan'}));
+        showToast(err.message || 'Gagal', 'error');
+        return;
+      }
+    } catch (e) {
+      // try next
+    }
+  }
+  showToast('Gagal menghubungi server', 'error');
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('approve-btn')) {
+    const id = e.target.dataset.id;
+    if (!confirm('Yakin ingin menyetujui pendaftaran ini?')) return;
+    patchStatus(id, 'approved');
+  } else if (e.target.classList.contains('reject-btn')) {
+    const id = e.target.dataset.id;
+    if (!confirm('Yakin menolak pendaftaran?')) return;
+    patchStatus(id, 'rejected');
+  }
+});
+
+function showToast(msg, type='info') {
+  const el = document.createElement('div');
+  el.textContent = msg;
+  el.className = 'fixed bottom-6 right-6 px-4 py-2 rounded shadow-lg text-white';
+  if (type==='success') el.style.background = 'linear-gradient(90deg,#16a34a,#22c55e)';
+  else if (type==='error') el.style.background = 'linear-gradient(90deg,#dc2626,#f97316)';
+  else el.style.background = 'rgba(55,65,81,0.9)';
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, 3500);
+}
+
+// load on ready
+document.addEventListener('DOMContentLoaded', loadMitra);
+</script>
+{% endblock %}
