@@ -84,7 +84,7 @@ function renderVenueList(venues) {
     } else {
       detailId = encodeURIComponent(v.name || v.id || '');
     }
-    const detailHref = `/venue/${detailId}/`;
+    const detailHref = `/lapangan/${detailId}/`;
 
   cardWrap.innerHTML = `
       <div class="relative h-44 bg-neutral-50">

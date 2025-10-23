@@ -17,9 +17,10 @@ urlpatterns = [
     path('mitra-dashboard/', views.api_mitra_dashboard, name='api_mitra_dashboard'),
     path('admin-dashboard/', views.api_admin_dashboard, name='api_admin_dashboard'),
     
-    # API Mitra URLs - Venues
+    # API Venues URLs
     path('venues/', views.api_venues, name='api_venues'),
     path('venues/<uuid:venue_id>/', views.api_venue_detail, name='api_venue_detail'),
+    path('public/venues/<uuid:venue_id>/', views.api_venue_detail, name='api_public_venue_detail'),
     
     # API Mitra URLs - Courts
     path('courts/', views.api_courts, name='api_courts'),

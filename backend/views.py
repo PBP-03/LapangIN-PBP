@@ -6,7 +6,8 @@ from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.forms.models import model_to_dict
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, Avg
+from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, Review, VenueFacility
 from decimal import Decimal
 import json
 from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, CourtSession
@@ -57,13 +58,72 @@ def api_venue_list(request):
         })
     return JsonResponse({'status': 'ok', 'data': data})
 
-# Venue Detail API
+# Public Venue Detail API (no authentication required)
 @require_http_methods(["GET"])
 def api_venue_detail(request, venue_id):
     try:
+        print(f'Looking up venue with ID: {venue_id}')
         v = Venue.objects.get(pk=venue_id, verification_status='approved')
+        print(f'Found venue: {v.name}')
+        
+        # Get venue images
+        images = [img.image_url for img in v.images.all()]
+        
+        # Get venue facilities
+        facilities = [
+            {
+                'name': vf.facility.name,
+                'icon': vf.facility.icon.url if vf.facility.icon else None
+            } for vf in VenueFacility.objects.filter(venue=v)
+        ]
+        
+        # Get courts
+        courts = [
+            {
+                'id': c.id,
+                'name': c.name,
+                'is_active': c.is_active,
+                'price_per_hour': float(c.price_per_hour)
+            } for c in v.courts.all()
+        ]
+        
+        # Get ratings and reviews
+        avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0
+        rating_count = Review.objects.filter(booking__court__venue=v).count()
+        reviews = [
+            {
+                'user': r.booking.user.username,
+                'rating': r.rating,
+                'comment': r.comment,
+                'created_at': r.created_at.isoformat() if r.created_at else None
+            } for r in Review.objects.filter(booking__court__venue=v).order_by('-created_at')
+        ]
+
+        data = {
+            'id': str(v.id),
+            'name': v.name,
+            'category': v.category.name if v.category else None,
+            'address': v.address,
+            'location_url': v.location_url,
+            'contact': v.contact,
+            'description': v.description,
+            'price_per_hour': float(v.price_per_hour),
+            'number_of_courts': v.number_of_courts,
+            'images': images,
+            'facilities': facilities,
+            'courts': courts,
+            'avg_rating': avg_rating,
+            'rating_count': rating_count,
+            'reviews': reviews,
+        }
+        return JsonResponse({'status': 'ok', 'data': data})
+        
     except Venue.DoesNotExist:
+        print(f'Venue not found: {venue_id}')
         return JsonResponse({'status': 'error', 'message': 'Venue not found'}, status=404)
+    except Exception as e:
+        print(f'Error retrieving venue: {e}')
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     images = [img.image.url for img in v.images.all()]
     facilities = [
         {

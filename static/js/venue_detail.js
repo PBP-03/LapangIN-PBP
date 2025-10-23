@@ -1,69 +1,42 @@
 // Current venue ID from URL
 const venueId = window.location.pathname.split('/').filter(Boolean).pop();
 
-// If server injected `window.venueData`, use it. Otherwise fall back to dummy data below.
-const serverVenue = window.venueData ? window.venueData : null;
-
-// Dummy venue data (used only if server data is not present)
-const dummyVenue = {
-  id: venueId,
-  name: "GOR Soemantri",
-  description: "GOR Soemantri adalah salah satu venue olahraga terbaik di Jakarta Selatan. Dilengkapi dengan berbagai fasilitas modern dan lapangan berstandar internasional.",
-  category: "Badminton",
-  rating: 4.5,
-  reviewCount: 128,
-  location: "Jakarta Selatan",
-  address: "Jl. HR Rasuna Said, Kuningan, Jakarta Selatan",
-  contact: "+62 812-3456-7890",
-  courts: 6,
-  price: 150000,
-  images: [
-    `${window.staticUrl}images/dummy/venue1.jpg`,
-    `${window.staticUrl}images/dummy/venue2.jpg`,
-    `${window.staticUrl}images/dummy/venue3.jpg`,
-    `${window.staticUrl}images/dummy/venue4.jpg`,
-  ],
-  facilities: [
-    { name: "Parkir Luas", icon: "parking" },
-    { name: "Toilet", icon: "toilet" },
-    { name: "Ruang Ganti", icon: "changing-room" },
-    { name: "Wifi", icon: "wifi" },
-    { name: "Kantin", icon: "food" },
-    { name: "Musholla", icon: "prayer" }
-  ]
+// Function to get CSRF token
+const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 };
 
-// Dummy reviews data (fallback)
-const dummyReviews = [
-  {
-    id: 1,
-    user: "John Doe",
-    rating: 5,
-    date: "2023-10-15",
-    comment: "Lapangan bagus, fasilitas lengkap, pelayanan ramah. Recommended!",
-    ratings: {
-      cleanliness: 5,
-      courtCondition: 5,
-      communication: 5
+// Function to make API calls
+const fetchApi = async (endpoint, options = {}) => {
+    const csrftoken = getCookie('csrftoken');
+    const defaultOptions = {
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        ...options
+    };
+    const response = await fetch(endpoint, defaultOptions);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
     }
-  },
-  {
-    id: 2,
-    user: "Jane Smith",
-    rating: 4,
-    date: "2023-10-10",
-    comment: "Overall bagus, cuma parkiran agak sempit kalau weekend.",
-    ratings: {
-      cleanliness: 4,
-      courtCondition: 4,
-      communication: 5
-    }
-  }
-];
+    return await response.json();
+};
 
 // Helper function to format currency
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('id-ID').format(amount);
+    return new Intl.NumberFormat('id-ID').format(amount);
 };
 
 // Helper function to create star rating display
@@ -85,12 +58,19 @@ const createStarRating = (rating) => {
   return stars.join('');
 };
 
-// Initialize venue detail page
-const initVenueDetail = () => {
-  const data = serverVenue || dummyVenue;
-
-  // Use server-provided reviews if available, otherwise fallback to dummyReviews
-  const reviews = (serverVenue && serverVenue.reviews && serverVenue.reviews.length) ? serverVenue.reviews : dummyReviews;
+// Load venue data using AJAX
+const loadVenueData = async () => {
+    try {
+        console.log('Loading venue data for ID:', venueId);
+        const response = await fetch(`/backend/public/venues/${venueId}/`);
+        if (!response.ok) throw new Error('Failed to fetch venue data');
+        const { status, data } = await response.json();
+        
+        if (status !== 'ok') {
+            throw new Error('Failed to fetch venue data');
+        }
+        
+        console.log('Received venue data:', data);
 
   // Set venue details
   document.getElementById('venue-name').textContent = data.name || '';
