@@ -92,6 +92,7 @@ class Venue(models.Model):
     
     def __str__(self):
         return self.name
+        return self.name
     
     @property
     def is_verified(self):
@@ -137,11 +138,15 @@ class Court(models.Model):
     name = models.CharField(max_length=100)  # e.g., "Court 1", "Court A"
     category = models.ForeignKey(SportsCategory, on_delete=models.CASCADE, null=True, blank=True)
     price_per_hour = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=0)
+    category = models.ForeignKey(SportsCategory, on_delete=models.CASCADE, null=True, blank=True)
+    price_per_hour = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=0)
     is_active = models.BooleanField(default=True)
     maintenance_notes = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)  # Additional court description
+    description = models.TextField(blank=True, null=True)  # Additional court description
     
     def __str__(self):
+        return f"{self.venue.name} - {self.name} ({self.category.get_name_display() if self.category else 'No Category'})"
         return f"{self.venue.name} - {self.name} ({self.category.get_name_display() if self.category else 'No Category'})"
     
     class Meta:
@@ -216,6 +221,7 @@ class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'user'})
     court = models.ForeignKey(Court, on_delete=models.CASCADE)
     session = models.ForeignKey('CourtSession', on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
+    session = models.ForeignKey('CourtSession', on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
     booking_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -272,6 +278,34 @@ class Review(models.Model):
     
     def __str__(self):
         return f"Review for {self.booking.court.venue.name} - {self.rating} stars"
+
+# Pendapatan/Revenue Model (for mitra revenue tracking)
+class Pendapatan(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    mitra = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'mitra'}, related_name='pendapatan')
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='pendapatan')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=10.00, validators=[MinValueValidator(0), MaxValueValidator(100)])  # Platform commission percentage
+    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)])
+    net_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)])  # Amount after commission
+    payment_status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('paid', 'Paid'), ('cancelled', 'Cancelled')], default='pending')
+    paid_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        # Calculate commission and net amount
+        self.commission_amount = (self.amount * self.commission_rate) / 100
+        self.net_amount = self.amount - self.commission_amount
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.mitra.username} - {self.booking.court.venue.name} - Rp {self.net_amount}"
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Pendapatan"
 
 # Pendapatan/Revenue Model (for mitra revenue tracking)
 class Pendapatan(models.Model):
