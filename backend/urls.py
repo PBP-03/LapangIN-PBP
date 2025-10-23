@@ -37,6 +37,10 @@ urlpatterns = [
     # API Utility URLs
     path('sports-categories/', views.api_sports_categories, name='api_sports_categories'),
     
+    # API Review URLs
+    path('venues/<uuid:venue_id>/reviews/', views.api_venue_reviews, name='api_venue_reviews'),
+    path('reviews/<uuid:review_id>/', views.api_manage_review, name='api_manage_review'),
+    
     # API Image Management URLs
     path('venue-images/<int:image_id>/delete/', views.api_delete_venue_image, name='api_delete_venue_image'),
     path('court-images/<int:image_id>/delete/', views.api_delete_court_image, name='api_delete_court_image'),

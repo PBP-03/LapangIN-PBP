@@ -1,29 +1,65 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="max-w-7xl mx-auto py-8 px-4">
-  <h2 class="text-2xl font-display font-semibold mb-6 text-neutral-900">Daftar Venue</h2>
 
-  <form id="venue-search-form" class="flex flex-wrap gap-3 items-center bg-white p-4 rounded-2xl shadow-soft">
-    <input type="text" name="name" placeholder="Cari nama venue" class="px-4 py-3 rounded-xl border border-neutral-200 w-64" />
-    <input type="text" name="location" placeholder="Pilih Kota" class="px-4 py-3 rounded-xl border border-neutral-200 w-48" />
-    <select name="category" class="px-4 py-3 rounded-xl border border-neutral-200 w-48">
-      <option value="">Pilih Cabang Olahraga</option>
-      <option value="FUTSAL">Futsal</option>
-      <option value="BADMINTON">Badminton</option>
-      <option value="BASKET">Basket</option>
-      <option value="TENIS">Tenis</option>
-      <option value="PADEL">Padel</option>
-    </select>
-    <input type="number" name="min_price" placeholder="Harga min (Rp)" class="px-4 py-3 rounded-xl border border-neutral-200 w-36" />
-    <input type="number" name="max_price" placeholder="Harga max (Rp)" class="px-4 py-3 rounded-xl border border-neutral-200 w-36" />
-    <select name="min_rating" class="px-4 py-3 rounded-xl border border-neutral-200 w-36">
-      <option value="">Min. Rating</option>
-      <option value="4.5">4.5+</option>
-      <option value="4">4.0+</option>
-      <option value="3">3.0+</option>
-    </select>
-    <button type="submit" class="px-5 py-3 rounded-xl text-white" style="background: linear-gradient(90deg,#5409DA,#4E71FF);">Cari venue</button>
+<!-- Hero Section with Gradient Background -->
+<section class="relative bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-16">
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -right-40 w-80 h-80 rounded-full gradient-accent opacity-20 blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full gradient-primary opacity-20 blur-3xl"></div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-display font-bold text-neutral-900 mb-4">
+                Find Your Perfect <span class="text-gradient">Sports Venue</span>
+            </h1>
+            <p class="text-lg text-neutral-600 max-w-2xl mx-auto">
+                Discover and book the best sports facilities in your area
+            </p>
+        </div>
+    </div>
+</section>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-20">
+  <!-- Search Form -->
+  <form id="venue-search-form" class="bg-white rounded-2xl shadow-soft p-6 mb-8 card-hover">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <input type="text" name="name" placeholder="Cari nama venue" 
+             class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+      <input type="text" name="location" placeholder="Pilih Kota" 
+             class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+      <select name="category" 
+              class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+        <option value="">Pilih Cabang Olahraga</option>
+        <option value="FUTSAL">Futsal</option>
+        <option value="BADMINTON">Badminton</option>
+        <option value="BASKET">Basket</option>
+        <option value="TENIS">Tenis</option>
+        <option value="PADEL">Padel</option>
+      </select>
+      <select name="min_rating" 
+              class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+        <option value="">Min. Rating</option>
+        <option value="4.5">4.5+</option>
+        <option value="4">4.0+</option>
+        <option value="3">3.0+</option>
+      </select>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <input type="number" name="min_price" placeholder="Harga min (Rp)" 
+             class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+      <input type="number" name="max_price" placeholder="Harga max (Rp)" 
+             class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+      <button type="submit" 
+              class="gradient-primary text-white px-6 py-3 rounded-xl font-medium hover:shadow-medium transition-all transform hover:scale-105 flex items-center justify-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        Cari Venue
+      </button>
+    </div>
   </form>
 
   <div class="flex items-center justify-between mt-6 mb-4">
