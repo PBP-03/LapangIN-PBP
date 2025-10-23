@@ -8,7 +8,7 @@ from django.core.serializers import serialize
 from django.forms.models import model_to_dict
 import json
 from .models import User, ActivityLog
-from .forms import CustomLoginForm, CustomUserCreationForm
+from .forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm
 from .decorators import login_required, role_required, anonymous_required
 from datetime import date
 from django.shortcuts import get_object_or_404
@@ -357,19 +357,18 @@ def api_profile(request):
     if request.method == 'PUT':
         try:
             data = json.loads(request.body or '{}')
-            allowed = ['first_name', 'last_name', 'email', 'phone_number', 'address', 'password']
-            changed = False
 
-            for field in allowed:
-                if field in data and data[field] is not None:
-                    if field == 'password':
-                        user.set_password(data['password'])
-                    else:
-                        setattr(user, field, data[field])
-                    changed = True
+            # If password present, handle separately
+            password = data.pop('password', None)
 
-            if changed:
-                user.save()
+            # Use your ModelForm for validation/saving
+            form = CustomUserUpdateForm(data, instance=user)
+            if form.is_valid():
+                form.save()
+                if password:
+                    user.set_password(password)
+                    user.save()
+
                 ActivityLog.objects.create(
                     user=user,
                     action_type='update',
@@ -378,22 +377,26 @@ def api_profile(request):
                     user_agent=request.META.get('HTTP_USER_AGENT', '')
                 )
 
-            updated = {
-                'id': str(user.id),
-                'username': user.username,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-                'phone_number': user.phone_number,
-                'address': user.address,
-            }
-            # Standardized: return updated user under data.user
-            return JsonResponse({'success': True, 'message': 'Profile updated', 'data': {'user': updated}})
+                updated = {
+                    'id': str(user.id),
+                    'username': user.username,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'email': user.email,
+                    'phone_number': user.phone_number,
+                    'address': user.address,
+                }
+                return JsonResponse({'success': True, 'message': 'Profile updated', 'data': {'user': updated}})
+            else:
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    errors[field] = [str(e) for e in field_errors]
+                return JsonResponse({'success': False, 'message': 'Validation failed', 'errors': errors}, status=400)
         except json.JSONDecodeError:
-            return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+             return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
         except Exception:
-            return JsonResponse({'success': False, 'message': 'Server error'}, status=500)
-
+             return JsonResponse({'success': False, 'message': 'Server error'}, status=500)
+        
     # Delete
     if request.method == 'DELETE':
         try:

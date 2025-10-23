@@ -113,3 +113,16 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
+class CustomUserUpdateForm(forms.ModelForm):
+    """Simple form to update basic profile fields"""
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'address']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Nama depan'}),
+            'last_name': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Nama belakang'}),
+            'email': forms.EmailInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Email'}),
+            'phone_number': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Nomor telepon'}),
+            'address': forms.Textarea(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Alamat', 'rows':3}),
+        }
