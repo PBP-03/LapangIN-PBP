@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4">
+  <!-- Back button -->
+  <a href="{% url 'main:venue_list' %}" class="inline-flex items-center text-neutral-600 mb-6 hover:text-neutral-900">
+    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+    Kembali ke Daftar Venue
+  </a>
+
+  <!-- Venue gallery -->
+  <div class="grid grid-cols-4 gap-4 mb-8">
+    <div class="col-span-3 relative rounded-2xl overflow-hidden h-[480px] bg-neutral-100">
+      <img src="" alt="" class="w-full h-full object-cover" id="main-venue-image">
+      <div class="absolute top-4 left-4 bg-white/90 text-xs px-3 py-1.5 rounded-full font-medium" id="venue-category"></div>
+    </div>
+    <div class="space-y-4" id="venue-image-thumbs">
+      <!-- Thumbnail images will be inserted here -->
+    </div>
+  </div>
+
+  <!-- Venue info -->
+  <div class="grid grid-cols-3 gap-8">
+    <!-- Left column - Main info -->
+    <div class="col-span-2 space-y-6">
+      <!-- Basic info -->
+      <div>
+        <h1 class="text-3xl font-display font-semibold mb-4" id="venue-name"></h1>
+        <div class="flex items-center gap-6 text-sm text-neutral-600">
+          <!-- Rating -->
+          <div class="flex items-center gap-1">
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.046 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
+            </svg>
+            <span class="font-semibold text-neutral-900" id="venue-rating">-</span>
+            <span class="text-neutral-500">(<span id="rating-count">0</span> ulasan)</span>
+          </div>
+          <!-- Location -->
+          <div class="flex items-center gap-1" id="venue-location">
+            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span id="venue-address"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="prose prose-neutral max-w-none">
+        <h3 class="text-lg font-semibold mb-2">Deskripsi</h3>
+        <p id="venue-description"></p>
+      </div>
+
+      <!-- Venue info grid -->
+      <div class="grid grid-cols-2 gap-6">
+        <!-- Info -->
+        <div>
+          <h3 class="text-lg font-semibold mb-3">Info Venue</h3>
+          <div class="space-y-3 text-sm">
+            <!-- Contact -->
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+              <span id="venue-contact"></span>
+            </div>
+            <!-- Number of courts -->
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              <span><span id="venue-courts">0</span> Lapangan</span>
+            </div>
+            <!-- Price -->
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Rp<span id="venue-price">0</span> / jam</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facilities -->
+        <div>
+          <h3 class="text-lg font-semibold mb-3">Fasilitas</h3>
+          <div class="flex flex-wrap gap-2" id="venue-facilities">
+            <!-- Facilities will be inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Court list -->
+      <div>
+        <h3 class="text-lg font-semibold mb-4">Pilih Lapangan</h3>
+        <div class="grid grid-cols-1 gap-4" id="court-list">
+          <!-- Courts will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold">Ulasan</h3>
+          {% if user.is_authenticated %}
+          <button id="write-review" class="text-sm text-white px-4 py-2 rounded-full" style="background: linear-gradient(90deg,#3f07a3,#4E71FF);">
+            Tulis Ulasan
+          </button>
+          {% endif %}
+        </div>
+
+        <!-- Review stats -->
+        <div class="grid grid-cols-2 gap-8 p-6 bg-white rounded-2xl shadow-soft mb-6">
+          <!-- Overall rating -->
+          <div class="flex items-center gap-4">
+            <div class="text-4xl font-semibold" id="avg-rating">-</div>
+            <div>
+              <div class="flex gap-1 text-yellow-400 mb-1" id="overall-stars"></div>
+              <div class="text-sm text-neutral-600"><span id="total-reviews">0</span> ulasan</div>
+            </div>
+          </div>
+          <!-- Rating breakdown -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <div class="text-sm font-medium w-24">Kebersihan</div>
+              <div class="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden">
+                <div class="h-full bg-yellow-400" id="cleanliness-rating" style="width: 0%"></div>
+              </div>
+              <div class="text-sm font-medium w-8" id="cleanliness-score">-</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="text-sm font-medium w-24">Kondisi Lapangan</div>
+              <div class="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden">
+                <div class="h-full bg-yellow-400" id="court-condition-rating" style="width: 0%"></div>
+              </div>
+              <div class="text-sm font-medium w-8" id="court-condition-score">-</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="text-sm font-medium w-24">Komunikasi</div>
+              <div class="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden">
+                <div class="h-full bg-yellow-400" id="communication-rating" style="width: 0%"></div>
+              </div>
+              <div class="text-sm font-medium w-8" id="communication-score">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review list -->
+        <div class="space-y-4" id="review-list">
+          <!-- Reviews will be inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column - Booking -->
+    <div class="space-y-6">
+      <!-- Calendar -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <h3 class="text-lg font-semibold mb-4">Jadwal & Booking</h3>
+        <div id="calendar">
+          <!-- Days of week -->
+          <div class="grid grid-cols-7 mb-2 text-center text-sm font-medium text-neutral-600">
+            <div>M</div>
+            <div>S</div>
+            <div>R</div>
+            <div>K</div>
+            <div>J</div>
+            <div>S</div>
+            <div>M</div>
+          </div>
+          <!-- Calendar grid will be inserted here -->
+          <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+            <!-- Calendar cells will be inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Time slots -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <h3 class="text-lg font-semibold mb-4">Slot Waktu Tersedia</h3>
+        <div class="grid grid-cols-3 gap-2" id="time-slots">
+          <!-- Time slots will be inserted here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Write review modal -->
+<div id="review-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">
+  <div class="bg-white rounded-2xl p-6 max-w-lg w-full mx-4">
+    <h3 class="text-lg font-semibold mb-4">Tulis Ulasan</h3>
+    <form id="review-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Rating</label>
+        <div class="flex gap-2" id="rating-input">
+          <button type="button" class="text-neutral-200 hover:scale-110 transition-transform" data-rating="1">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.046 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
+            </svg>
+          </button>
+          <button type="button" class="text-neutral-200 hover:scale-110 transition-transform" data-rating="2">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.046 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
+            </svg>
+          </button>
+          <button type="button" class="text-neutral-200 hover:scale-110 transition-transform" data-rating="3">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.046 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
+            </svg>
+          </button>
+          <button type="button" class="text-neutral-200 hover:scale-110 transition-transform" data-rating="4">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.046 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
+            </svg>
+          </button>
+          <button type="button" class="text-neutral-200 hover:scale-110 transition-transform" data-rating="5">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.046 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Ulasan</label>
+        <textarea class="w-full px-4 py-3 rounded-xl border border-neutral-200" rows="4" placeholder="Bagikan pengalaman anda bermain di venue ini..."></textarea>
+      </div>
+      <div class="flex justify-end gap-3">
+        <button type="button" class="px-4 py-2 rounded-full border border-neutral-200" id="cancel-review">Batal</button>
+        <button type="submit" class="px-4 py-2 rounded-full text-white" style="background: linear-gradient(90deg,#3f07a3,#4E71FF);">Kirim Ulasan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <!-- Initialize venue detail -->
+  <script>
+    console.log('Initializing venue detail page...');
+    window.staticUrl = '{% static "" %}';
+    {% if venue_json %}
+      try {
+        window.venueData = JSON.parse('{{ venue_json|escapejs }}');
+        console.log('Loaded venue data:', window.venueData);
+      } catch (e) {
+        console.error('Failed to parse venue data:', e);
+      }
+    {% else %}
+      console.warn('No venue data provided by server');
+    {% endif %}
+  </script>
+  <script src="{% static 'js/venue_detail.js' %}" defer></script>
+{% endblock content %}

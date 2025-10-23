@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4">
+  <h2 class="text-2xl font-display font-semibold mb-6 text-neutral-900">Daftar Venue</h2>
+
+  <form id="venue-search-form" class="flex flex-wrap gap-3 items-center bg-white p-4 rounded-2xl shadow-soft">
+    <input type="text" name="name" placeholder="Cari nama venue" class="px-4 py-3 rounded-xl border border-neutral-200 w-64" />
+    <input type="text" name="location" placeholder="Pilih Kota" class="px-4 py-3 rounded-xl border border-neutral-200 w-48" />
+    <select name="category" class="px-4 py-3 rounded-xl border border-neutral-200 w-48">
+      <option value="">Pilih Cabang Olahraga</option>
+      <option value="FUTSAL">Futsal</option>
+      <option value="BADMINTON">Badminton</option>
+      <option value="BASKET">Basket</option>
+      <option value="TENIS">Tenis</option>
+      <option value="PADEL">Padel</option>
+    </select>
+    <input type="number" name="min_price" placeholder="Harga min (Rp)" class="px-4 py-3 rounded-xl border border-neutral-200 w-36" />
+    <input type="number" name="max_price" placeholder="Harga max (Rp)" class="px-4 py-3 rounded-xl border border-neutral-200 w-36" />
+    <select name="min_rating" class="px-4 py-3 rounded-xl border border-neutral-200 w-36">
+      <option value="">Min. Rating</option>
+      <option value="4.5">4.5+</option>
+      <option value="4">4.0+</option>
+      <option value="3">3.0+</option>
+    </select>
+    <button type="submit" class="px-5 py-3 rounded-xl text-white" style="background: linear-gradient(90deg,#5409DA,#4E71FF);">Cari venue</button>
+  </form>
+
+  <div class="flex items-center justify-between mt-6 mb-4">
+    <div class="text-neutral-600">Menampilkan <span id="venue-count-number" class="font-semibold text-neutral-900">0</span> venue tersedia</div>
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-neutral-600">Urutkan :</label>
+      <select id="venue-sort" class="px-3 py-2 rounded-xl border border-neutral-200">
+        <option value="price_low">Harga Terendah</option>
+        <option value="price_high">Harga Tertinggi</option>
+        <option value="rating">Rating</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="venue-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Venue cards will be rendered here by JS -->
+  </div>
+</div>
+
+
+
+{% block script %}
+  <script>window.staticUrl = '{% static "" %}';</script>
+  <script>
+    // server-provided snapshot of venues (if any). Use escapejs -> JSON.parse in JS.
+    window.venuesData = JSON.parse('{{ venues_json|default:"[]"|escapejs }}');
+  </script>
+  <script src="{% static 'js/venue.js' %}"></script>
+{% endblock %}
+{% endblock %}

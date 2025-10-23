@@ -7,11 +7,147 @@ from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.forms.models import model_to_dict
 import json
-from .models import User, ActivityLog
+from .models import User, ActivityLog, Venue, VenueImage, SportsCategory, Facility, VenueFacility, Court, Review, Booking
+from django.db.models import Avg
 from .forms import CustomLoginForm, CustomUserCreationForm
 from .decorators import login_required, role_required, anonymous_required
 
-# Create your views here.
+
+# Venue List & Search API
+@require_http_methods(["GET"])
+def api_venue_list(request):
+    """API endpoint for venue list & search/filter"""
+    # Get query params
+    name = request.GET.get('name')
+    category = request.GET.get('category')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    location = request.GET.get('location')
+
+    venues = Venue.objects.filter(verification_status='approved')
+    if name:
+        venues = venues.filter(name__icontains=name)
+    if category:
+        venues = venues.filter(category__name=category)
+    if min_price:
+        venues = venues.filter(price_per_hour__gte=min_price)
+    if max_price:
+        venues = venues.filter(price_per_hour__lte=max_price)
+    if location:
+        venues = venues.filter(address__icontains=location)
+
+    data = []
+    for v in venues:
+        images = [img.image.url for img in v.images.all()]
+        avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0
+        data.append({
+            'id': str(v.id),
+            'name': v.name,
+            'category': v.category.get_name_display(),
+            'category_icon': v.category.icon.url if v.category.icon else None,
+            'address': v.address,
+            'location_url': v.location_url,
+            'contact': v.contact,
+            'price_per_hour': float(v.price_per_hour),
+            'number_of_courts': v.number_of_courts,
+            'images': images,
+            'avg_rating': avg_rating,
+            'rating_count': Review.objects.filter(booking__court__venue=v).count(),
+        })
+    return JsonResponse({'status': 'ok', 'data': data})
+
+# Venue Detail API
+@require_http_methods(["GET"])
+def api_venue_detail(request, venue_id):
+    try:
+        v = Venue.objects.get(pk=venue_id, verification_status='approved')
+    except Venue.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Venue not found'}, status=404)
+    images = [img.image.url for img in v.images.all()]
+    facilities = [
+        {
+            'name': vf.facility.name,
+            'icon': vf.facility.icon.url if vf.facility.icon else None
+        } for vf in VenueFacility.objects.filter(venue=v)
+    ]
+    courts = [
+        {
+            'id': c.id,
+            'name': c.name,
+            'is_active': c.is_active
+        } for c in v.courts.all()
+    ]
+    avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0
+    rating_count = Review.objects.filter(booking__court__venue=v).count()
+    reviews = [
+        {
+            'user': r.booking.user.username,
+            'rating': r.rating,
+            'comment': r.comment,
+            'created_at': r.created_at
+        } for r in Review.objects.filter(booking__court__venue=v).order_by('-created_at')
+    ]
+    data = {
+        'id': str(v.id),
+        'name': v.name,
+        'category': v.category.get_name_display(),
+        'category_icon': v.category.icon.url if v.category.icon else None,
+        'address': v.address,
+        'location_url': v.location_url,
+        'contact': v.contact,
+        'description': v.description,
+        'price_per_hour': float(v.price_per_hour),
+        'number_of_courts': v.number_of_courts,
+        'images': images,
+        'facilities': facilities,
+        'courts': courts,
+        'avg_rating': avg_rating,
+        'rating_count': rating_count,
+        'reviews': reviews,
+    }
+    return JsonResponse({'status': 'ok', 'data': data})
+
+# Venue Review List & Create API
+@require_http_methods(["GET", "POST"])
+@csrf_exempt
+def api_venue_reviews(request, venue_id):
+    try:
+        v = Venue.objects.get(pk=venue_id, verification_status='approved')
+    except Venue.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Venue not found'}, status=404)
+    if request.method == "GET":
+        reviews = [
+            {
+                'user': r.booking.user.username,
+                'rating': r.rating,
+                'comment': r.comment,
+                'created_at': r.created_at
+            } for r in Review.objects.filter(booking__court__venue=v).order_by('-created_at')
+        ]
+        return JsonResponse({'status': 'ok', 'data': reviews})
+    elif request.method == "POST":
+        if not request.user.is_authenticated:
+            return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+        data = json.loads(request.body)
+        rating = data.get('rating')
+        comment = data.get('comment')
+        court_id = data.get('court_id')
+        booking_date = data.get('booking_date')
+        # Find booking for this user, court, and date
+        try:
+            court = Court.objects.get(pk=court_id, venue=v)
+            booking = court.booking_set.get(user=request.user, booking_date=booking_date)
+        except (Court.DoesNotExist, Booking.DoesNotExist):
+            return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+        if Review.objects.filter(booking=booking).exists():
+            return JsonResponse({'status': 'error', 'message': 'Review already exists'}, status=400)
+        r = Review.objects.create(booking=booking, rating=rating, comment=comment)
+        return JsonResponse({'status': 'ok', 'data': {
+            'user': r.booking.user.username,
+            'rating': r.rating,
+            'comment': r.comment,
+            'created_at': r.created_at
+        }})
 
 def index(request):
     return JsonResponse({'status': 'success', 'message': 'Backend API is running'})
