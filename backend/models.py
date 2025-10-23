@@ -288,6 +288,9 @@ class Mitra(models.Model):
     email = models.EmailField(unique=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
     tanggal_daftar = models.DateTimeField(auto_now_add=True)
+    deskripsi = models.TextField(blank=True, null=True)
+    gambar = models.ImageField(upload_to='mitra_gambar/', blank=True, null=True)
+    alasan_penolakan = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.nama} <{self.email}> ({self.status})"

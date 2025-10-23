@@ -3,6 +3,11 @@
 {% block content %}
 <div class="max-w-6xl mx-auto mt-8">
   <div class="bg-white rounded-2xl shadow-md p-6">
+    {% if needs_migration %}
+      <div class="mb-4 p-3 rounded-md bg-yellow-50 border border-yellow-100 text-yellow-800">
+        Database schema missing recent Mitra columns. Run <code class="font-mono">python manage.py makemigrations backend</code> and <code class="font-mono">python manage.py migrate</code>, then reload.
+      </div>
+    {% endif %}
     <h1 class="text-center text-3xl font-bold mb-6 text-neutral-900">Daftar Mitra</h1>
 
     <div class="flex items-center justify-end mb-4 gap-3">
@@ -22,129 +27,68 @@
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-neutral-100">
         <thead class="bg-neutral-50">
-          <tr class="text-left text-sm text-neutral-600">
-            <th data-sort-key="nama" class="px-4 py-3 cursor-pointer">Nama <span class="sort-indicator text-xs ml-1"></span></th>
-            <th data-sort-key="email" class="px-4 py-3 cursor-pointer">Email <span class="sort-indicator text-xs ml-1"></span></th>
-            <th data-sort-key="status" class="px-4 py-3 cursor-pointer">Status <span class="sort-indicator text-xs ml-1"></span></th>
-            <th data-sort-key="tanggal_daftar" class="px-4 py-3 cursor-pointer">Tanggal Daftar <span class="sort-indicator text-xs ml-1"></span></th>
-            <th class="px-4 py-3">Aksi</th>
-          </tr>
+              <tr class="text-left text-sm text-neutral-600">
+                <th data-sort-key="nama" class="px-4 py-3 cursor-pointer">Nama <span class="sort-indicator text-xs ml-1"></span></th>
+                <th data-sort-key="email" class="px-4 py-3 cursor-pointer">Email <span class="sort-indicator text-xs ml-1"></span></th>
+                <th class="px-4 py-3">Deskripsi</th>
+                <th class="px-4 py-3">Gambar</th>
+                <th data-sort-key="status" class="px-4 py-3 cursor-pointer">Status <span class="sort-indicator text-xs ml-1"></span></th>
+                <th data-sort-key="tanggal_daftar" class="px-4 py-3 cursor-pointer">Tanggal Daftar <span class="sort-indicator text-xs ml-1"></span></th>
+                <th class="px-4 py-3">Aksi</th>
+              </tr>
         </thead>
         <tbody id="mitra-tbody" class="bg-white divide-y divide-neutral-100 text-sm text-neutral-700">
-          <!-- rows injected by JS -->
+          {% for mitra in mitras %}
+          <tr class="border-b hover:bg-gray-50 transition">
+            <td class="p-3 align-top">{{ mitra.nama }}</td>
+            <td class="p-3 align-top">{{ mitra.email }}</td>
+            <td class="p-3 max-w-xs truncate align-top">{{ mitra.deskripsi }}</td>
+            <td class="p-3 align-top">
+              {% if mitra.gambar %}
+                <img src="{{ mitra.gambar.url }}" alt="{{ mitra.nama }}" class="w-20 h-20 object-cover rounded-lg border">
+              {% else %}
+                <span class="text-gray-400 italic">Tidak ada gambar</span>
+              {% endif %}
+            </td>
+            <td class="p-3 align-top">
+              {% if mitra.status == 'approved' %}
+                <span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full text-sm font-medium">✓ Approved</span>
+              {% elif mitra.status == 'pending' %}
+                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-sm font-medium">• Pending</span>
+              {% else %}
+                <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-sm font-medium">✗ Rejected</span>
+              {% endif %}
+            </td>
+            <td class="p-3 align-top text-sm text-neutral-600">{{ mitra.tanggal_daftar }}</td>
+            <td class="p-3 text-center align-top">
+              <button data-id="{{ mitra.id }}" data-action="approve" class="acc-btn btn-acc bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded">ACC</button>
+              <button data-id="{{ mitra.id }}" data-action="reject" class="reject-btn btn-tolak bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded ml-2">Tolak</button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="p-6 text-center text-neutral-500">Belum ada mitra.</td></tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
 </div>
 
+<!-- Reject modal -->
+<div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 w-96">
+    <h2 class="text-lg font-semibold mb-2">Alasan Penolakan</h2>
+    <textarea id="rejectReason" class="w-full border rounded p-2 mb-4" rows="3" placeholder="Tulis alasan penolakan..."></textarea>
+    <div class="flex justify-end gap-2">
+      <button id="cancelReject" class="bg-gray-300 px-3 py-1 rounded">Batal</button>
+      <button id="confirmReject" class="bg-red-500 text-white px-3 py-1 rounded">Kirim</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast root -->
+<div id="toast-root"></div>
+
 <script src="{% static 'js/admin_mitra.js' %}"></script>
-<script>
-// Inline JS: fetch mitra list and wire approve/reject buttons
-async function loadMitra() {
-  // try alias endpoint first for compatibility
-  const endpoints = ['/api/mitra_list/', '/api/mitra/', '/backend/api/mitra/'];
-  let res;
-  for (const ep of endpoints) {
-    try {
-      res = await fetch(ep, { credentials: 'same-origin' });
-      if (res && res.ok) {
-        const json = await res.json();
-        renderMitra(json.data || json);
-        return;
-      }
-    } catch (e) {
-      // continue
-    }
-  }
-  showToast('Gagal memuat data mitra', 'error');
-}
-
-function renderMitra(list) {
-  const tbody = document.getElementById('mitra-tbody');
-  tbody.innerHTML = '';
-  list.forEach(m => {
-    const tr = document.createElement('tr');
-    tr.className = 'align-top';
-    tr.innerHTML = `
-      <td class="px-4 py-3">${escapeHtml(m.nama)}</td>
-      <td class="px-4 py-3">${escapeHtml(m.email)}</td>
-      <td class="px-4 py-3 status-cell" data-id="${m.id}">${escapeHtml(m.status)}</td>
-      <td class="px-4 py-3">${new Date(m.tanggal_daftar).toLocaleString('id-ID')}</td>
-      <td class="px-4 py-3">
-        <div class="flex items-center gap-2">
-          <button class="btn btn-sm btn-success approve-btn" data-id="${m.id}">ACC</button>
-          <button class="btn btn-sm btn-danger reject-btn" data-id="${m.id}">Tolak</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function escapeHtml(unsafe) {
-  if (!unsafe) return '';
-  return unsafe
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-async function patchStatus(id, status) {
-  const endpoints = [`/api/mitra_detail/${id}/`, `/api/mitra/${id}/`, `/backend/api/mitra/${id}/`];
-  for (const ep of endpoints) {
-    try {
-      const res = await fetch(ep, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-        credentials: 'same-origin'
-      });
-      if (res && res.ok) {
-        const json = await res.json();
-        showToast(json.message || 'Berhasil', 'success');
-        // update cell
-        const cell = document.querySelector(`.status-cell[data-id="${id}"]`);
-        if (cell) cell.textContent = json.data?.status || status;
-        return;
-      } else {
-        const err = await res.json().catch(()=>({message:'Terjadi kesalahan'}));
-        showToast(err.message || 'Gagal', 'error');
-        return;
-      }
-    } catch (e) {
-      // try next
-    }
-  }
-  showToast('Gagal menghubungi server', 'error');
-}
-
-document.addEventListener('click', (e) => {
-  if (e.target.classList.contains('approve-btn')) {
-    const id = e.target.dataset.id;
-    if (!confirm('Yakin ingin menyetujui pendaftaran ini?')) return;
-    patchStatus(id, 'approved');
-  } else if (e.target.classList.contains('reject-btn')) {
-    const id = e.target.dataset.id;
-    if (!confirm('Yakin menolak pendaftaran?')) return;
-    patchStatus(id, 'rejected');
-  }
-});
-
-function showToast(msg, type='info') {
-  const el = document.createElement('div');
-  el.textContent = msg;
-  el.className = 'fixed bottom-6 right-6 px-4 py-2 rounded shadow-lg text-white';
-  if (type==='success') el.style.background = 'linear-gradient(90deg,#16a34a,#22c55e)';
-  else if (type==='error') el.style.background = 'linear-gradient(90deg,#dc2626,#f97316)';
-  else el.style.background = 'rgba(55,65,81,0.9)';
-  document.body.appendChild(el);
-  setTimeout(()=>{ el.remove(); }, 3500);
-}
-
-// load on ready
-document.addEventListener('DOMContentLoaded', loadMitra);
-</script>
+<script src="{% static 'js/admin_mitra.js' %}"></script>
 {% endblock %}

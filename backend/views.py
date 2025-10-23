@@ -332,9 +332,26 @@ def get_client_ip(request):
 
 @admin_required
 def admin_mitra_page(request):
-    """Render admin page for managing mitra (template only)"""
+    """Render admin page for managing mitra (template only).
+
+    If the database schema has not been migrated to include new Mitra fields
+    (e.g. deskripsi/gambar), catching OperationalError and falling back to a
+    reduced queryset avoids crashing the page. We also set `needs_migration`
+    so the template can display guidance to the developer.
+    """
     from django.shortcuts import render
-    return render(request, 'admin_mitra.html')
+    from django.db import OperationalError
+
+    needs_migration = False
+    try:
+        mitras = Mitra.objects.all().order_by('-tanggal_daftar')
+    except OperationalError:
+        # Likely the DB schema is older and missing added columns (deskripsi/gambar)
+        # Fall back to a minimal queryset to keep the admin page usable.
+        needs_migration = True
+        mitras = Mitra.objects.all().only('id', 'nama', 'email', 'status', 'tanggal_daftar').order_by('-tanggal_daftar')
+
+    return render(request, 'admin_mitra.html', {'mitras': mitras, 'needs_migration': needs_migration})
 
 
 def api_admin_mitra_redirect(request):
@@ -354,6 +371,8 @@ def mitra_list(request):
             'email': m.email,
             'status': m.status,
             'tanggal_daftar': m.tanggal_daftar.isoformat(),
+            'deskripsi': m.deskripsi,
+            'gambar_url': m.gambar.url if m.gambar else None,
         }
         for m in mitras
     ]
@@ -375,9 +394,12 @@ def mitra_detail(request, pk):
         payload = {}
 
     new_status = payload.get('status')
+    reason = payload.get('reason')
     if new_status not in [Mitra.STATUS_APPROVED, Mitra.STATUS_REJECTED]:
         return JsonResponse({'status': 'error', 'message': 'Invalid status'}, status=400)
 
     mitra.status = new_status
+    if new_status == Mitra.STATUS_REJECTED:
+        mitra.alasan_penolakan = reason
     mitra.save()
-    return JsonResponse({'status': 'ok', 'message': f'Mitra {new_status} successfully', 'data': {'id': mitra.id, 'status': mitra.status}})
+    return JsonResponse({'status': 'ok', 'message': f'Mitra {new_status} successfully', 'data': {'id': mitra.id, 'status': mitra.status, 'reason': mitra.alasan_penolakan}})

@@ -58,18 +58,20 @@
     const tbody = document.getElementById("mitra-tbody");
     tbody.innerHTML = "";
     if (!items || items.length === 0) {
-      tbody.innerHTML = `<tr><td class="px-4 py-6 text-center text-neutral-500" colspan="5">Belum ada mitra.</td></tr>`;
+      tbody.innerHTML = `<tr><td class="px-4 py-6 text-center text-neutral-500" colspan="7">Belum ada mitra.</td></tr>`;
       return;
     }
     items.forEach(m => {
       const tr = document.createElement("tr");
       const tanggal = m.tanggal_daftar ? new Date(m.tanggal_daftar).toLocaleString('id-ID') : '-';
       tr.innerHTML = `
-        <td class="px-4 py-3">${escapeHtml(m.nama)}</td>
-        <td class="px-4 py-3">${escapeHtml(m.email)}</td>
-        <td class="px-4 py-3">${statusBadge(m.status)}</td>
-        <td class="px-4 py-3">${escapeHtml(tanggal)}</td>
-        <td class="px-4 py-3">${actionButtons(m.id)}</td>
+        <td class="px-4 py-3 align-top">${escapeHtml(m.nama)}</td>
+        <td class="px-4 py-3 align-top">${escapeHtml(m.email)}</td>
+        <td class="px-4 py-3 align-top">${escapeHtml(m.deskripsi || '')}</td>
+        <td class="px-4 py-3 align-top">${m.gambar_url ? `<img src="${m.gambar_url}" class="w-20 h-20 rounded-lg object-cover border" alt="gambar mitra"/>` : '-'}</td>
+        <td class="px-4 py-3 align-top">${statusBadge(m.status)}</td>
+        <td class="px-4 py-3 align-top">${escapeHtml(tanggal)}</td>
+        <td class="px-4 py-3 align-top">${actionButtons(m.id)}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -100,10 +102,16 @@
       const row = btn ? btn.closest('tr') : null;
       const buttons = row ? row.querySelectorAll('button') : [];
       buttons.forEach(b => b.setAttribute('disabled', 'disabled'));
+      const body = { status };
+      // if there's a reject reason stored on modal, include it
+      const modal = document.getElementById('rejectModal');
+      if (modal && modal.dataset && modal.dataset.pendingReasonFor == String(id)) {
+        body.reason = modal.dataset.pendingReason || '';
+      }
       const res = await fetch(API_DETAIL(id), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(body),
         credentials: "same-origin",
       });
       const data = await res.json().catch(()=>({status:"error", message:"Invalid response"}));
@@ -134,17 +142,61 @@
     const action = btn.getAttribute('data-action');
     const id = btn.getAttribute('data-id');
     if (!action || !id) return;
-    if (action === 'approve') {
-      if (!confirm('Yakin menyetujui mitra ini?')) return;
-      updateStatus(id, 'approved', btn);
-    } else if (action === 'reject') {
-      if (!confirm('Yakin menolak pendaftaran ini?')) return;
-      updateStatus(id, 'rejected', btn);
-    }
+      if (action === 'approve') {
+        // approve directly
+        updateStatus(id, 'approved', btn);
+      } else if (action === 'reject') {
+        // open reject modal and store id
+        const modal = document.getElementById('rejectModal');
+        if (!modal) {
+          showToast('Modal penolakan tidak ditemukan', 'error');
+          return;
+        }
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.dataset.currentId = id;
+      }
   });
 
   // refresh button
   document.getElementById('refresh-btn')?.addEventListener('click', ()=> fetchMitra());
+
+  // Modal handlers
+  document.getElementById('cancelReject')?.addEventListener('click', ()=>{
+    const modal = document.getElementById('rejectModal');
+    if (!modal) return;
+    modal.classList.add('hidden'); modal.classList.remove('flex');
+    document.getElementById('rejectReason').value = '';
+    delete modal.dataset.currentId;
+    delete modal.dataset.pendingReason;
+    delete modal.dataset.pendingReasonFor;
+  });
+
+  document.getElementById('confirmReject')?.addEventListener('click', async ()=>{
+    const modal = document.getElementById('rejectModal');
+    if (!modal) return;
+    const id = modal.dataset.currentId;
+    const reason = document.getElementById('rejectReason').value || '';
+    if (!id) {
+      showToast('ID mitra tidak ditemukan', 'error');
+      return;
+    }
+    // store the pending reason on modal to be read by updateStatus
+    modal.dataset.pendingReason = reason;
+    modal.dataset.pendingReasonFor = id;
+    // call updateStatus which will pick up the reason
+    // find a button in the row to pass for disabled toggling
+    const btn = document.querySelector(`button[data-id="${id}"]`);
+    await updateStatus(id, 'rejected', btn);
+    // hide modal and clear
+    modal.classList.add('hidden'); modal.classList.remove('flex');
+    document.getElementById('rejectReason').value = '';
+    delete modal.dataset.currentId;
+    delete modal.dataset.pendingReason;
+    delete modal.dataset.pendingReasonFor;
+    // refresh list
+    fetchMitra();
+  });
 
   // sorting
   function sortItems(items, key, dir) {
