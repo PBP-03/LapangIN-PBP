@@ -16,11 +16,9 @@ urlpatterns = [
     path('user-dashboard/', views.api_user_dashboard, name='api_user_dashboard'),
     path('mitra-dashboard/', views.api_mitra_dashboard, name='api_mitra_dashboard'),
     path('admin-dashboard/', views.api_admin_dashboard, name='api_admin_dashboard'),
-<<<<<<< HEAD
 
     # Profile management (read / update / delete)
     path('profile/', views.api_profile, name='api_profile'),
-=======
     
     # API Mitra URLs - Venues
     path('venues/', views.api_venues, name='api_venues'),
@@ -44,5 +42,4 @@ urlpatterns = [
     # API Image Management URLs
     path('venue-images/<int:image_id>/delete/', views.api_delete_venue_image, name='api_delete_venue_image'),
     path('court-images/<int:image_id>/delete/', views.api_delete_court_image, name='api_delete_court_image'),
->>>>>>> 42e5fec24573b43887d6c896cc1d275284182029
 ]

@@ -9,13 +9,10 @@ from django.forms.models import model_to_dict
 from django.db.models import Sum, Count, Q
 from decimal import Decimal
 import json
-<<<<<<< HEAD
 from .models import User, ActivityLog
 from .forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm
-=======
 from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, CourtSession
 from .forms import CustomLoginForm, CustomUserCreationForm, VenueForm, CourtForm
->>>>>>> 42e5fec24573b43887d6c896cc1d275284182029
 from .decorators import login_required, role_required, anonymous_required
 from datetime import date
 from django.shortcuts import get_object_or_404
@@ -350,7 +347,6 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-<<<<<<< HEAD
 @require_http_methods(["GET", "PUT", "DELETE"])
 def api_profile(request):
     if not request.user.is_authenticated:
@@ -378,11 +374,13 @@ def api_profile(request):
     if request.method == 'PUT':
         try:
             data = json.loads(request.body or '{}')
-
-            # If password present, handle separately
             password = data.pop('password', None)
 
-            # Use your ModelForm for validation/saving
+            # Username uniqueness validation
+            new_username = data.get('username', user.username)
+            if new_username != user.username and User.objects.filter(username=new_username).exclude(id=user.id).exists():
+                return JsonResponse({'success': False, 'message': 'Username sudah digunakan'}, status=400)
+
             form = CustomUserUpdateForm(data, instance=user)
             if form.is_valid():
                 form.save()
@@ -461,7 +459,6 @@ def api_booking_detail(request, booking_id):
         return JsonResponse({'success': True, 'message': 'Booking cancelled'})
     except Exception:
         return JsonResponse({'success': False, 'message': 'Failed to cancel booking'}, status=500)
-=======
 
 # ============================================
 # MITRA API ENDPOINTS
@@ -1519,4 +1516,3 @@ def api_booking_detail(request, booking_id):
         'success': False,
         'message': 'Invalid request method'
     }, status=405)
->>>>>>> 42e5fec24573b43887d6c896cc1d275284182029

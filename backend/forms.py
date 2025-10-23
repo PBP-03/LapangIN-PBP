@@ -277,11 +277,11 @@ class CourtForm(forms.ModelForm):
         self.fields['description'].label = 'Deskripsi Lapangan'
 
 class CustomUserUpdateForm(forms.ModelForm):
-    """Simple form to update basic profile fields"""
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'phone_number', 'address']
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'address']
         widgets = {
+            'username': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Username'}),
             'first_name': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Nama depan'}),
             'last_name': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Nama belakang'}),
             'email': forms.EmailInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Email'}),
