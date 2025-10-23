@@ -206,61 +206,66 @@ class Command(BaseCommand):
         """Create venues with realistic data"""
         self.stdout.write('Creating venues...')
         
-        # Get users and categories
-        mitras = User.objects.filter(role='mitra')
+        # Get users
         admin = User.objects.filter(role='admin').first()
         
         venues_data = [
             {
                 'name': 'Futsal Arena Jakarta',
-                'category': 'FUTSAL',
                 'owner': 'mitra_futsal_jakarta',
                 'address': 'Jl. Sudirman No. 123, Jakarta Selatan, DKI Jakarta',
                 'description': 'Lapangan futsal modern dengan fasilitas lengkap di pusat Jakarta.',
-                'price_per_hour': Decimal('150000'),
                 'number_of_courts': 3,
+                'courts_config': [
+                    {'name': 'Court 1', 'category': 'FUTSAL', 'price': Decimal('150000')},
+                    {'name': 'Court 2', 'category': 'FUTSAL', 'price': Decimal('150000')},
+                    {'name': 'Court 3', 'category': 'FUTSAL', 'price': Decimal('180000')},
+                ]
             },
             {
                 'name': 'Shuttle Court Bandung',
-                'category': 'BADMINTON',
                 'owner': 'mitra_badminton_bandung',
                 'address': 'Jl. Dago No. 67, Bandung, Jawa Barat',
                 'description': 'Lapangan badminton premium dengan karpet BWF standard.',
-                'price_per_hour': Decimal('80000'),
                 'number_of_courts': 8,
+                'courts_config': [
+                    {'name': f'Court {i+1}', 'category': 'BADMINTON', 'price': Decimal('80000')} 
+                    for i in range(8)
+                ]
             },
             {
                 'name': 'Surabaya Basketball Complex',
-                'category': 'BASKET',
                 'owner': 'mitra_basket_surabaya',
                 'address': 'Jl. Ahmad Yani No. 234, Surabaya, Jawa Timur',
                 'description': 'Kompleks basket dengan standar internasional.',
-                'price_per_hour': Decimal('200000'),
                 'number_of_courts': 2,
+                'courts_config': [
+                    {'name': 'Court A', 'category': 'BASKET', 'price': Decimal('200000')},
+                    {'name': 'Court B', 'category': 'BASKET', 'price': Decimal('200000')},
+                ]
             },
             {
                 'name': 'Elite Futsal Jakarta',
-                'category': 'FUTSAL',
                 'owner': 'mitra_futsal_jakarta',
                 'address': 'Jl. Thamrin No. 90, Jakarta Pusat, DKI Jakarta',
                 'description': 'Futsal premium dengan teknologi terbaru.',
-                'price_per_hour': Decimal('220000'),
                 'number_of_courts': 2,
+                'courts_config': [
+                    {'name': 'Premium Court 1', 'category': 'FUTSAL', 'price': Decimal('220000')},
+                    {'name': 'Premium Court 2', 'category': 'FUTSAL', 'price': Decimal('220000')},
+                ]
             },
         ]
         
         for venue_data in venues_data:
-            category = SportsCategory.objects.get(name=venue_data['category'])
             owner = User.objects.get(username=venue_data['owner'])
             
             venue, created = Venue.objects.get_or_create(
                 name=venue_data['name'],
                 defaults={
-                    'category': category,
                     'owner': owner,
                     'address': venue_data['address'],
                     'description': venue_data['description'],
-                    'price_per_hour': venue_data['price_per_hour'],
                     'number_of_courts': venue_data['number_of_courts'],
                     'verification_status': 'approved',
                     'verified_by': admin,
@@ -269,6 +274,10 @@ class Command(BaseCommand):
                     'location_url': f'https://maps.google.com/{venue_data["name"].lower().replace(" ", "-")}',
                 }
             )
+            
+            # Store courts config for later use in create_courts
+            if created:
+                venue._courts_config = venue_data['courts_config']
 
         self.stdout.write(f'Created {Venue.objects.count()} venues')
 
@@ -296,17 +305,62 @@ class Command(BaseCommand):
         """Create individual courts for each venue"""
         self.stdout.write('Creating courts...')
         
+        # Define courts configuration
+        venues_courts_config = {
+            'Futsal Arena Jakarta': [
+                {'name': 'Court 1', 'category': 'FUTSAL', 'price': Decimal('150000')},
+                {'name': 'Court 2', 'category': 'FUTSAL', 'price': Decimal('150000')},
+                {'name': 'Court 3', 'category': 'FUTSAL', 'price': Decimal('180000')},
+            ],
+            'Shuttle Court Bandung': [
+                {'name': f'Court {i+1}', 'category': 'BADMINTON', 'price': Decimal('80000')} 
+                for i in range(8)
+            ],
+            'Surabaya Basketball Complex': [
+                {'name': 'Court A', 'category': 'BASKET', 'price': Decimal('200000')},
+                {'name': 'Court B', 'category': 'BASKET', 'price': Decimal('200000')},
+            ],
+            'Elite Futsal Jakarta': [
+                {'name': 'Premium Court 1', 'category': 'FUTSAL', 'price': Decimal('220000')},
+                {'name': 'Premium Court 2', 'category': 'FUTSAL', 'price': Decimal('220000')},
+            ],
+        }
+        
         venues = Venue.objects.all()
         
         for venue in venues:
-            for i in range(venue.number_of_courts):
-                court_name = f"Court {i+1}" if venue.number_of_courts > 1 else "Main Court"
-                
-                Court.objects.get_or_create(
-                    venue=venue,
-                    name=court_name,
-                    defaults={'is_active': True}
-                )
+            courts_config = venues_courts_config.get(venue.name, [])
+            
+            if courts_config:
+                for court_data in courts_config:
+                    category = SportsCategory.objects.get(name=court_data['category'])
+                    
+                    Court.objects.get_or_create(
+                        venue=venue,
+                        name=court_data['name'],
+                        defaults={
+                            'category': category,
+                            'price_per_hour': court_data['price'],
+                            'is_active': True
+                        }
+                    )
+            else:
+                # Fallback: create default courts if no config
+                for i in range(venue.number_of_courts):
+                    court_name = f"Court {i+1}" if venue.number_of_courts > 1 else "Main Court"
+                    
+                    # Try to get a default category (FUTSAL)
+                    default_category = SportsCategory.objects.filter(name='FUTSAL').first()
+                    
+                    Court.objects.get_or_create(
+                        venue=venue,
+                        name=court_name,
+                        defaults={
+                            'category': default_category,
+                            'price_per_hour': Decimal('100000'),
+                            'is_active': True
+                        }
+                    )
 
         self.stdout.write(f'Created {Court.objects.count()} courts')
 
@@ -358,7 +412,7 @@ class Command(BaseCommand):
                     end_time = time(start_hour + duration, 0)
                     
                     if start_hour + duration <= 23:
-                        total_price = court.venue.price_per_hour * Decimal(str(duration))
+                        total_price = court.price_per_hour * Decimal(str(duration))
                         
                         status = 'completed' if current_date < date.today() else 'confirmed'
                         payment_status = 'paid' if status == 'completed' else 'unpaid'
