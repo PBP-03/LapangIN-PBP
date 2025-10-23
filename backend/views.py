@@ -369,8 +369,22 @@ def api_profile(request):
 
         try:
             user.save()
-            return JsonResponse({'success': True, 'message': 'Profile updated', 'data': {'email': user.email}})
-        except Exception:
+
+            # Return full updated user object so frontend can update immediately
+            user_data = {
+                'id': str(user.id),
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'phone_number': getattr(user, 'phone_number', ''),
+                'address': getattr(user, 'address', ''),
+                'role': user.role,
+                'created_at': user.created_at.isoformat() if getattr(user, 'created_at', None) else None
+            }
+
+            return JsonResponse({'success': True, 'message': 'Profile updated', 'data': {'user': user_data}})
+        except Exception as e:
             return JsonResponse({'success': False, 'message': 'Failed to update profile'}, status=500)
 
     if request.method == "DELETE":

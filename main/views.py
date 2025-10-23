@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
+from backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required, role_required
 
 def index(request):
     return render(request, 'index.html')
@@ -19,3 +19,7 @@ def register_view(request):
 def user_dashboard(request):
     """User dashboard page - only renders HTML, data fetched via API"""
     return render(request, 'dashboard/user.html')
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html')
