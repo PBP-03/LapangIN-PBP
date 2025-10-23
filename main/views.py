@@ -96,13 +96,17 @@ def venue_detail_view(request, venue_id):
             'icon': f.icon.url if f.icon else None
         })
 
-    # Courts
+    # 1️⃣ Courts
     courts_qs = Court.objects.filter(venue=venue)
     courts = []
     for c in courts_qs:
         courts.append({'id': c.id, 'name': c.name, 'is_active': c.is_active})
 
-    # Reviews (basic)
+    # 2️⃣ Ambil kategori dari court pertama
+    first_court = courts_qs.first()
+    category = first_court.category if first_court else None
+
+    # 3️⃣ Reviews
     reviews_qs = Review.objects.filter(booking__court__venue=venue).select_related('booking__user')
     reviews = []
     for r in reviews_qs.order_by('-created_at')[:50]:
@@ -113,7 +117,6 @@ def venue_detail_view(request, venue_id):
                 username = getattr(user, 'get_full_name', lambda: None)() or getattr(user, 'username', '')
         except Exception:
             username = getattr(user, 'username', '') if user else ''
-
         reviews.append({
             'id': r.id,
             'user': username,
@@ -123,14 +126,13 @@ def venue_detail_view(request, venue_id):
         })
 
     avg_rating = reviews_qs.aggregate(avg=Avg('rating'))['avg'] or 0
-
     # Build serializable dict for the frontend
     venue_data = {
         'id': venue.id,
         'name': venue.name,
         'description': venue.description,
-        'category': venue.category.name if getattr(venue, 'category', None) else None,
-        'category_icon': venue.category.icon.url if venue.category and venue.category.icon else None,
+        'category': category.name if category else None,
+        'category_icon': category.icon.url if category and category.icon else None,
         'avg_rating': float(avg_rating),
         'rating_count': reviews_qs.count(),
         'address': getattr(venue, 'address', ''),
@@ -147,6 +149,7 @@ def venue_detail_view(request, venue_id):
         'courts': courts,
         'reviews': reviews,
     }
+
 
     # Ensure safe JSON serialization
     try:

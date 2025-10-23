@@ -84,8 +84,31 @@ def api_venue_detail(request, venue_id):
             'user': r.booking.user.username,
             'rating': r.rating,
             'comment': r.comment,
-            'created_at': r.created_at
+            'created_at': r.created_at.isoformat() if r.created_at else None
         } for r in Review.objects.filter(booking__court__venue=v).order_by('-created_at')
+    ]
+    # Bookings for current month
+    from datetime import date
+    today = date.today()
+    first_of_month = today.replace(day=1)
+    # last day of month: move to next month then back one day
+    if today.month == 12:
+        next_month = today.replace(year=today.year+1, month=1, day=1)
+    else:
+        next_month = today.replace(month=today.month+1, day=1)
+    bookings_qs = Booking.objects.filter(booking_date__gte=first_of_month, booking_date__lt=next_month, court__venue=v)
+    bookings = [
+        {
+            'id': b.id,
+            'court_id': b.court.id,
+            'court_name': b.court.name,
+            'user': b.user.username if b.user else None,
+            'booking_date': b.booking_date.isoformat() if b.booking_date else None,
+            'start_time': b.start_time.isoformat() if b.start_time else None,
+            'end_time': b.end_time.isoformat() if b.end_time else None,
+            'status': b.booking_status,
+        }
+        for b in bookings_qs.order_by('booking_date', 'start_time')
     ]
     data = {
         'id': str(v.id),
@@ -104,6 +127,7 @@ def api_venue_detail(request, venue_id):
         'avg_rating': avg_rating,
         'rating_count': rating_count,
         'reviews': reviews,
+        'bookings': bookings,
     }
     return JsonResponse({'status': 'ok', 'data': data})
 

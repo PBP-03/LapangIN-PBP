@@ -1,34 +1,20 @@
 // venue_detail.js
 // Fetch & render venue detail
 function fetchVenueDetail(venueId) {
-  // Try fetching detail by UUID endpoint first
-  fetch(`/venue/${venueId}/`)
+  if (!venueId) return console.error('No venueId provided to fetchVenueDetail');
+  fetch(`/api/venues/${venueId}/`)
     .then(res => {
-      if (res.status === 404) {
-        // Fallback: the URL may be a name-based path (not a UUID). Query list by name.
-        const decoded = decodeURIComponent(venueId);
-        return fetch(`/venue/?name=${encodeURIComponent(decoded)}`)
-          .then(r => r.json())
-          .then(listJson => {
-            const first = (listJson.data && listJson.data.length) ? listJson.data[0] : null;
-            if (first) {
-              renderVenueDetail(first);
-              fetchVenueReviews(first.id);
-            } else {
-              // Nothing found
-              console.warn('Venue not found via API by UUID or name:', venueId);
-            }
-          });
+      if (!res.ok) throw new Error('Venue not found');
+      return res.json();
+    })
+    .then(json => {
+      if (json && json.data) {
+        renderVenueDetail(json.data);
+        fetchVenueReviews(json.data.id);
       }
-      return res.json().then(json => {
-        if (json && json.data) {
-          renderVenueDetail(json.data);
-          fetchVenueReviews(json.data.id);
-        }
-      });
     })
     .catch(err => {
-      console.error('Error fetching venue detail:', err);
+      console.error('Error fetching venue detail from API:', err);
     });
 }
 
@@ -100,23 +86,29 @@ function renderVenueDetail(v) {
   // Update category badge
   const categoryEl = document.getElementById('venue-category');
   if (categoryEl) {
-    categoryEl.innerHTML = `
-      ${v.category_icon ? `<img src="${window.staticUrl}${v.category_icon}" class="w-4 h-4 mr-1 inline-block">` : ''}
-      ${v.category || ''}
-    `;
+    const resolveUrl = (u) => {
+      if (!u) return null;
+      if (u.startsWith('http://') || u.startsWith('https://')) return u;
+      if (u.startsWith('/')) return u; // absolute path served by Django (media/static)
+      // otherwise assume it's relative to static
+      return (window.staticUrl || '/') + u;
+    };
+
+    const catIcon = v.category_icon ? `<img src="${resolveUrl(v.category_icon)}" class="w-4 h-4 mr-1 inline-block">` : '';
+    categoryEl.innerHTML = `${catIcon}${v.category || ''}`;
   }
 
   // Update gallery/images
   const mainImageEl = document.getElementById('main-venue-image');
   const thumbsEl = document.getElementById('venue-image-thumbs');
   if (mainImageEl && v.images && v.images.length > 0) {
-    mainImageEl.src = v.images[0];
+    mainImageEl.src = (v.images[0].startsWith('http') || v.images[0].startsWith('/')) ? v.images[0] : (window.staticUrl + v.images[0]);
     mainImageEl.alt = v.name;
   }
   if (thumbsEl && v.images) {
     thumbsEl.innerHTML = v.images.slice(0,4).map(img => `
       <div class="rounded-2xl overflow-hidden h-[110px] bg-neutral-100">
-        <img src="${img}" alt="" class="w-full h-full object-cover">
+        <img src="${(img.startsWith('http') || img.startsWith('/')) ? img : window.staticUrl + img}" alt="" class="w-full h-full object-cover">
       </div>
     `).join('');
   }
@@ -128,7 +120,7 @@ function renderVenueDetail(v) {
       facilitiesEl.innerHTML = v.facilities.map(f => `
         <span class="px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-800 text-sm font-medium inline-flex items-center gap-2">
           ${f.icon ? `
-            <img src="${window.staticUrl}${f.icon}" alt="" class="w-4 h-4 flex-none">
+            <img src="${(f.icon.startsWith('http') || f.icon.startsWith('/')) ? f.icon : (window.staticUrl + f.icon)}" alt="" class="w-4 h-4 flex-none">
           ` : `
             <svg class="w-4 h-4 text-neutral-400 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/>
@@ -142,6 +134,25 @@ function renderVenueDetail(v) {
         <span class="text-neutral-500">Tidak ada fasilitas tersedia</span>
       `;
     }
+  }
+
+  // Populate map link and preview (right column card)
+  try {
+    const mapLink = document.getElementById('map-link');
+    const mapPreview = document.getElementById('map-preview');
+    const url = v.location_url || (v.address ? `https://www.google.com/maps/search/${encodeURIComponent(v.address)}` : '#');
+    if (mapLink) mapLink.href = url;
+    if (mapPreview) {
+      // prefer first image as preview
+      if (v.images && v.images.length) {
+        const img = (v.images[0].startsWith('http') || v.images[0].startsWith('/')) ? v.images[0] : window.staticUrl + v.images[0];
+        mapPreview.style.backgroundImage = `url('${img}')`;
+        mapPreview.style.backgroundSize = 'cover';
+        mapPreview.style.backgroundPosition = 'center';
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to set map link/preview:', e);
   }
 
   // Update court list
@@ -175,9 +186,11 @@ function renderStars(rating) {
 
 // Fetch & render reviews
 function fetchVenueReviews(venueId) {
-  fetch(`/venue/${venueId}/reviews/`)
+  fetch(`/api/venues/${venueId}/reviews/`)
     .then(res => res.json())
-    .then(json => renderVenueReviews(json.data));
+    .then(json => {
+      if (json && json.data) renderVenueReviews(json.data);
+    }).catch(err => console.error('Failed to load reviews:', err));
 }
 
 function renderVenueReviews(reviews) {
@@ -281,7 +294,7 @@ function renderReviewForm(venueId, user) {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form));
     // TODO: Tambahkan court_id dan booking_date sesuai booking user
-    fetch(`/backend/venues/${venueId}/reviews/`, {
+    fetch(`/api/venues/${venueId}/reviews/`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(data)
@@ -325,25 +338,15 @@ function initVenueDetail() {
   }
 
   try {
-    // Check for server-provided venue data
-    if (window.venueData) {
-      console.log('Found server-provided venue data:', window.venueData);
-      renderVenueDetail(window.venueData);
-      if (window.venueData.id) {
-        fetchVenueReviews(window.venueData.id);
-        checkUserLogin(window.venueData.id);
-      }
-    } else {
-      // Fallback to API fetch
-      console.log('No server data, fetching from API...');
-      const venueId = window.location.pathname.split('/').filter(Boolean).pop();
+      // Prefer explicit window.venueId injected by template
+      const venueId = window.venueId || window.location.pathname.split('/').filter(Boolean).pop();
       if (venueId) {
+        console.log('Fetching detail for venueId:', venueId);
         fetchVenueDetail(venueId);
         checkUserLogin(venueId);
       } else {
-        console.error('No venue ID found in URL!');
+        console.error('No venue ID found to fetch details');
       }
-    }
   } catch (error) {
     console.error('Error initializing venue detail:', error);
   }

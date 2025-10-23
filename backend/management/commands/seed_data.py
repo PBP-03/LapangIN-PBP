@@ -388,25 +388,34 @@ class Command(BaseCommand):
         ]
         
         for venue_data in venues_data:
-            category = SportsCategory.objects.get(name=venue_data['category'])
+            # Resolve related objects but don't write fields that no longer
+            # exist on Venue (category, price_per_hour were moved to Court)
+            category_obj = SportsCategory.objects.get(name=venue_data['category'])
             owner = User.objects.get(username=venue_data['owner'])
-            
+
             venue, created = Venue.objects.get_or_create(
                 name=venue_data['name'],
                 defaults={
-                    'category': category,
                     'owner': owner,
                     'address': venue_data['address'],
                     'location_url': venue_data['location_url'],
                     'contact': venue_data['contact'],
                     'description': venue_data['description'],
-                    'price_per_hour': venue_data['price_per_hour'],
                     'number_of_courts': venue_data['number_of_courts'],
                     'verification_status': 'approved',
                     'verified_by': admin,
                     'verification_date': timezone.now(),
                 }
             )
+
+            # Keep mapping of venue -> seed info so we can create courts with
+            # the right category and price later (Court now holds those fields)
+            if not hasattr(self, '_venue_seed_info'):
+                self._venue_seed_info = {}
+            self._venue_seed_info[venue.name] = {
+                'category': category_obj,
+                'price_per_hour': venue_data['price_per_hour']
+            }
 
         self.stdout.write(f'Created {Venue.objects.count()} venues')
 
@@ -475,6 +484,10 @@ class Command(BaseCommand):
         venues = Venue.objects.all()
         
         for venue in venues:
+            seed_info = getattr(self, '_venue_seed_info', {}).get(venue.name, {})
+            category = seed_info.get('category')
+            price = seed_info.get('price_per_hour', Decimal('0'))
+
             for i in range(venue.number_of_courts):
                 court_name = f"Court {i+1}" if venue.number_of_courts > 1 else "Main Court"
                 
@@ -483,7 +496,10 @@ class Command(BaseCommand):
                     name=court_name,
                     defaults={
                         'is_active': True,
-                        'maintenance_notes': None if random.random() > 0.1 else 'Regular maintenance schedule'
+                        'maintenance_notes': None if random.random() > 0.1 else 'Regular maintenance schedule',
+                        'category': category,
+                        'price_per_hour': price,
+                        'description': venue.description,
                     }
                 )
 
@@ -581,7 +597,8 @@ class Command(BaseCommand):
                     
                     if end_hour < 24:  # Valid time
                         end_time = time(end_hour, end_minute)
-                        total_price = court.venue.price_per_hour * Decimal(str(duration))
+                        # price is stored on Court now
+                        total_price = court.price_per_hour * Decimal(str(duration))
                         
                         # Determine status based on date
                         if current_date < date.today():
