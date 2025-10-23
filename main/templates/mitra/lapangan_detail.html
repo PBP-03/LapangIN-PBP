@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+{% block title %}Detail Lapangan - LapangIN{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-neutral-50">
+  <!-- Loading State -->
+  <div id="lapanganLoading" class="flex justify-center items-center py-20">
+    <div class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="lapanganContent" class="hidden">
+    <!-- Header -->
+    <div class="bg-white border-b border-neutral-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="flex items-center space-x-2 text-sm text-neutral-600 mb-2">
+                <a href="/mitra/dashboard" class="hover:text-primary-600">Dashboard</a>
+                <span>/</span>
+                <a href="/mitra/lapangan" class="hover:text-primary-600">Lapangan</a>
+                <span>/</span>
+                <span class="text-neutral-900" id="breadcrumbLapanganName">Detail</span>
+              </div>
+              <h1 class="text-2xl font-display font-bold text-neutral-900" id="lapanganName">
+                Loading...
+              </h1>
+              <p class="text-neutral-600" id="lapanganVenueName">
+                ...
+              </p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <button onclick="editLapangan()" class="btn btn-primary">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Edit Lapangan
+              </button>
+              <a href="/mitra/lapangan" class="btn btn-secondary">
+                Kembali
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Info Column -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Images Section -->
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 overflow-hidden">
+            <div class="p-6 border-b border-neutral-200">
+              <h2 class="text-lg font-semibold text-neutral-900">Galeri Foto</h2>
+            </div>
+            <div id="lapanganImagesSection" class="p-6">
+              <!-- Images will be loaded here -->
+            </div>
+          </div>
+
+          <!-- Description Section -->
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+            <h2 class="text-lg font-semibold text-neutral-900 mb-4">Deskripsi Lapangan</h2>
+            <p id="lapanganDescription" class="text-neutral-700 whitespace-pre-line">
+              <!-- Description will be loaded here -->
+            </p>
+          </div>
+
+          <!-- Maintenance Notes Section -->
+          <div id="maintenanceSection" class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6 hidden">
+            <h2 class="text-lg font-semibold text-neutral-900 mb-4">Catatan Maintenance</h2>
+            <p id="lapanganMaintenance" class="text-neutral-700 whitespace-pre-line">
+              <!-- Maintenance notes will be loaded here -->
+            </p>
+          </div>
+
+          <!-- Statistics Section -->
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+            <h2 class="text-lg font-semibold text-neutral-900 mb-4">Statistik Lapangan</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="text-center p-4 bg-neutral-50 rounded-xl">
+                <div class="text-2xl font-bold text-primary-600" id="statBookings">0</div>
+                <div class="text-sm text-neutral-600 mt-1">Total Booking</div>
+              </div>
+              <div class="text-center p-4 bg-neutral-50 rounded-xl">
+                <div class="text-2xl font-bold text-green-600" id="statRevenue">Rp 0</div>
+                <div class="text-sm text-neutral-600 mt-1">Total Pendapatan</div>
+              </div>
+              <div class="text-center p-4 bg-neutral-50 rounded-xl">
+                <div class="text-2xl font-bold text-blue-600" id="statUpcoming">0</div>
+                <div class="text-sm text-neutral-600 mt-1">Booking Mendatang</div>
+              </div>
+              <div class="text-center p-4 bg-neutral-50 rounded-xl">
+                <div class="text-2xl font-bold text-yellow-600" id="statRating">0.0</div>
+                <div class="text-sm text-neutral-600 mt-1">Rating</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="space-y-6">
+          <!-- Lapangan Info Card -->
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+            <h2 class="text-lg font-semibold text-neutral-900 mb-4">Informasi Lapangan</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="text-sm text-neutral-600">Status</label>
+                <div id="lapanganStatus" class="mt-1">
+                  <!-- Status badge will be loaded here -->
+                </div>
+              </div>
+              
+              <div>
+                <label class="text-sm text-neutral-600">Kategori Olahraga</label>
+                <p id="lapanganCategory" class="mt-1 text-sm font-medium text-neutral-900">-</p>
+              </div>
+              
+              <div>
+                <label class="text-sm text-neutral-600">Harga per Jam</label>
+                <p id="lapanganPrice" class="mt-1 text-lg font-bold text-primary-600">Rp 0</p>
+              </div>
+              
+              <div>
+                <label class="text-sm text-neutral-600">Venue</label>
+                <p id="lapanganVenue" class="mt-1 text-sm font-medium text-neutral-900">-</p>
+              </div>
+              
+              <div>
+                <label class="text-sm text-neutral-600">Lokasi</label>
+                <p id="lapanganLocation" class="mt-1 text-sm text-neutral-700">-</p>
+              </div>
+              
+              <div>
+                <label class="text-sm text-neutral-600">Dibuat pada</label>
+                <p id="lapanganCreated" class="mt-1 text-sm text-neutral-700">-</p>
+              </div>
+              
+              <div>
+                <label class="text-sm text-neutral-600">Terakhir diupdate</label>
+                <p id="lapanganUpdated" class="mt-1 text-sm text-neutral-700">-</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Card -->
+          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
+            <h2 class="text-lg font-semibold text-neutral-900 mb-4">Aksi Cepat</h2>
+            <div class="space-y-3">
+              <button onclick="toggleLapanganStatus()" id="toggleStatusBtn" class="w-full btn btn-secondary">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+                Ubah Status
+              </button>
+              
+              <button onclick="viewBookings()" class="w-full btn btn-secondary">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                Lihat Booking
+              </button>
+              
+              <button onclick="deleteLapangan()" class="w-full btn bg-red-600 hover:bg-red-700 text-white">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Hapus Lapangan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="lapanganError" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center hidden">
+    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <h3 class="text-neutral-900 font-medium mb-2">Gagal memuat data lapangan</h3>
+    <p class="text-neutral-600 text-sm mb-4">Terjadi kesalahan saat memuat data</p>
+    <button onclick="window.location.reload()" class="btn btn-primary">Coba Lagi</button>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+const lapanganId = "{{ lapangan_id|default:'' }}";
+let lapanganData = null;
+
+// Load data on page load
+document.addEventListener('DOMContentLoaded', async function() {
+  await loadLapanganDetail();
+});
+
+async function loadLapanganDetail() {
+  try {
+    const response = await makeAjaxRequest(`/api/courts/${lapanganId}/`);
+    
+    if (response.success) {
+      lapanganData = response.data;
+      renderLapanganDetail(lapanganData);
+      
+      document.getElementById('lapanganLoading').classList.add('hidden');
+      document.getElementById('lapanganContent').classList.remove('hidden');
+    }
+  } catch (error) {
+    console.error('Error loading lapangan detail:', error);
+    document.getElementById('lapanganLoading').classList.add('hidden');
+    document.getElementById('lapanganError').classList.remove('hidden');
+  }
+}
+
+function renderLapanganDetail(lapangan) {
+  // Header
+  document.getElementById('lapanganName').textContent = lapangan.name;
+  document.getElementById('breadcrumbLapanganName').textContent = lapangan.name;
+  document.getElementById('lapanganVenueName').textContent = lapangan.venue_name;
+  
+  // Images Section
+  const imagesSection = document.getElementById('lapanganImagesSection');
+  if (lapangan.images && lapangan.images.length > 0) {
+    imagesSection.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        ${lapangan.images.map((img, index) => `
+          <div class="relative ${index === 0 ? 'md:col-span-2' : ''} group">
+            <img src="${img.url}" alt="${lapangan.name}" class="w-full ${index === 0 ? 'h-96' : 'h-64'} object-cover rounded-xl">
+            ${img.is_primary ? '<span class="absolute top-2 left-2 bg-primary-500 text-white text-xs px-2 py-1 rounded">Utama</span>' : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else {
+    imagesSection.innerHTML = `
+      <div class="text-center py-12">
+        <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <p class="text-neutral-600 text-sm">Belum ada foto lapangan</p>
+      </div>
+    `;
+  }
+  
+  // Description
+  if (lapangan.description) {
+    document.getElementById('lapanganDescription').textContent = lapangan.description;
+  } else {
+    document.getElementById('lapanganDescription').innerHTML = '<span class="text-neutral-400 italic">Tidak ada deskripsi</span>';
+  }
+  
+  // Maintenance Notes
+  if (lapangan.maintenance_notes) {
+    document.getElementById('maintenanceSection').classList.remove('hidden');
+    document.getElementById('lapanganMaintenance').textContent = lapangan.maintenance_notes;
+  }
+  
+  // Sidebar Info
+  const statusBadge = lapangan.is_active 
+    ? '<span class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">Aktif</span>'
+    : '<span class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800">Nonaktif</span>';
+  document.getElementById('lapanganStatus').innerHTML = statusBadge;
+  
+  document.getElementById('lapanganCategory').textContent = lapangan.category || '-';
+  document.getElementById('lapanganPrice').textContent = `Rp ${parseInt(lapangan.price_per_hour || 0).toLocaleString('id-ID')}`;
+  document.getElementById('lapanganVenue').textContent = lapangan.venue_name;
+  document.getElementById('lapanganLocation').textContent = lapangan.venue_address || '-';
+  document.getElementById('lapanganCreated').textContent = formatDateTime(lapangan.created_at);
+  document.getElementById('lapanganUpdated').textContent = formatDateTime(lapangan.updated_at);
+  
+  // Update toggle button text
+  document.getElementById('toggleStatusBtn').innerHTML = lapangan.is_active 
+    ? '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>Nonaktifkan'
+    : '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Aktifkan';
+  
+  // TODO: Load actual statistics from bookings
+  document.getElementById('statBookings').textContent = '0';
+  document.getElementById('statRevenue').textContent = 'Rp 0';
+  document.getElementById('statUpcoming').textContent = '0';
+  document.getElementById('statRating').textContent = '0.0';
+}
+
+function editLapangan() {
+  window.location.href = `/mitra/lapangan/?edit=${lapanganId}`;
+}
+
+async function toggleLapanganStatus() {
+  const newStatus = !lapanganData.is_active;
+  const action = newStatus ? 'mengaktifkan' : 'menonaktifkan';
+  
+  if (!confirm(`Anda yakin ingin ${action} lapangan ini?`)) return;
+  
+  try {
+    const formData = new FormData();
+    formData.append('venue', lapanganData.venue_id);
+    formData.append('name', lapanganData.name);
+    formData.append('category', lapanganData.category_id);
+    formData.append('price_per_hour', lapanganData.price_per_hour);
+    formData.append('is_active', newStatus);
+    formData.append('description', lapanganData.description || '');
+    formData.append('maintenance_notes', lapanganData.maintenance_notes || '');
+    
+    const response = await fetch(`/api/courts/${lapanganId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: formData,
+      credentials: 'same-origin'
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification(`Lapangan berhasil ${newStatus ? 'diaktifkan' : 'dinonaktifkan'}`, 'success');
+      await loadLapanganDetail();
+    } else {
+      showNotification(result.message || 'Gagal mengubah status', 'error');
+    }
+  } catch (error) {
+    showNotification('Terjadi kesalahan', 'error');
+  }
+}
+
+function viewBookings() {
+  window.location.href = `/mitra/bookings/?court=${lapanganId}`;
+}
+
+async function deleteLapangan() {
+  if (!confirm('Anda yakin ingin menghapus lapangan ini? Tindakan ini tidak dapat dibatalkan!')) return;
+  
+  try {
+    const response = await makeAjaxRequest(`/api/courts/${lapanganId}/`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    });
+    
+    if (response.success) {
+      showNotification('Lapangan berhasil dihapus', 'success');
+      setTimeout(() => {
+        window.location.href = '/mitra/lapangan/';
+      }, 1500);
+    } else {
+      showNotification(response.message || 'Gagal menghapus lapangan', 'error');
+    }
+  } catch (error) {
+    showNotification('Terjadi kesalahan', 'error');
+  }
+}
+
+function formatDateTime(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleString('id-ID', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+</script>
+{% endblock %}
