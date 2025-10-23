@@ -7,22 +7,23 @@ document.addEventListener('DOMContentLoaded', async function () {
     try {
       const resp = await makeAjaxRequest('/api/profile/');
       if (resp.success) {
-        const d = resp.data;
-        document.getElementById('first_name').value = d.first_name || '';
-        document.getElementById('last_name').value = d.last_name || '';
-        document.getElementById('email').value = d.email || '';
-        document.getElementById('phone_number').value = d.phone_number || '';
-        document.getElementById('address').value = d.address || '';
+        // Expect server to return { success: true, data: { user: { ... } } }
+        const u = resp.data && resp.data.user ? resp.data.user : null;
+        if (!u) {
+          showNotification('Format response profil tidak dikenali', 'error');
+          return;
+        }
+        document.getElementById('first_name').value = u.first_name || '';
+        document.getElementById('last_name').value = u.last_name || '';
+        document.getElementById('email').value = u.email || '';
+        document.getElementById('phone_number').value = u.phone_number || '';
+        document.getElementById('address').value = u.address || '';
       } else {
         showNotification('Gagal memuat profil', 'error');
       }
     } catch (e) {
       showNotification('Gagal memuat profil', 'error');
     }
-  }
-
-  async function loadBookings() {
-    bookingsContainer.innerHTML = '<div class="text-sm text-neutral-600">Daftar booking ditampilkan jika endpoint tersedia.</div>';
   }
 
   saveBtn.addEventListener('click', async () => {
@@ -44,31 +45,23 @@ document.addEventListener('DOMContentLoaded', async function () {
         showNotification(resp.message || 'Profil diperbarui', 'success');
 
         // If backend returned updated user data, apply it immediately
-        if (resp.data && resp.data.user) {
-          const u = resp.data.user;
-          // update form fields (in case backend normalized values)
+        const u = resp.data && resp.data.user ? resp.data.user : null;
+        if (u) {
           document.getElementById('first_name').value = u.first_name || '';
           document.getElementById('last_name').value = u.last_name || '';
           document.getElementById('email').value = u.email || '';
           document.getElementById('phone_number').value = u.phone_number || '';
           document.getElementById('address').value = u.address || '';
 
-          // update localStorage copy of user if used elsewhere
           try {
             const stored = JSON.parse(localStorage.getItem('user') || '{}');
             const updated = { ...stored, ...u };
             localStorage.setItem('user', JSON.stringify(updated));
           } catch (e) {
-            // ignore JSON errors
-          }
-
-          // Optionally update visible navbar text if your navbar reads from DOM elements
-          const navNameEl = document.querySelector('#navbar .text-neutral-900') || null;
-          if (navNameEl && u.first_name) {
-            navNameEl.textContent = u.first_name + (u.last_name ? ' ' + u.last_name : '');
+            // ignore
           }
         } else {
-          // Fallback: re-fetch profile to ensure UI matches server
+          // fallback: reload profile from server
           await loadProfile();
         }
       } else {
@@ -86,25 +79,60 @@ document.addEventListener('DOMContentLoaded', async function () {
       if (resp.success) {
         showNotification('Akun dihapus. Mengarahkan ke beranda...', 'success');
         setTimeout(() => window.location.href = '/', 1200);
-      } else showNotification(resp.message || 'Gagal menghapus akun', 'error');
+      } else {
+        showNotification(resp.message || 'Gagal menghapus akun', 'error');
+      }
     } catch (e) {
       showNotification('Gagal menghapus akun', 'error');
     }
   });
 
-  window.cancelBooking = async function (bookingId) {
-    if (!confirm('Batalkan booking ini?')) return;
-    try {
-      const resp = await makeAjaxRequest(`/api/booking/${bookingId}/`, { method: 'DELETE' });
-      if (resp.success) {
-        showNotification(resp.message || 'Booking dibatalkan', 'success');
-        loadBookings();
-      } else showNotification(resp.message || 'Gagal membatalkan booking', 'error');
-    } catch (e) {
-      showNotification('Gagal membatalkan booking', 'error');
-    }
-  };
-
   await loadProfile();
   await loadBookings();
 });
+
+// Profile helpers
+async function getProfile() {
+  try {
+    const data = await makeAjaxRequest("/api/profile/");
+    return data; // { success: true, user: {...} }
+  } catch (err) {
+    console.error("Failed to load profile:", err);
+    throw err;
+  }
+}
+
+async function updateProfile(payload) {
+  try {
+    const data = await makeAjaxRequest("/api/profile/", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+        Accept: "application/json",
+      },
+    });
+    return data;
+  } catch (err) {
+    console.error("Failed to update profile:", err);
+    throw err;
+  }
+}
+
+async function deleteProfile() {
+  try {
+    const data = await makeAjaxRequest("/api/profile/", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+        Accept: "application/json",
+      },
+    });
+    return data;
+  } catch (err) {
+    console.error("Failed to delete profile:", err);
+    throw err;
+  }
+}

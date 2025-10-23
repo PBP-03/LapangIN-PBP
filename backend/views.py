@@ -337,63 +337,81 @@ def api_profile(request):
 
     user = request.user
 
-    if request.method == "GET":
-        return JsonResponse({
-            'success': True,
-            'data': {
+    # Read
+    if request.method == 'GET':
+        user_data = {
+            'id': str(user.id),
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'role': user.role,
+            'phone_number': user.phone_number,
+            'address': user.address,
+            'created_at': user.created_at.isoformat() if getattr(user, 'created_at', None) else None,
+        }
+        # Standardized: return under data.user
+        return JsonResponse({'success': True, 'data': {'user': user_data}})
+
+    # Update
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body or '{}')
+            allowed = ['first_name', 'last_name', 'email', 'phone_number', 'address', 'password']
+            changed = False
+
+            for field in allowed:
+                if field in data and data[field] is not None:
+                    if field == 'password':
+                        user.set_password(data['password'])
+                    else:
+                        setattr(user, field, data[field])
+                    changed = True
+
+            if changed:
+                user.save()
+                ActivityLog.objects.create(
+                    user=user,
+                    action_type='update',
+                    description=f'User {user.username} updated profile via API',
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+
+            updated = {
                 'id': str(user.id),
                 'username': user.username,
                 'first_name': user.first_name,
                 'last_name': user.last_name,
                 'email': user.email,
-                'phone_number': getattr(user, 'phone_number', ''),
-                'address': getattr(user, 'address', ''),
-                'role': user.role
+                'phone_number': user.phone_number,
+                'address': user.address,
             }
-        })
-
-    if request.method == "PUT":
-        try:
-            payload = json.loads(request.body)
-        except Exception:
+            # Standardized: return updated user under data.user
+            return JsonResponse({'success': True, 'message': 'Profile updated', 'data': {'user': updated}})
+        except json.JSONDecodeError:
             return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
-
-        for field in ['first_name', 'last_name', 'email', 'phone_number', 'address']:
-            if field in payload:
-                setattr(user, field, payload[field])
-
-        if payload.get('email'):
-            other = User.objects.exclude(pk=user.pk).filter(email=payload.get('email')).exists()
-            if other:
-                return JsonResponse({'success': False, 'message': 'Email already in use'}, status=400)
-
-        try:
-            user.save()
-
-            # Return full updated user object so frontend can update immediately
-            user_data = {
-                'id': str(user.id),
-                'username': user.username,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-                'phone_number': getattr(user, 'phone_number', ''),
-                'address': getattr(user, 'address', ''),
-                'role': user.role,
-                'created_at': user.created_at.isoformat() if getattr(user, 'created_at', None) else None
-            }
-
-            return JsonResponse({'success': True, 'message': 'Profile updated', 'data': {'user': user_data}})
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': 'Failed to update profile'}, status=500)
-
-    if request.method == "DELETE":
-        try:
-            username = user.username
-            user.delete()
-            return JsonResponse({'success': True, 'message': f'Profile and account {username} deleted'})
         except Exception:
-            return JsonResponse({'success': False, 'message': 'Failed to delete account'}, status=500)
+            return JsonResponse({'success': False, 'message': 'Server error'}, status=500)
+
+    # Delete
+    if request.method == 'DELETE':
+        try:
+            ActivityLog.objects.create(
+                user=user,
+                action_type='delete',
+                description=f'User {user.username} requested account deletion via API',
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+
+            username = user.username
+            logout(request)
+            user.delete()
+
+            return JsonResponse({'success': True, 'message': f'Account {username} deleted'})
+        except Exception:
+            return JsonResponse({'success': False, 'message': 'Server error'}, status=500)
 
 
 @require_http_methods(["DELETE"])
