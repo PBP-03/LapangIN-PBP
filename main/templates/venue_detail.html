@@ -1,216 +1,156 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block meta %}
-<title>{{ title|default:"Detail Venue" }} - LapangIn</title>
-{% endblock meta %}
-
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-  <!-- Venue Name and Category -->
-  <div class="mb-6">
-    <h1 id="venue-name" class="text-3xl font-bold"></h1>
-    <div class="flex items-center gap-4 mt-2">
-      <span id="venue-category" class="text-neutral-500"></span>
-      <div class="flex items-center gap-1">
-        <span id="venue-rating" class="font-medium"></span>
-        <div class="flex text-yellow-400" id="overall-stars"></div>
-        <span class="text-neutral-500">(<span id="rating-count"></span> ulasan)</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Image Gallery -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-    <div class="lg:col-span-2">
-      <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden bg-neutral-100">
-        <img id="main-venue-image" class="w-full h-full object-cover">
-      </div>
-      <div id="venue-image-thumbs" class="grid grid-cols-4 gap-4 mt-4"></div>
-    </div>
-
-    <!-- Booking Section -->
-    <div class="bg-white rounded-2xl shadow-soft p-6">
-      <h3 class="text-lg font-bold mb-4">Pesan Lapangan</h3>
-      
-      <!-- Price -->
-      <div class="flex justify-between items-center mb-4">
-        <span class="text-neutral-600">Harga per jam</span>
-        <div class="font-medium">Rp <span id="venue-price"></span></div>
-      </div>
-
-      <!-- Calendar -->
-      <div class="mb-6">
-        <div class="grid grid-cols-7 gap-1 text-center text-sm text-neutral-500 mb-2">
-          <div>Min</div>
-          <div>Sen</div>
-          <div>Sel</div>
-          <div>Rab</div>
-          <div>Kam</div>
-          <div>Jum</div>
-          <div>Sab</div>
+    <!-- Venue Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Image Gallery -->
+            <div class="relative">
+                {% if images %}
+                    <img src="{{ images.0.image_url }}" alt="{{ venue.name }}" class="w-full h-64 object-cover rounded-lg">
+                    <div class="flex mt-2 space-x-2 overflow-x-auto">
+                        {% for image in images %}
+                            <img src="{{ image.image_url }}" alt="" class="w-20 h-20 object-cover rounded cursor-pointer">
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span class="text-gray-500">No images available</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Venue Info -->
+            <div>
+                <h1 class="text-3xl font-bold mb-2">{{ venue.name }}</h1>
+                <div class="flex items-center mb-4">
+                    <div class="flex items-center">
+                        <span class="text-yellow-400">★</span>
+                        <span class="ml-1">{{ avg_rating }}</span>
+                    </div>
+                    <span class="mx-2">•</span>
+                    <span>{{ review_count }} reviews</span>
+                </div>
+                <p class="text-gray-600 mb-4">{{ venue.description }}</p>
+                <div class="mb-4">
+                    <h3 class="font-semibold mb-2">Location:</h3>
+                    <p>{{ venue.address }}</p>
+                    {% if venue.location_url %}
+                        <a href="{{ venue.location_url }}" target="_blank" class="text-blue-600 hover:underline">View on Maps</a>
+                    {% endif %}
+                </div>
+                <div class="mb-4">
+                    <h3 class="font-semibold mb-2">Contact:</h3>
+                    <p>{{ venue.contact }}</p>
+                </div>
+            </div>
         </div>
-        <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
-      </div>
-
-      <!-- Time Slots -->
-      <div id="time-slots-section">
-        <h4 class="font-medium mb-3">Pilih Jam</h4>
-        <div id="time-slots" class="grid grid-cols-3 gap-2"></div>
-      </div>
-
-      <!-- Courts -->
-      <div id="courts-section" class="mt-6">
-        <h4 class="font-medium mb-3">Pilih Lapangan</h4>
-        <div id="courts-list" class="space-y-2"></div>
-      </div>
-
-      <button id="book-button" class="w-full bg-gradient-to-r from-[#3f07a3] to-[#4E71FF] text-white rounded-lg py-3 font-medium mt-6 hidden">
-        Pesan Sekarang
-      </button>
-    </div>
-  </div>
-
-  <!-- Venue Details -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-    <div class="lg:col-span-2 space-y-6">
-      <!-- Description -->
-      <div class="bg-white rounded-2xl shadow-soft p-6">
-        <h3 class="text-lg font-bold mb-4">Tentang Venue</h3>
-        <p id="venue-description" class="text-neutral-600"></p>
-      </div>
-
-      <!-- Facilities -->
-      <div class="bg-white rounded-2xl shadow-soft p-6">
-        <h3 class="text-lg font-bold mb-4">Fasilitas</h3>
-        <div id="venue-facilities" class="grid grid-cols-2 gap-4"></div>
-      </div>
-
-      <!-- Reviews -->
-      <div class="bg-white rounded-2xl shadow-soft p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-bold">Ulasan</h3>
-          {% if request.user.is_authenticated %}
-          <button id="write-review" class="text-sm font-medium text-[#3f07a3] hover:text-[#4E71FF]">
-            Tulis Ulasan
-          </button>
-          {% endif %}
-        </div>
-
-        <!-- Review Summary -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <!-- Overall Rating -->
-          <div class="flex items-center gap-4">
-            <div class="text-4xl font-bold" id="avg-rating"></div>
-            <div>
-              <div class="flex text-yellow-400 mb-1" id="rating-stars"></div>
-              <div class="text-sm text-neutral-500">
-                <span id="total-reviews"></span> ulasan
-              </div>
-            </div>
-          </div>
-
-          <!-- Rating Categories -->
-          <div class="space-y-3">
-            <div>
-              <div class="flex justify-between text-sm mb-1">
-                <span>Kebersihan</span>
-                <span id="cleanliness-score"></span>
-              </div>
-              <div class="h-2 bg-neutral-100 rounded-full overflow-hidden">
-                <div id="cleanliness-rating" class="h-full bg-yellow-400 rounded-full"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-sm mb-1">
-                <span>Kondisi Lapangan</span>
-                <span id="court-condition-score"></span>
-              </div>
-              <div class="h-2 bg-neutral-100 rounded-full overflow-hidden">
-                <div id="court-condition-rating" class="h-full bg-yellow-400 rounded-full"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-sm mb-1">
-                <span>Komunikasi</span>
-                <span id="communication-score"></span>
-              </div>
-              <div class="h-2 bg-neutral-100 rounded-full overflow-hidden">
-                <div id="communication-rating" class="h-full bg-yellow-400 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Review List -->
-        <div id="review-list" class="space-y-4"></div>
-      </div>
     </div>
 
-    <!-- Venue Info -->
-    <div class="space-y-6">
-      <div class="bg-white rounded-2xl shadow-soft p-6">
-        <h3 class="text-lg font-bold mb-4">Informasi Venue</h3>
+    <!-- Facilities -->
+    {% if facilities %}
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4">Facilities</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {% for facility in facilities %}
+                <div class="flex items-center space-x-2">
+                    {% if facility.facility.icon %}
+                        <img src="{{ facility.facility.icon }}" alt="{{ facility.facility.name }}" class="w-6 h-6">
+                    {% endif %}
+                    <span>{{ facility.facility.name }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Courts and Booking -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4">Available Courts</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for court in courts %}
+                <div class="border rounded-lg p-4">
+                    <h3 class="text-xl font-semibold mb-2">{{ court.name }}</h3>
+                    {% if court.category %}
+                        <p class="text-gray-600 mb-2">Category: {{ court.category.get_name_display }}</p>
+                    {% endif %}
+                    <p class="text-lg font-bold mb-4">Rp {{ court.price_per_hour|floatformat:0 }}/hour</p>
+                    
+                    {% if court.sessions.all %}
+                        <h4 class="font-semibold mb-2">Available Sessions:</h4>
+                        <div class="space-y-2">
+                            {% for session in court.sessions.all %}
+                                <div class="flex justify-between items-center bg-gray-50 p-2 rounded">
+                                    <span>{{ session.session_name }}</span>
+                                    <span class="text-sm text-gray-600">
+                                        {{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if is_authenticated %}
+                        <button onclick="window.location.href='/booking/{{ court.id }}'"
+                                class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200">
+                            Book Now
+                        </button>
+                    {% else %}
+                        <button onclick="window.location.href='/login'"
+                                class="w-full mt-4 bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition duration-200">
+                            Login to Book
+                        </button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Operating Hours -->
+    {% if operational_hours %}
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4">Operating Hours</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for hour in operational_hours %}
+                <div class="flex justify-between items-center {% if hour.is_closed %}text-red-600{% endif %}">
+                    <span>{{ hour.get_day_of_week_display }}</span>
+                    {% if hour.is_closed %}
+                        <span>Closed</span>
+                    {% else %}
+                        <span>{{ hour.open_time|time:"H:i" }} - {{ hour.close_time|time:"H:i" }}</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Reviews -->
+    {% if reviews %}
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-bold mb-4">Reviews</h2>
         <div class="space-y-4">
-          <div>
-            <div class="text-sm text-neutral-500 mb-1">Alamat</div>
-            <div id="venue-address"></div>
-          </div>
-          <div>
-            <div class="text-sm text-neutral-500 mb-1">Kontak</div>
-            <div id="venue-contact"></div>
-          </div>
-          <div>
-            <div class="text-sm text-neutral-500 mb-1">Jumlah Lapangan</div>
-            <div><span id="venue-courts"></span> lapangan</div>
-          </div>
+            {% for review in reviews %}
+                <div class="border-b pb-4">
+                    <div class="flex items-center mb-2">
+                        <span class="font-semibold">{{ review.booking.user.username }}</span>
+                        <span class="mx-2">•</span>
+                        <div class="flex items-center">
+                            <span class="text-yellow-400">★</span>
+                            <span class="ml-1">{{ review.rating }}</span>
+                        </div>
+                        <span class="mx-2">•</span>
+                        <span class="text-gray-500 text-sm">{{ review.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% if review.comment %}
+                        <p class="text-gray-600">{{ review.comment }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
-      </div>
     </div>
-  </div>
+    {% endif %}
 </div>
-
-<!-- Review Modal -->
-{% if request.user.is_authenticated %}
-<div id="review-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
-  <div class="bg-white rounded-2xl p-6 max-w-lg w-full mx-4">
-    <h3 class="text-lg font-bold mb-6">Tulis Ulasan</h3>
-    <form id="review-form">
-      <div class="mb-6">
-        <label class="block mb-2">Rating</label>
-        <div id="rating-input" class="flex gap-1">
-          {% for i in "12345" %}
-          <button type="button" class="text-neutral-200">
-            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.046 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
-            </svg>
-          </button>
-          {% endfor %}
-        </div>
-      </div>
-      <div class="mb-6">
-        <label class="block mb-2">Komentar</label>
-        <textarea class="w-full rounded-lg border border-neutral-200 p-3 h-32" required></textarea>
-      </div>
-      <div class="flex justify-end gap-3">
-        <button type="button" id="cancel-review" class="px-4 py-2 rounded-lg text-neutral-600 hover:bg-neutral-100">
-          Batal
-        </button>
-        <button type="submit" class="px-4 py-2 rounded-lg bg-gradient-to-r from-[#3f07a3] to-[#4E71FF] text-white">
-          Kirim Ulasan
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-{% endif %}
-{% endblock content %}
-
-{% block scripts %}
-<script>
-  // Pass authentication status and venue id to frontend
-  window.isAuthenticated = {{ is_authenticated|yesno:"true,false" }};
-  window.venueId = "{{ venue_id }}";
-</script>
-<script src="{% static 'js/venue_detail.js' %}"></script>
 {% endblock %}

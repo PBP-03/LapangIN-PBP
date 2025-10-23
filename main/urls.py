@@ -19,5 +19,5 @@ urlpatterns = [
 
     # Venue list & detail
     path('lapangan/', views.venue_list_view, name='venue_list'),
-    path('lapangan/<str:venue_id>/', views.venue_detail_view, name='venue_detail'),
+    path('lapangan/<str:venue_id>/', views.venue_detail_view, name='venue_detail')
 ]
