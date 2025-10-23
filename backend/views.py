@@ -10,6 +10,9 @@ import json
 from .models import User, ActivityLog
 from .forms import CustomLoginForm, CustomUserCreationForm
 from .decorators import login_required, role_required, anonymous_required
+from datetime import date
+from django.shortcuts import get_object_or_404
+from .models import User, ActivityLog, Booking
 
 # Create your views here.
 
@@ -326,3 +329,79 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+@require_http_methods(["GET", "PUT", "DELETE"])
+def api_profile(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
+
+    user = request.user
+
+    if request.method == "GET":
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'id': str(user.id),
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'phone_number': getattr(user, 'phone_number', ''),
+                'address': getattr(user, 'address', ''),
+                'role': user.role
+            }
+        })
+
+    if request.method == "PUT":
+        try:
+            payload = json.loads(request.body)
+        except Exception:
+            return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+
+        for field in ['first_name', 'last_name', 'email', 'phone_number', 'address']:
+            if field in payload:
+                setattr(user, field, payload[field])
+
+        if payload.get('email'):
+            other = User.objects.exclude(pk=user.pk).filter(email=payload.get('email')).exists()
+            if other:
+                return JsonResponse({'success': False, 'message': 'Email already in use'}, status=400)
+
+        try:
+            user.save()
+            return JsonResponse({'success': True, 'message': 'Profile updated', 'data': {'email': user.email}})
+        except Exception:
+            return JsonResponse({'success': False, 'message': 'Failed to update profile'}, status=500)
+
+    if request.method == "DELETE":
+        try:
+            username = user.username
+            user.delete()
+            return JsonResponse({'success': True, 'message': f'Profile and account {username} deleted'})
+        except Exception:
+            return JsonResponse({'success': False, 'message': 'Failed to delete account'}, status=500)
+
+
+@require_http_methods(["DELETE"])
+def api_booking_detail(request, booking_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
+
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    if booking.user_id != request.user.id:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+
+    if booking.booking_date <= date.today():
+        return JsonResponse({'success': False, 'message': 'Cannot cancel booking on or after booking day'}, status=400)
+
+    try:
+        booking.booking_status = 'cancelled'
+        try:
+            booking.payment_status = 'refunded'
+        except Exception:
+            pass
+        booking.save()
+        return JsonResponse({'success': True, 'message': 'Booking cancelled'})
+    except Exception:
+        return JsonResponse({'success': False, 'message': 'Failed to cancel booking'}, status=500)
