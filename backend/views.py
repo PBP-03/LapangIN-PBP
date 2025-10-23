@@ -240,7 +240,7 @@ def api_mitra_dashboard(request):
             'is_verified': venue.is_verified,
             'avg_price_per_hour': float(avg_price),
             'total_courts': courts.count(),
-            'image_url': primary_image.image.url if primary_image else None
+            'image_url': primary_image.image_url if primary_image else None
         })
     
     return JsonResponse({
@@ -373,7 +373,7 @@ def api_venues(request):
             for img in venue.images.all():
                 images.append({
                     'id': img.id,
-                    'url': img.image.url if img.image else None,
+                    'url': img.image_url,
                     'is_primary': img.is_primary,
                     'caption': img.caption
                 })
@@ -401,23 +401,28 @@ def api_venues(request):
     elif request.method == 'POST':
         # Create a new venue
         try:
-            # Handle form data (multipart/form-data)
-            form = VenueForm(request.POST, request.FILES)
+            # Handle form data
+            form = VenueForm(request.POST)
             
             if form.is_valid():
                 venue = form.save(commit=False)
                 venue.owner = request.user
                 venue.save()
                 
-                # Handle image uploads
-                images = request.FILES.getlist('images')
-                for idx, image in enumerate(images):
+                # Handle image URLs (JSON array of URLs)
+                image_urls_str = request.POST.get('image_urls', '[]')
+                try:
+                    image_urls = json.loads(image_urls_str)
                     from .models import VenueImage
-                    VenueImage.objects.create(
-                        venue=venue,
-                        image=image,
-                        is_primary=(idx == 0)  # First image is primary
-                    )
+                    for idx, url in enumerate(image_urls):
+                        if url and url.strip():
+                            VenueImage.objects.create(
+                                venue=venue,
+                                image_url=url.strip(),
+                                is_primary=(idx == 0)  # First image is primary
+                            )
+                except (json.JSONDecodeError, ValueError):
+                    pass  # Continue without images if parsing fails
                 
                 # Log the activity
                 ActivityLog.objects.create(
@@ -480,7 +485,7 @@ def api_venue_detail(request, venue_id):
         for img in venue.images.all():
             images.append({
                 'id': img.id,
-                'url': img.image.url if img.image else None,
+                'url': img.image_url,
                 'is_primary': img.is_primary,
                 'caption': img.caption
             })
@@ -506,26 +511,30 @@ def api_venue_detail(request, venue_id):
         })
     
     elif request.method in ['POST', 'PUT']:
-        # Update venue (POST is used for file uploads, PUT for compatibility)
+        # Update venue
         try:
-            form = VenueForm(request.POST, request.FILES, instance=venue)
+            form = VenueForm(request.POST, instance=venue)
             
             if form.is_valid():
                 venue = form.save()
                 
-                # Handle new image uploads
-                images = request.FILES.getlist('images')
-                if images:
-                    # If new images are uploaded, add them
-                    for idx, image in enumerate(images):
+                # Handle new image URLs (JSON array of URLs)
+                image_urls_str = request.POST.get('image_urls', '')
+                if image_urls_str:
+                    try:
+                        image_urls = json.loads(image_urls_str)
                         from .models import VenueImage
-                        # If this is the first image and venue has no primary image, make it primary
-                        is_primary = (idx == 0 and not venue.images.filter(is_primary=True).exists())
-                        VenueImage.objects.create(
-                            venue=venue,
-                            image=image,
-                            is_primary=is_primary
-                        )
+                        for idx, url in enumerate(image_urls):
+                            if url and url.strip():
+                                # If this is the first image and venue has no primary image, make it primary
+                                is_primary = (idx == 0 and not venue.images.filter(is_primary=True).exists())
+                                VenueImage.objects.create(
+                                    venue=venue,
+                                    image_url=url.strip(),
+                                    is_primary=is_primary
+                                )
+                    except (json.JSONDecodeError, ValueError):
+                        pass  # Continue without images if parsing fails
                 
                 # Log the activity
                 ActivityLog.objects.create(
@@ -614,7 +623,7 @@ def api_courts(request):
             for img in court.images.all():
                 images.append({
                     'id': img.id,
-                    'url': img.image.url if img.image else None,
+                    'url': img.image_url,
                     'is_primary': img.is_primary,
                     'caption': img.caption
                 })
@@ -641,20 +650,25 @@ def api_courts(request):
     elif request.method == 'POST':
         # Create a new court
         try:
-            form = CourtForm(request.POST, request.FILES, user=request.user)
+            form = CourtForm(request.POST, user=request.user)
             
             if form.is_valid():
                 court = form.save()
                 
-                # Handle image uploads
-                images = request.FILES.getlist('images')
-                for idx, image in enumerate(images):
+                # Handle image URLs (JSON array of URLs)
+                image_urls_str = request.POST.get('image_urls', '[]')
+                try:
+                    image_urls = json.loads(image_urls_str)
                     from .models import CourtImage
-                    CourtImage.objects.create(
-                        court=court,
-                        image=image,
-                        is_primary=(idx == 0)  # First image is primary
-                    )
+                    for idx, url in enumerate(image_urls):
+                        if url and url.strip():
+                            CourtImage.objects.create(
+                                court=court,
+                                image_url=url.strip(),
+                                is_primary=(idx == 0)  # First image is primary
+                            )
+                except (json.JSONDecodeError, ValueError):
+                    pass  # Continue without images if parsing fails
                 
                 # Handle session slots
                 import json
@@ -738,7 +752,7 @@ def api_court_detail(request, court_id):
         for img in court.images.all():
             images.append({
                 'id': img.id,
-                'url': img.image.url if img.image else None,
+                'url': img.image_url,
                 'is_primary': img.is_primary,
                 'caption': img.caption
             })
@@ -785,26 +799,30 @@ def api_court_detail(request, court_id):
         })
     
     elif request.method in ['POST', 'PUT']:
-        # Update court (POST is used for file uploads, PUT for compatibility)
+        # Update court
         try:
-            form = CourtForm(request.POST, request.FILES, instance=court, user=request.user)
+            form = CourtForm(request.POST, instance=court, user=request.user)
             
             if form.is_valid():
                 court = form.save()
                 
-                # Handle new image uploads
-                images = request.FILES.getlist('images')
-                if images:
-                    # If new images are uploaded, add them
-                    for idx, image in enumerate(images):
+                # Handle new image URLs (JSON array of URLs)
+                image_urls_str = request.POST.get('image_urls', '')
+                if image_urls_str:
+                    try:
+                        image_urls = json.loads(image_urls_str)
                         from .models import CourtImage
-                        # If this is the first image and court has no primary image, make it primary
-                        is_primary = (idx == 0 and not court.images.filter(is_primary=True).exists())
-                        CourtImage.objects.create(
-                            court=court,
-                            image=image,
-                            is_primary=is_primary
-                        )
+                        for idx, url in enumerate(image_urls):
+                            if url and url.strip():
+                                # If this is the first image and court has no primary image, make it primary
+                                is_primary = (idx == 0 and not court.images.filter(is_primary=True).exists())
+                                CourtImage.objects.create(
+                                    court=court,
+                                    image_url=url.strip(),
+                                    is_primary=is_primary
+                                )
+                    except (json.JSONDecodeError, ValueError):
+                        pass  # Continue without images if parsing fails
                 
                 # Handle session slots update
                 import json
@@ -1215,7 +1233,7 @@ def api_bookings(request):
                         'transaction_id': booking.payment.transaction_id,
                         'paid_at': booking.payment.paid_at.isoformat() if booking.payment.paid_at else None,
                         'has_proof': bool(booking.payment.payment_proof),
-                        'proof_url': booking.payment.payment_proof.url if booking.payment.payment_proof else None
+                        'proof_url': booking.payment.payment_proof if booking.payment.payment_proof else None
                     }
             except:
                 pass
@@ -1292,7 +1310,7 @@ def api_booking_detail(request, booking_id):
                     'transaction_id': booking.payment.transaction_id,
                     'paid_at': booking.payment.paid_at.isoformat() if booking.payment.paid_at else None,
                     'has_proof': bool(booking.payment.payment_proof),
-                    'proof_url': booking.payment.payment_proof.url if booking.payment.payment_proof else None,
+                    'proof_url': booking.payment.payment_proof if booking.payment.payment_proof else None,
                     'notes': booking.payment.notes
                 }
         except:

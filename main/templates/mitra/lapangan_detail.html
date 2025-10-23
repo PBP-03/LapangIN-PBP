@@ -189,14 +189,20 @@
   </div>
 
   <!-- Session Bookings Modal -->
-  <div id="sessionBookingsModal" class="modal-overlay hidden">
-    <div class="modal-container max-w-4xl">
-      <div class="modal-header">
-        <h3 class="modal-title" id="sessionModalTitle">Booking Sesi</h3>
-        <button onclick="closeSessionBookingsModal()" class="modal-close">&times;</button>
+  <div id="sessionBookingsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-neutral-200">
+        <h3 class="text-xl font-semibold text-neutral-900" id="sessionModalTitle">Booking Sesi</h3>
+        <button onclick="closeSessionBookingsModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 transition-colors text-neutral-500 hover:text-neutral-700">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
       
-      <div class="modal-body">
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-6">
         <!-- Session Info -->
         <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
           <div class="flex items-center space-x-3">
@@ -518,7 +524,12 @@ async function loadSessionBookings(sessionId) {
       credentials: 'same-origin'
     });
     
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const result = await response.json();
+    console.log('Bookings result:', result); // Debug log
     
     const bookings = result.data?.bookings || result.data || [];
     
@@ -532,7 +543,8 @@ async function loadSessionBookings(sessionId) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
           </div>
-          <p class="text-neutral-600 text-sm">Belum ada booking untuk sesi ini</p>
+          <p class="text-neutral-600 text-sm mb-2">Belum ada booking untuk sesi ini</p>
+          <p class="text-neutral-500 text-xs">Sesi ini tersedia untuk dibooking oleh pelanggan</p>
         </div>
       `;
     }
@@ -545,8 +557,9 @@ async function loadSessionBookings(sessionId) {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
-        <p class="text-neutral-600 text-sm">Gagal memuat data booking</p>
-        <button onclick="loadSessionBookings(${sessionId})" class="btn btn-primary mt-4">Coba Lagi</button>
+        <p class="text-neutral-600 text-sm mb-2">Gagal memuat data booking</p>
+        <p class="text-neutral-500 text-xs mb-4">${error.message}</p>
+        <button onclick="loadSessionBookings(${sessionId})" class="btn btn-primary">Coba Lagi</button>
       </div>
     `;
   }

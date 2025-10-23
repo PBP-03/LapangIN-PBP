@@ -16,7 +16,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=10, choices=USER_ROLES, default='user')
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True, max_length=500)
+    profile_picture = models.URLField(max_length=500, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -55,7 +55,7 @@ class SportsCategory(models.Model):
     
     name = models.CharField(max_length=20, choices=CATEGORY_CHOICES, unique=True)
     description = models.TextField(blank=True, null=True)
-    icon = models.ImageField(upload_to='category_icons/', blank=True, null=True, max_length=500)
+    icon = models.URLField(max_length=500, blank=True, null=True)
     
     def __str__(self):
         return self.get_name_display()
@@ -100,7 +100,7 @@ class Venue(models.Model):
 # Venue Images Model
 class VenueImage(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='venue_images/', max_length=500)
+    image_url = models.URLField(max_length=500)
     is_primary = models.BooleanField(default=False)
     caption = models.CharField(max_length=255, blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
@@ -111,7 +111,7 @@ class VenueImage(models.Model):
 # Facility Model
 class Facility(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    icon = models.ImageField(upload_to='facility_icons/', blank=True, null=True, max_length=500)
+    icon = models.URLField(max_length=500, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     
     def __str__(self):
@@ -165,7 +165,7 @@ class CourtSession(models.Model):
 # Court Images Model
 class CourtImage(models.Model):
     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='court_images/', max_length=500)
+    image_url = models.URLField(max_length=500)
     is_primary = models.BooleanField(default=False)
     caption = models.CharField(max_length=255, blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
@@ -254,7 +254,7 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD)
     transaction_id = models.CharField(max_length=255, blank=True, null=True)
-    payment_proof = models.ImageField(upload_to='payment_proofs/', blank=True, null=True, max_length=500)
+    payment_proof = models.URLField(max_length=500, blank=True, null=True)
     verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
                                   related_name='verified_payments')
     notes = models.TextField(blank=True, null=True)
