@@ -1,0 +1,666 @@
+{% extends 'base.html' %}
+{% block title %}Kelola Lapangan - LapangIN{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-neutral-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center space-x-2 text-sm text-neutral-600 mb-2">
+              <a href="/mitra/dashboard" class="hover:text-primary-600">Dashboard</a>
+              <span>/</span>
+              <span class="text-neutral-900">Lapangan</span>
+            </div>
+            <h1 class="text-2xl font-display font-bold text-neutral-900">
+              Kelola Lapangan
+            </h1>
+            <p class="text-neutral-600">
+              Kelola lapangan dari setiap venue Anda
+            </p>
+          </div>
+          <button onclick="openAddCourtModal()" class="btn btn-primary">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Lapangan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="bg-white border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center space-x-4">
+        <label for="venueFilter" class="text-sm font-medium text-neutral-700">Filter by Venue:</label>
+        <select id="venueFilter" onchange="filterByVenue()"
+          class="px-4 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
+          <option value="">Semua Venue</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div id="courtsLoading" class="flex justify-center items-center py-20">
+    <div class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden" id="courtsContent">
+    <!-- Courts by Venue -->
+    <div id="courtsContainer" class="space-y-8">
+      <!-- Courts will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-20 hidden">
+      <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+        </svg>
+      </div>
+      <h3 class="text-neutral-900 font-medium mb-2">Belum ada lapangan</h3>
+      <p class="text-neutral-600 text-sm mb-4">Mulai tambahkan lapangan untuk venue Anda</p>
+      <button onclick="openAddCourtModal()" class="btn btn-primary">Tambah Lapangan Pertama</button>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="courtsError" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center hidden">
+    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <h3 class="text-neutral-900 font-medium mb-2">Gagal memuat lapangan</h3>
+    <p class="text-neutral-600 text-sm mb-4">Terjadi kesalahan saat memuat data lapangan</p>
+    <button onclick="window.location.reload()" class="btn btn-primary">Coba Lagi</button>
+  </div>
+</div>
+
+<!-- Add/Edit Court Modal -->
+<div id="courtModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-8">
+  <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col my-8">
+    <div class="p-6 border-b border-neutral-200 flex-shrink-0">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-display font-bold text-neutral-900" id="modalTitle">Tambah Lapangan</h2>
+        <button onclick="closeCourtModal()" class="text-neutral-400 hover:text-neutral-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <form id="courtForm" class="p-6 space-y-4 overflow-y-auto flex-1">
+      <input type="hidden" id="courtId" name="court_id">
+      
+      <div>
+        <label for="venue" class="block text-sm font-medium text-neutral-700 mb-2">Venue</label>
+        <select id="venue" name="venue" required
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
+          <option value="">Pilih Venue</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="courtName" class="block text-sm font-medium text-neutral-700 mb-2">Nama Lapangan</label>
+        <input type="text" id="courtName" name="name" required
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+          placeholder="Contoh: Lapangan 1, Court A">
+      </div>
+
+      <div>
+        <label for="category" class="block text-sm font-medium text-neutral-700 mb-2">Kategori Olahraga</label>
+        <select id="category" name="category" required
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
+          <option value="">Pilih Kategori</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="price_per_hour" class="block text-sm font-medium text-neutral-700 mb-2">Harga per Jam (Rp)</label>
+        <input type="number" id="price_per_hour" name="price_per_hour" min="0" step="1000" required
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+          placeholder="100000">
+      </div>
+
+      <div class="flex items-center">
+        <input type="checkbox" id="is_active" name="is_active" checked
+          class="w-4 h-4 text-primary-600 bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500 focus:ring-2">
+        <label for="is_active" class="ml-2 text-sm font-medium text-neutral-700">Lapangan Aktif</label>
+      </div>
+
+      <div>
+        <label for="description" class="block text-sm font-medium text-neutral-700 mb-2">Deskripsi Lapangan - Opsional</label>
+        <textarea id="description" name="description" rows="3"
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+          placeholder="Deskripsi dan informasi tambahan tentang lapangan"></textarea>
+      </div>
+
+      <div>
+        <label for="maintenance_notes" class="block text-sm font-medium text-neutral-700 mb-2">Catatan Maintenance - Opsional</label>
+        <textarea id="maintenance_notes" name="maintenance_notes" rows="3"
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+          placeholder="Catatan tentang kondisi atau jadwal maintenance"></textarea>
+      </div>
+
+      <!-- Image Upload Section -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-2">Gambar Lapangan</label>
+        <div id="courtUploadContainer" class="border-2 border-dashed border-neutral-300 rounded-xl p-4">
+          <input type="file" id="courtImages" name="images" accept="image/*" multiple class="hidden" onchange="handleCourtImageSelect(event)">
+          <label for="courtImages" id="courtUploadLabel" class="cursor-pointer flex flex-col items-center">
+            <svg class="w-12 h-12 text-neutral-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="text-sm text-neutral-600">Klik untuk upload gambar</span>
+            <span class="text-xs text-neutral-500 mt-1">PNG, JPG hingga 5MB (Multiple)</span>
+          </label>
+          
+          <!-- Preview existing images when editing -->
+          <div id="existingCourtImages" class="grid grid-cols-3 gap-2 hidden"></div>
+          
+          <!-- Preview new images -->
+          <div id="courtImagePreview" class="grid grid-cols-3 gap-2 hidden"></div>
+        </div>
+      </div>
+
+      <div class="flex space-x-3 pt-4">
+        <button type="submit" class="btn btn-primary flex-1" id="submitBtn">
+          Simpan
+        </button>
+        <button type="button" onclick="closeCourtModal()" class="btn btn-secondary flex-1">
+          Batal
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+let courtsData = [];
+let venuesData = [];
+let categoriesData = [];
+let editingCourtId = null;
+let selectedVenueFilter = '';
+let selectedCourtImages = [];
+let currentCourtImages = [];
+
+// Load data on page load
+document.addEventListener('DOMContentLoaded', async function() {
+  // Check if there's a venue parameter in the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const venueParam = urlParams.get('venue');
+  
+  await loadCategories();
+  await loadVenues();
+  
+  // Set the venue filter if parameter exists
+  if (venueParam) {
+    selectedVenueFilter = venueParam;
+    const venueFilterSelect = document.getElementById('venueFilter');
+    if (venueFilterSelect) {
+      venueFilterSelect.value = venueParam;
+    }
+  }
+  
+  await loadCourts();
+});
+
+function handleCourtImageSelect(event) {
+  const files = Array.from(event.target.files);
+  selectedCourtImages = files;
+  
+  const uploadLabel = document.getElementById('courtUploadLabel');
+  const previewContainer = document.getElementById('courtImagePreview');
+  previewContainer.innerHTML = '';
+  
+  if (files.length > 0) {
+    // Hide upload label and show preview
+    uploadLabel.classList.add('hidden');
+    previewContainer.classList.remove('hidden');
+    
+    files.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const div = document.createElement('div');
+        div.className = 'relative group';
+        div.innerHTML = `
+          <img src="${e.target.result}" class="w-full h-24 object-cover rounded-lg">
+          <button type="button" onclick="removeNewCourtImage(${index})" 
+            class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        `;
+        previewContainer.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    });
+  } else {
+    // Show upload label if no files
+    uploadLabel.classList.remove('hidden');
+    previewContainer.classList.add('hidden');
+  }
+}
+
+function removeNewCourtImage(index) {
+  const dt = new DataTransfer();
+  const input = document.getElementById('courtImages');
+  const files = Array.from(input.files);
+  
+  files.forEach((file, i) => {
+    if (i !== index) dt.items.add(file);
+  });
+  
+  input.files = dt.files;
+  handleCourtImageSelect({ target: input });
+}
+
+async function deleteCourtImage(imageId) {
+  if (!confirm('Hapus gambar ini?')) return;
+  
+  try {
+    const response = await makeAjaxRequest(`/api/court-images/${imageId}/delete/`, {
+      method: 'DELETE'
+    });
+    
+    if (response.success) {
+      showNotification('Gambar berhasil dihapus', 'success');
+      // Reload court data
+      if (editingCourtId) {
+        const courtResponse = await makeAjaxRequest(`/api/courts/${editingCourtId}/`);
+        if (courtResponse.success) {
+          displayExistingCourtImages(courtResponse.data.images || []);
+        }
+      }
+    }
+  } catch (error) {
+    showNotification('Gagal menghapus gambar', 'error');
+  }
+}
+
+function displayExistingCourtImages(images) {
+  currentCourtImages = images;
+  const uploadLabel = document.getElementById('courtUploadLabel');
+  const container = document.getElementById('existingCourtImages');
+  
+  if (images && images.length > 0) {
+    // Hide upload label and show existing images
+    uploadLabel.classList.add('hidden');
+    container.classList.remove('hidden');
+    container.innerHTML = images.map(img => `
+      <div class="relative group">
+        <img src="${img.url}" class="w-full h-24 object-cover rounded-lg">
+        <button type="button" onclick="deleteCourtImage(${img.id})" 
+          class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        ${img.is_primary ? '<span class="absolute bottom-1 left-1 bg-primary-500 text-white text-xs px-2 py-0.5 rounded">Utama</span>' : ''}
+      </div>
+    `).join('');
+  } else {
+    // Show upload label if no existing images
+    uploadLabel.classList.remove('hidden');
+    container.classList.add('hidden');
+  }
+}
+
+async function loadCategories() {
+  try {
+    const response = await makeAjaxRequest('/api/sports-categories/');
+    if (response.success) {
+      categoriesData = response.data;
+      populateCategorySelect();
+    }
+  } catch (error) {
+    console.error('Error loading categories:', error);
+  }
+}
+
+function populateCategorySelect() {
+  const select = document.getElementById('category');
+  select.innerHTML = '<option value="">Pilih Kategori</option>';
+  categoriesData.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat.id;
+    option.textContent = cat.display_name;
+    select.appendChild(option);
+  });
+}
+
+async function loadVenues() {
+  try {
+    const response = await makeAjaxRequest('/api/venues/');
+    if (response.success) {
+      venuesData = response.data;
+      populateVenueSelects();
+    }
+  } catch (error) {
+    console.error('Error loading venues:', error);
+  }
+}
+
+function populateVenueSelects() {
+  // Populate venue filter
+  const filter = document.getElementById('venueFilter');
+  filter.innerHTML = '<option value="">Semua Venue</option>';
+  venuesData.forEach(venue => {
+    const option = document.createElement('option');
+    option.value = venue.id;
+    option.textContent = venue.name;
+    filter.appendChild(option);
+  });
+  
+  // Populate venue select in modal
+  const select = document.getElementById('venue');
+  select.innerHTML = '<option value="">Pilih Venue</option>';
+  venuesData.forEach(venue => {
+    const option = document.createElement('option');
+    option.value = venue.id;
+    option.textContent = venue.name;
+    select.appendChild(option);
+  });
+}
+
+async function loadCourts() {
+  try {
+    const url = selectedVenueFilter ? 
+      `/api/courts/?venue_id=${selectedVenueFilter}` : 
+      '/api/courts/';
+    
+    const response = await makeAjaxRequest(url);
+    
+    if (response.success) {
+      courtsData = response.data;
+      renderCourts();
+      
+      document.getElementById('courtsLoading').classList.add('hidden');
+      document.getElementById('courtsContent').classList.remove('hidden');
+    }
+  } catch (error) {
+    console.error('Error loading courts:', error);
+    document.getElementById('courtsLoading').classList.add('hidden');
+    document.getElementById('courtsError').classList.remove('hidden');
+  }
+}
+
+function filterByVenue() {
+  selectedVenueFilter = document.getElementById('venueFilter').value;
+  document.getElementById('courtsLoading').classList.remove('hidden');
+  document.getElementById('courtsContent').classList.add('hidden');
+  loadCourts();
+}
+
+function renderCourts() {
+  const container = document.getElementById('courtsContainer');
+  const emptyState = document.getElementById('emptyState');
+  
+  if (courtsData.length === 0) {
+    container.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  
+  container.classList.remove('hidden');
+  emptyState.classList.add('hidden');
+  
+  // Group courts by venue
+  const courtsByVenue = {};
+  courtsData.forEach(court => {
+    if (!courtsByVenue[court.venue_id]) {
+      courtsByVenue[court.venue_id] = {
+        venue_name: court.venue_name,
+        courts: []
+      };
+    }
+    courtsByVenue[court.venue_id].courts.push(court);
+  });
+  
+  // Calculate total courts
+  const totalCourts = courtsData.length;
+  const venueCount = Object.keys(courtsByVenue).length;
+  
+  // Generate header based on filter
+  let headerText = '';
+  if (selectedVenueFilter) {
+    // Filtered by specific venue
+    const venueName = Object.values(courtsByVenue)[0].venue_name;
+    headerText = `Menampilkan ${totalCourts} lapangan di ${venueName}`;
+  } else {
+    // Showing all courts from all venues
+    headerText = `Menampilkan ${totalCourts} lapangan`;
+  }
+  
+  // Render header and grouped courts
+  container.innerHTML = `
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold text-neutral-900">${headerText}</h3>
+    </div>
+  ` + Object.entries(courtsByVenue).map(([venueId, data]) => `
+    <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 overflow-hidden">
+      <div class="bg-gradient-primary p-4">
+        <h2 class="text-lg font-semibold text-white">${data.venue_name}</h2>
+        <p class="text-white text-opacity-90 text-sm">${data.courts.length} Lapangan</p>
+      </div>
+      
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          ${data.courts.map(court => `
+            <div class="border border-neutral-200 rounded-xl overflow-hidden hover:border-primary-300 transition-colors">
+              ${court.images && court.images.length > 0 ? `
+              <div class="relative h-48 bg-neutral-100">
+                <img src="${court.images.find(img => img.is_primary)?.url || court.images[0].url}" 
+                     alt="${court.name}" 
+                     class="w-full h-full object-cover">
+                ${court.images.length > 1 ? `
+                <div class="absolute bottom-1 right-1 bg-black bg-opacity-60 text-white text-xs px-2 py-0.5 rounded">
+                  +${court.images.length - 1}
+                </div>
+                ` : ''}
+              </div>
+              ` : `
+              <div class="relative h-48 bg-neutral-100 flex items-center justify-center">
+                <svg class="w-12 h-12 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              `}
+              <div class="p-4">
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-neutral-900 mb-1">${court.name}</h3>
+                    <p class="text-xs text-primary-600 font-medium mb-2">${court.category || 'No Category'}</p>
+                    <p class="text-xs text-neutral-600 mb-1">Rp ${parseInt(court.price_per_hour || 0).toLocaleString('id-ID')}/jam</p>
+                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full ${court.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                      ${court.is_active ? 'Aktif' : 'Nonaktif'}
+                    </span>
+                  </div>
+                </div>
+                
+                ${court.maintenance_notes ? `
+                  <p class="text-xs text-neutral-600 mb-3 line-clamp-2">
+                    <span class="font-medium">Catatan:</span> ${court.maintenance_notes}
+                  </p>
+                ` : ''}
+                
+                <div class="flex space-x-2">
+                  <button onclick="editCourt(${court.id})" class="flex-1 btn btn-secondary text-xs py-2">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit
+                  </button>
+                  <button onclick="deleteCourt(${court.id}, '${court.name}')" class="btn btn-secondary text-xs py-2 text-red-600 hover:bg-red-50">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddCourtModal() {
+  if (venuesData.length === 0) {
+    showNotification('Anda harus membuat venue terlebih dahulu sebelum menambahkan lapangan.', 'warning');
+    return;
+  }
+  
+  editingCourtId = null;
+  selectedCourtImages = [];
+  currentCourtImages = [];
+  document.getElementById('modalTitle').textContent = 'Tambah Lapangan';
+  document.getElementById('courtForm').reset();
+  document.getElementById('courtId').value = '';
+  document.getElementById('is_active').checked = true;
+  document.getElementById('courtImagePreview').classList.add('hidden');
+  document.getElementById('courtImagePreview').innerHTML = '';
+  document.getElementById('existingCourtImages').classList.add('hidden');
+  document.getElementById('existingCourtImages').innerHTML = '';
+  document.getElementById('courtModal').classList.remove('hidden');
+}
+
+async function editCourt(courtId) {
+  try {
+    const response = await makeAjaxRequest(`/api/courts/${courtId}/`);
+    
+    if (response.success) {
+      editingCourtId = courtId;
+      const court = response.data;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Lapangan';
+      document.getElementById('courtId').value = court.id;
+      document.getElementById('venue').value = court.venue_id;
+      document.getElementById('courtName').value = court.name;
+      document.getElementById('category').value = court.category_id || '';
+      document.getElementById('price_per_hour').value = court.price_per_hour || 0;
+      document.getElementById('is_active').checked = court.is_active;
+      document.getElementById('description').value = court.description || '';
+      document.getElementById('maintenance_notes').value = court.maintenance_notes || '';
+      
+      // Display existing images
+      displayExistingCourtImages(court.images || []);
+      
+      // Clear new image preview
+      document.getElementById('courtImagePreview').classList.add('hidden');
+      document.getElementById('courtImagePreview').innerHTML = '';
+      document.getElementById('courtImages').value = '';
+      selectedCourtImages = [];
+      
+      document.getElementById('courtModal').classList.remove('hidden');
+    }
+  } catch (error) {
+    showNotification('Gagal memuat data lapangan', 'error');
+  }
+}
+
+function closeCourtModal() {
+  document.getElementById('courtModal').classList.add('hidden');
+  document.getElementById('courtForm').reset();
+  document.getElementById('courtImagePreview').classList.add('hidden');
+  document.getElementById('courtImagePreview').innerHTML = '';
+  document.getElementById('existingCourtImages').classList.add('hidden');
+  document.getElementById('existingCourtImages').innerHTML = '';
+  document.getElementById('courtUploadLabel').classList.remove('hidden');
+  editingCourtId = null;
+  selectedCourtImages = [];
+  currentCourtImages = [];
+}
+
+document.getElementById('courtForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('submitBtn');
+  setLoadingState(submitBtn, true);
+  
+  // Use FormData for file uploads
+  const formData = new FormData();
+  formData.append('venue', document.getElementById('venue').value);
+  formData.append('name', document.getElementById('courtName').value);
+  formData.append('category', document.getElementById('category').value);
+  formData.append('price_per_hour', document.getElementById('price_per_hour').value);
+  formData.append('is_active', document.getElementById('is_active').checked);
+  formData.append('description', document.getElementById('description').value);
+  formData.append('maintenance_notes', document.getElementById('maintenance_notes').value);
+  
+  // Append images
+  const imageFiles = document.getElementById('courtImages').files;
+  for (let i = 0; i < imageFiles.length; i++) {
+    formData.append('images', imageFiles[i]);
+  }
+  
+  try {
+    let response;
+    if (editingCourtId) {
+      response = await fetch(`/api/courts/${editingCourtId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: formData,
+        credentials: 'same-origin'
+      });
+      response = await response.json();
+    } else {
+      response = await fetch('/api/courts/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: formData,
+        credentials: 'same-origin'
+      });
+      response = await response.json();
+    }
+    
+    if (response.success) {
+      showNotification(response.message, 'success');
+      closeCourtModal();
+      await loadCourts();
+    } else {
+      showNotification(response.message || 'Terjadi kesalahan', 'error');
+    }
+  } catch (error) {
+    showNotification(error.message || 'Terjadi kesalahan', 'error');
+  } finally {
+    setLoadingState(submitBtn, false);
+  }
+});
+
+async function deleteCourt(courtId, courtName) {
+  if (!confirm(`Apakah Anda yakin ingin menghapus lapangan "${courtName}"?\n\nSemua booking terkait juga akan terhapus.`)) {
+    return;
+  }
+  
+  try {
+    const response = await makeAjaxRequest(`/api/courts/${courtId}/`, {
+      method: 'DELETE'
+    });
+    
+    if (response.success) {
+      showNotification(response.message, 'success');
+      await loadCourts();
+    }
+  } catch (error) {
+    showNotification(error.message || 'Gagal menghapus lapangan', 'error');
+  }
+}
+</script>
+{% endblock %}

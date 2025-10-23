@@ -109,7 +109,8 @@
     const content = document.getElementById("dashboardContent");
     const user = data.user;
     const venues = data.venues || [];
-    const activeVenues = venues.filter(v => v.is_available).length;
+    const approvedVenues = venues.filter(v => v.verification_status === 'approved').length;
+    const totalCourts = venues.reduce((sum, v) => sum + v.total_courts, 0);
 
     content.innerHTML = `
       <!-- Stats Cards -->
@@ -122,7 +123,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-sm text-neutral-600">Total Lapangan</p>
+              <p class="text-sm text-neutral-600">Total Venue</p>
               <p class="text-2xl font-bold text-neutral-900">${venues.length}</p>
             </div>
           </div>
@@ -136,8 +137,8 @@
               </svg>
             </div>
             <div>
-              <p class="text-sm text-neutral-600">Lapangan Aktif</p>
-              <p class="text-2xl font-bold text-neutral-900">${activeVenues}</p>
+              <p class="text-sm text-neutral-600">Total Lapangan</p>
+              <p class="text-2xl font-bold text-neutral-900">${totalCourts}</p>
             </div>
           </div>
         </div>
@@ -177,39 +178,41 @@
           <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
             <div class="flex items-center justify-between mb-6">
               <h2 class="text-lg font-semibold text-neutral-900">Lapangan Anda</h2>
-              <button onclick="addVenue()" class="btn btn-primary">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Tambah Lapangan
-              </button>
             </div>
 
             ${venues.length > 0 ? `
               <div class="space-y-4">
                 ${venues.map(venue => `
-                  <div class="flex items-center justify-between p-4 border border-neutral-200 rounded-xl">
-                    <div class="flex items-center">
-                      <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center mr-4">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 class="font-medium text-neutral-900">${venue.name}</h3>
-                        <p class="text-sm text-neutral-600">${venue.location}</p>
-                        <p class="text-sm text-neutral-500">Kapasitas: ${venue.capacity} orang | Rp ${parseInt(venue.price_per_hour).toLocaleString('id-ID')}/jam</p>
+                  <div class="flex items-center justify-between p-4 border border-neutral-200 rounded-xl hover:border-primary-300 transition-colors cursor-pointer" onclick="window.location.href='/mitra/courts/?venue=${venue.id}'">
+                    <div class="flex items-center flex-1">
+                      ${venue.image_url ? `
+                        <img src="${venue.image_url}" alt="${venue.name}" class="w-16 h-16 rounded-xl object-cover mr-4">
+                      ` : `
+                        <div class="w-16 h-16 gradient-primary rounded-xl flex items-center justify-center mr-4">
+                          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+                          </svg>
+                        </div>
+                      `}
+                      <div class="flex-1">
+                        <h3 class="font-medium text-neutral-900 mb-1">${venue.name}</h3>
+                        <p class="text-sm text-neutral-600 mb-1">
+                          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                          </svg>
+                          ${venue.address}
+                        </p>
+                        <p class="text-sm text-neutral-500">
+                          ${venue.total_courts} Lapangan
+                          ${venue.avg_price_per_hour > 0 ? ` | Rata-rata Rp ${parseInt(venue.avg_price_per_hour).toLocaleString('id-ID')}/jam` : ''}
+                        </p>
                       </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="px-2 py-1 text-xs font-medium rounded-full ${venue.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                        ${venue.is_available ? 'Aktif' : 'Nonaktif'}
+                      <span class="px-3 py-1 text-xs font-medium rounded-full ${venue.verification_status === 'approved' ? 'bg-green-100 text-green-800' : venue.verification_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                        ${venue.verification_status === 'approved' ? 'Disetujui' : venue.verification_status === 'pending' ? 'Menunggu' : 'Ditolak'}
                       </span>
-                      <button onclick="editVenue('${venue.id}')" class="text-neutral-400 hover:text-neutral-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                      </button>
                     </div>
                   </div>
                 `).join('')}
@@ -223,7 +226,7 @@
                 </div>
                 <h3 class="text-neutral-900 font-medium mb-2">Belum ada lapangan</h3>
                 <p class="text-neutral-600 text-sm mb-4">Mulai tambahkan lapangan untuk memulai bisnis Anda</p>
-                <button onclick="addVenue()" class="btn btn-primary">Tambah Lapangan Pertama</button>
+                <a href="/mitra/venues/" class="btn btn-primary">Tambah Venue Pertama</a>
               </div>
             `}
           </div>
@@ -233,21 +236,49 @@
           <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
             <h2 class="text-lg font-semibold text-neutral-900 mb-4">Aksi Cepat</h2>
             <div class="space-y-3">
-              <button onclick="addVenue()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+              <a href="/mitra/venues/" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
                 <div class="flex items-center">
                   <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
                     </svg>
                   </div>
                   <div>
-                    <h3 class="font-medium text-neutral-900">Tambah Lapangan</h3>
-                    <p class="text-sm text-neutral-600">Daftarkan lapangan baru</p>
+                    <h3 class="font-medium text-neutral-900">Kelola Venue</h3>
+                    <p class="text-sm text-neutral-600">Tambah & edit venue</p>
                   </div>
                 </div>
-              </button>
+              </a>
 
-              <button onclick="viewBookings()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+              <a href="/mitra/courts/" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-neutral-900">Kelola Lapangan</h3>
+                    <p class="text-sm text-neutral-600">Atur lapangan per venue</p>
+                  </div>
+                </div>
+              </a>
+
+              <a href="/mitra/pendapatan/" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-neutral-900">Pendapatan</h3>
+                    <p class="text-sm text-neutral-600">Lihat laporan keuangan</p>
+                  </div>
+                </div>
+              </a>
+
+              <a href="/mitra/bookings/" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
                 <div class="flex items-center">
                   <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,21 +290,7 @@
                     <p class="text-sm text-neutral-600">Lihat dan kelola pesanan</p>
                   </div>
                 </div>
-              </button>
-
-              <button onclick="viewReports()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
-                <div class="flex items-center">
-                  <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
-                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="font-medium text-neutral-900">Laporan Keuangan</h3>
-                    <p class="text-sm text-neutral-600">Analisis pendapatan</p>
-                  </div>
-                </div>
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -281,21 +298,5 @@
     `;
   }
 
-  // Navigation functions
-  function addVenue() {
-    showNotification("Fitur tambah lapangan akan segera hadir!", "info");
-  }
-
-  function editVenue(venueId) {
-    showNotification("Fitur edit lapangan akan segera hadir!", "info");
-  }
-
-  function viewBookings() {
-    showNotification("Fitur kelola booking akan segera hadir!", "info");
-  }
-
-  function viewReports() {
-    showNotification("Fitur laporan keuangan akan segera hadir!", "info");
-  }
 </script>
 {% endblock %}
