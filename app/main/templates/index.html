@@ -1,454 +1,307 @@
-{% extends 'base.html' %}  {% block title %}{% endblock %} {% block content %}
-<!-- Include Navbar -->
+{% extends 'base.html' %}
+{% load static %}
 
-<!-- Hero Section -->
-<section
-  class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 overflow-hidden"
->
-  <!-- Background decoration -->
-  <div class="absolute inset-0 overflow-hidden">
-    <div
-      class="absolute -top-40 -right-40 w-80 h-80 rounded-full gradient-accent opacity-20 blur-3xl"
-    ></div>
-    <div
-      class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full gradient-primary opacity-20 blur-3xl"
-    ></div>
-    <div
-      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-neutral-200 opacity-30"
-    ></div>
+{% block title %}LapangIN - Platform Booking Lapangan Olahraga Terpercaya{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section with Image Background -->
+<section class="relative h-screen overflow-hidden">
+  <!-- Background Image with Overlay -->
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-600/95 via-secondary-600/90 to-teal-600/95"></div>
+    <img src="https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=1920&h=1080&fit=crop" 
+         alt="Professional Sports Arena" 
+         class="absolute inset-0 w-full h-full object-cover mix-blend-overlay">
   </div>
 
-  <div
-    class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center"
-  >
-    <div class="max-w-4xl mx-auto">
-      <!-- Hero badge -->
-      <div
-        class="inline-flex items-center px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-neutral-200 shadow-soft mb-8"
-      >
-        <svg
-          class="w-4 h-4 text-green-500 mr-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
-        </svg>
-        <span class="text-sm font-medium text-neutral-700"
-          >Platform Terpercaya #1 di Indonesia</span
-        >
-      </div>
+  <!-- Decorative Elements -->
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
+  </div>
 
-      <!-- Hero title -->
-      <h1
-        class="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-neutral-900 mb-6 leading-tight"
-      >
-        Sewa Lapangan
-        <span class="text-gradient block">Olahraga</span>
-        <span class="text-neutral-700">Jadi Mudah</span>
-      </h1>
-
-      <!-- Hero subtitle -->
-      <p
-        class="text-lg md:text-xl text-neutral-600 mb-8 max-w-2xl mx-auto leading-relaxed"
-      >
-        Temukan dan sewa lapangan olahraga favorit Anda dengan mudah. Dari
-        futsal, badminton, basket, hingga tenis - semua ada di LapangIN.
-      </p>
-
-      <!-- Hero CTA -->
-      <div
-        class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-12"
-      >
-        <a href="/lapangan" class="btn btn-primary lg inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2">
-          Cari Lapangan Sekarang
-          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-        </a>
-        <a href="/daftar-mitra" class="btn btn-secondary lg inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2">
-          Daftar Sebagai Mitra
-          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-          </svg>
-        </a>
-      </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
-        <div class="text-center">
-          <div class="text-2xl md:text-3xl font-bold text-primary-600 mb-1">
-            500+
-          </div>
-          <div class="text-sm text-neutral-600">Lapangan Tersedia</div>
+  <!-- Hero Content -->
+  <div class="relative h-full flex items-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="max-w-4xl mx-auto text-center text-white">
+        
+        <!-- Badge -->
+        <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-6 animate-fade-in-down">
+          <div class="w-2 h-2 bg-teal-300 rounded-full mr-2 animate-pulse"></div>
+          <span class="text-sm font-semibold">Platform Booking Lapangan #1 di Indonesia</span>
         </div>
-        <div class="text-center">
-          <div class="text-2xl md:text-3xl font-bold text-secondary-600 mb-1">
-            10K+
-          </div>
-          <div class="text-sm text-neutral-600">Pengguna Aktif</div>
+
+        <!-- Main Heading -->
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight animate-fade-in min-h-[200px] md:min-h-[300px]">
+          <span class="block">Book Your</span>
+          <span class="block text-teal-300">
+            <span id="typing-text" class="typing-cursor"></span>
+          </span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto opacity-95 leading-relaxed animate-fade-in-up">
+          Temukan dan pesan lapangan olahraga favorit Anda dengan mudah. Dari futsal hingga tennis, semua ada di LapangIN
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-16 animate-fade-in-up animation-delay-200">
+          <a href="/lapangan" class="inline-flex items-center px-8 py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-neutral-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105 transform">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            Cari Lapangan
+          </a>
+          <a href="/tentang" class="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-primary-600 transition-all">
+            Pelajari Lebih Lanjut
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </a>
         </div>
-        <div class="text-center">
-          <div class="text-2xl md:text-3xl font-bold text-accent-600 mb-1">
-            50+
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all">
+            <div class="text-3xl md:text-4xl font-bold mb-1">100+</div>
+            <div class="text-sm opacity-90">Lapangan</div>
           </div>
-          <div class="text-sm text-neutral-600">Kota</div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl md:text-3xl font-bold text-light-600 mb-1">
-            4.8
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all">
+            <div class="text-3xl md:text-4xl font-bold mb-1">10K+</div>
+            <div class="text-sm opacity-90">Pengguna</div>
           </div>
-          <div class="text-sm text-neutral-600">Rating</div>
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all">
+            <div class="text-3xl md:text-4xl font-bold mb-1">10+</div>
+            <div class="text-sm opacity-90">Kota</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all">
+            <div class="text-3xl md:text-4xl font-bold mb-1">4.9★</div>
+            <div class="text-sm opacity-90">Rating</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Scroll indicator -->
-  <div
-    class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce"
-  >
-    <svg
-      class="w-6 h-6 text-neutral-400"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M19 14l-7 7m0 0l-7-7m7 7V3"
-      ></path>
+  <!-- Scroll Indicator -->
+  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+    <svg class="w-6 h-6 text-white opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
     </svg>
   </div>
 </section>
 
 <!-- Features Section -->
-<section class="py-20 bg-white">
+<section class="py-20 bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Section header -->
-    <div class="text-center mb-16">
-      <h2
-        class="text-3xl md:text-4xl font-display font-bold text-neutral-900 mb-4"
-      >
-        Mengapa Pilih <span class="text-gradient">LapangIN</span>?
+    <div class="text-center mb-16 scroll-animate">
+      <p class="text-sm text-primary-600 font-semibold uppercase tracking-wider mb-2">FEATURES</p>
+      <h2 class="text-4xl md:text-5xl font-bold text-neutral-900 mb-6">
+        Mengapa Pilih <span class="text-gradient bg-gradient-to-r from-primary-600 to-teal-600 bg-clip-text text-transparent">LapangIN</span>?
       </h2>
       <p class="text-lg text-neutral-600 max-w-2xl mx-auto">
-        Platform yang menghubungkan penyewa dan pemilik lapangan dengan
-        fitur-fitur unggulan
+        Platform yang menghubungkan penyewa dan pemilik lapangan dengan fitur-fitur unggulan
       </p>
     </div>
 
     <!-- Features grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Feature 1 -->
-      <div class="card-hover bg-white p-8 rounded-2xl shadow-soft text-center">
-        <div
-          class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            ></path>
+      <div class="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 border border-blue-100 shadow-soft hover:shadow-lg transition-all group scroll-animate">
+        <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
-        <h3 class="text-xl font-display font-semibold text-neutral-900 mb-4">
-          Pencarian Mudah
-        </h3>
-        <p class="text-neutral-600 leading-relaxed">
-          Temukan lapangan berdasarkan lokasi, jenis olahraga, dan harga dengan
-          filter yang canggih
+        <h3 class="text-lg font-bold text-neutral-900 mb-2">Pencarian Mudah</h3>
+        <p class="text-neutral-600 text-sm leading-relaxed">
+          Temukan lapangan berdasarkan lokasi, jenis olahraga, dan harga dengan filter yang canggih
         </p>
       </div>
 
       <!-- Feature 2 -->
-      <div class="card-hover bg-white p-8 rounded-2xl shadow-soft text-center">
-        <div
-          class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            ></path>
+      <div class="bg-gradient-to-br from-teal-50 to-white rounded-2xl p-6 border border-teal-100 shadow-soft hover:shadow-lg transition-all group scroll-animate">
+        <div class="w-14 h-14 bg-teal-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
           </svg>
         </div>
-        <h3 class="text-xl font-display font-semibold text-neutral-900 mb-4">
-          Pembayaran Aman
-        </h3>
-        <p class="text-neutral-600 leading-relaxed">
-          Sistem pembayaran terintegrasi dengan berbagai metode pembayaran yang
-          aman dan terpercaya
+        <h3 class="text-lg font-bold text-neutral-900 mb-2">Pembayaran Aman</h3>
+        <p class="text-neutral-600 text-sm leading-relaxed">
+          Sistem pembayaran terintegrasi dengan berbagai metode yang aman dan terpercaya
         </p>
       </div>
 
       <!-- Feature 3 -->
-      <div class="card-hover bg-white p-8 rounded-2xl shadow-soft text-center">
-        <div
-          class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
+      <div class="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-6 border border-purple-100 shadow-soft hover:shadow-lg transition-all group scroll-animate">
+        <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
-        <h3 class="text-xl font-display font-semibold text-neutral-900 mb-4">
-          Booking Real-time
-        </h3>
-        <p class="text-neutral-600 leading-relaxed">
-          Lihat ketersediaan lapangan secara real-time dan lakukan booking
-          langsung tanpa ribet
+        <h3 class="text-lg font-bold text-neutral-900 mb-2">Booking Real-time</h3>
+        <p class="text-neutral-600 text-sm leading-relaxed">
+          Lihat ketersediaan lapangan secara real-time dan booking langsung tanpa ribet
         </p>
       </div>
 
       <!-- Feature 4 -->
-      <div class="card-hover bg-white p-8 rounded-2xl shadow-soft text-center">
-        <div
-          class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-            ></path>
+      <div class="bg-gradient-to-br from-green-50 to-white rounded-2xl p-6 border border-green-100 shadow-soft hover:shadow-lg transition-all group scroll-animate">
+        <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
           </svg>
         </div>
-        <h3 class="text-xl font-display font-semibold text-neutral-900 mb-4">
-          Verifikasi Terpercaya
-        </h3>
-        <p class="text-neutral-600 leading-relaxed">
-          Semua lapangan telah diverifikasi oleh tim kami untuk memastikan
-          kualitas dan kenyamanan
+        <h3 class="text-lg font-bold text-neutral-900 mb-2">Verifikasi Terpercaya</h3>
+        <p class="text-neutral-600 text-sm leading-relaxed">
+          Semua lapangan telah diverifikasi untuk memastikan kualitas dan kenyamanan
         </p>
       </div>
 
       <!-- Feature 5 -->
-      <div class="card-hover bg-white p-8 rounded-2xl shadow-soft text-center">
-        <div
-          class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m4 0H5a1 1 0 00-1 1v16a1 1 0 001 1h14a1 1 0 001-1V5a1 1 0 00-1-1z"
-            ></path>
+      <div class="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-6 border border-indigo-100 shadow-soft hover:shadow-lg transition-all group scroll-animate">
+        <div class="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
           </svg>
         </div>
-        <h3 class="text-xl font-display font-semibold text-neutral-900 mb-4">
-          Manajemen Mudah
-        </h3>
-        <p class="text-neutral-600 leading-relaxed">
-          Dashboard intuitif untuk mitra mengelola lapangan, jadwal, dan laporan
-          keuangan dengan mudah
+        <h3 class="text-lg font-bold text-neutral-900 mb-2">Manajemen Mudah</h3>
+        <p class="text-neutral-600 text-sm leading-relaxed">
+          Dashboard intuitif untuk mitra mengelola lapangan dan laporan keuangan
         </p>
       </div>
 
       <!-- Feature 6 -->
-      <div class="card-hover bg-white p-8 rounded-2xl shadow-soft text-center">
-        <div
-          class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.944a11.955 11.955 0 00-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016A11.955 11.955 0 0012 2.944z"
-            ></path>
+      <div class="bg-gradient-to-br from-pink-50 to-white rounded-2xl p-6 border border-pink-100 shadow-soft hover:shadow-lg transition-all group scroll-animate">
+        <div class="w-14 h-14 bg-pink-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
-        <h3 class="text-xl font-display font-semibold text-neutral-900 mb-4">
-          Customer Support
-        </h3>
-        <p class="text-neutral-600 leading-relaxed">
-          Tim customer support 24/7 siap membantu Anda kapan saja jika ada
-          kendala atau pertanyaan
+        <h3 class="text-lg font-bold text-neutral-900 mb-2">Customer Support 24/7</h3>
+        <p class="text-neutral-600 text-sm leading-relaxed">
+          Tim support siap membantu Anda kapan saja jika ada kendala atau pertanyaan
         </p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Sports Categories -->
-<section class="py-20 bg-gradient-to-br from-neutral-50 to-white">
+<!-- Sports Categories with Images -->
+<section class="py-20 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Section header -->
-    <div class="text-center mb-16">
-      <h2
-        class="text-3xl md:text-4xl font-display font-bold text-neutral-900 mb-4"
-      >
-        Kategori <span class="text-gradient">Olahraga</span>
+    <div class="text-center mb-16 scroll-animate">
+      <p class="text-sm text-primary-600 font-semibold uppercase tracking-wider mb-2">SPORTS</p>
+      <h2 class="text-4xl md:text-5xl font-bold text-neutral-900 mb-6">
+        Kategori <span class="text-gradient bg-gradient-to-r from-primary-600 to-teal-600 bg-clip-text text-transparent">Olahraga</span>
       </h2>
       <p class="text-lg text-neutral-600 max-w-2xl mx-auto">
         Temukan lapangan untuk berbagai jenis olahraga favorit Anda
       </p>
     </div>
 
-    <!-- Sports grid -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-      <!-- Futsal -->
-      <div class="group cursor-pointer">
-        <div
-          class="bg-white rounded-2xl p-8 shadow-soft group-hover:shadow-medium transition-all duration-300 group-hover:-translate-y-2 text-center"
-        >
-          <div
-            class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"
-          >
-            <svg
-              class="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-              ></path>
-            </svg>
+    <!-- Sports grid with images -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+      <!-- Futsal/Football -->
+      <div class="group cursor-pointer scroll-animate-scale">
+        <div class="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all group-hover:scale-105 h-64">
+          <img src="https://images.unsplash.com/photo-1556817411-58c45dd94e8c?w=400&h=400&fit=crop" 
+               alt="Football" 
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-primary-600/0 group-hover:bg-primary-600/20 transition-colors duration-300"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-6">
+            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-white font-bold text-lg mb-1">Futsal</h3>
+            <p class="text-white/80 text-sm">150+ Lapangan</p>
           </div>
-          <h3 class="font-display font-semibold text-neutral-900 mb-2">
-            Futsal
-          </h3>
-          <p class="text-sm text-neutral-600">150+ Lapangan</p>
         </div>
       </div>
 
       <!-- Badminton -->
-      <div class="group cursor-pointer">
-        <div
-          class="bg-white rounded-2xl p-8 shadow-soft group-hover:shadow-medium transition-all duration-300 group-hover:-translate-y-2 text-center"
-        >
-          <div
-            class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"
-          >
-            <svg
-              class="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              ></path>
-            </svg>
+      <div class="group cursor-pointer scroll-animate-scale">
+        <div class="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all group-hover:scale-105 h-64">
+          <img src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=400&fit=crop" 
+               alt="Badminton" 
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-secondary-600/0 group-hover:bg-secondary-600/20 transition-colors duration-300"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-6">
+            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 class="text-white font-bold text-lg mb-1">Badminton</h3>
+            <p class="text-white/80 text-sm">200+ Lapangan</p>
           </div>
-          <h3 class="font-display font-semibold text-neutral-900 mb-2">
-            Badminton
-          </h3>
-          <p class="text-sm text-neutral-600">200+ Lapangan</p>
         </div>
       </div>
 
       <!-- Basketball -->
-      <div class="group cursor-pointer">
-        <div
-          class="bg-white rounded-2xl p-8 shadow-soft group-hover:shadow-medium transition-all duration-300 group-hover:-translate-y-2 text-center"
-        >
-          <div
-            class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"
-          >
-            <svg
-              class="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              ></path>
-            </svg>
+      <div class="group cursor-pointer scroll-animate-scale">
+        <div class="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all group-hover:scale-105 h-64">
+          <img src="https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=400&h=400&fit=crop" 
+               alt="Basketball" 
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-orange-600/0 group-hover:bg-orange-600/20 transition-colors duration-300"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-6">
+            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <h3 class="text-white font-bold text-lg mb-1">Basketball</h3>
+            <p class="text-white/80 text-sm">80+ Lapangan</p>
           </div>
-          <h3 class="font-display font-semibold text-neutral-900 mb-2">
-            Basket
-          </h3>
-          <p class="text-sm text-neutral-600">80+ Lapangan</p>
         </div>
       </div>
 
       <!-- Tennis -->
-      <div class="group cursor-pointer">
-        <div
-          class="bg-white rounded-2xl p-8 shadow-soft group-hover:shadow-medium transition-all duration-300 group-hover:-translate-y-2 text-center"
-        >
-          <div
-            class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"
-          >
-            <svg
-              class="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-              ></path>
-            </svg>
+      <div class="group cursor-pointer scroll-animate-scale">
+        <div class="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all group-hover:scale-105 h-64">
+          <img src="https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=400&h=400&fit=crop" 
+               alt="Tennis" 
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-teal-600/0 group-hover:bg-teal-600/20 transition-colors duration-300"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-6">
+            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              </svg>
+            </div>
+            <h3 class="text-white font-bold text-lg mb-1">Tennis</h3>
+            <p class="text-white/80 text-sm">50+ Lapangan</p>
           </div>
-          <h3 class="font-display font-semibold text-neutral-900 mb-2">
-            Tenis
-          </h3>
-          <p class="text-sm text-neutral-600">50+ Lapangan</p>
+        </div>
+      </div>
+
+      <!-- Padel -->
+      <div class="group cursor-pointer scroll-animate-scale">
+        <div class="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all group-hover:scale-105 h-64">
+          <img src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400&h=400&fit=crop" 
+               alt="Padel" 
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-purple-600/0 group-hover:bg-purple-600/20 transition-colors duration-300"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-6">
+            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+              </svg>
+            </div>
+            <h3 class="text-white font-bold text-lg mb-1">Padel</h3>
+            <p class="text-white/80 text-sm">30+ Lapangan</p>
+          </div>
         </div>
       </div>
     </div>
@@ -456,27 +309,247 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-20 gradient-primary">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+<section class="py-20 bg-gradient-to-br from-primary-600 via-secondary-600 to-teal-600 relative overflow-hidden">
+  <!-- Decorative Elements -->
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-32 -translate-y-32"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-48 translate-y-48"></div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+    <h2 class="text-3xl md:text-4xl font-bold mb-4 scroll-animate">
       Siap Mulai Berolahraga?
     </h2>
-    <p class="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-      Bergabunglah dengan ribuan pengguna yang sudah merasakan kemudahan menyewa
-      lapangan di LapangIN
+    <p class="text-lg mb-8 max-w-2xl mx-auto opacity-95 scroll-animate">
+      Bergabunglah dengan ribuan pengguna yang sudah merasakan kemudahan booking lapangan di LapangIN
     </p>
 
-    <div
-      class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4"
-    >
-      <a href="/register" class="btn btn-secondary lg bg-white text-primary-600 hover:bg-neutral-100 inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2">
-        Mulai Sekarang
+    <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 scroll-animate">
+      <a href="/register" class="inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-neutral-50 transition-all shadow-lg hover:shadow-xl hover:scale-105">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+        </svg>
+        Daftar Sekarang
       </a>
-      <a href="/tentang" class="btn btn-ghost lg text-white border border-white hover:bg-white/10 inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2">
+      <a href="/tentang" class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-primary-600 transition-all">
         Pelajari Lebih Lanjut
+        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+        </svg>
       </a>
     </div>
   </div>
 </section>
 
-{% endblock content %}
+<style>
+  @keyframes fade-in-down {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-down {
+    animation: fade-in-down 0.6s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.8s ease-out;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+    animation-fill-mode: backwards;
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #5409da 0%, #14b8a6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .typing-cursor::after {
+    content: '|';
+    animation: blink 0.7s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* Scroll Animation Styles */
+  .scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-animate.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .scroll-animate-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-animate-left.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .scroll-animate-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-animate-right.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .scroll-animate-scale {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-animate-scale.animate-in {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Staggered animation delays */
+  .scroll-animate:nth-child(1) { transition-delay: 0s; }
+  .scroll-animate:nth-child(2) { transition-delay: 0.1s; }
+  .scroll-animate:nth-child(3) { transition-delay: 0.2s; }
+  .scroll-animate:nth-child(4) { transition-delay: 0.3s; }
+  .scroll-animate:nth-child(5) { transition-delay: 0.4s; }
+  .scroll-animate:nth-child(6) { transition-delay: 0.5s; }
+</style>
+
+<script>
+  // Enhanced infinite typing effect for hero section
+  document.addEventListener('DOMContentLoaded', function() {
+    const phrases = [
+      "Court, Play Your Game",
+      "Favorite Sport Now",
+      "Dream Field Today",
+      "Perfect Venue Fast",
+      "Game, Win Together"
+    ];
+    
+    const typingElement = document.getElementById('typing-text');
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let isPaused = false;
+    
+    function type() {
+      const currentPhrase = phrases[phraseIndex];
+      
+      if (isPaused) {
+        isPaused = false;
+        setTimeout(type, isDeleting ? 1000 : 2000); // Pause before deleting or moving to next
+        return;
+      }
+      
+      if (isDeleting) {
+        // Deleting characters
+        typingElement.textContent = currentPhrase.substring(0, charIndex - 1);
+        charIndex--;
+        
+        if (charIndex === 0) {
+          isDeleting = false;
+          phraseIndex = (phraseIndex + 1) % phrases.length; // Move to next phrase
+          setTimeout(type, 500); // Short pause before typing next phrase
+          return;
+        }
+      } else {
+        // Typing characters
+        typingElement.textContent = currentPhrase.substring(0, charIndex + 1);
+        charIndex++;
+        
+        if (charIndex === currentPhrase.length) {
+          isDeleting = true;
+          isPaused = true;
+          setTimeout(type, 2000); // Pause to read the complete phrase
+          return;
+        }
+      }
+      
+      // Dynamic typing speed
+      const typingSpeed = isDeleting ? 50 : 100;
+      setTimeout(type, typingSpeed);
+    }
+    
+    // Start the typing effect
+    setTimeout(type, 500); // Initial delay before starting
+  });
+
+  // Intersection Observer for scroll animations
+  document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          // Optional: Stop observing after animation to improve performance
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Observe all elements with scroll animation classes
+    const animateElements = document.querySelectorAll(
+      '.scroll-animate, .scroll-animate-left, .scroll-animate-right, .scroll-animate-scale'
+    );
+    
+    animateElements.forEach(element => {
+      observer.observe(element);
+    });
+  });
+</script>
+
+{% endblock %}

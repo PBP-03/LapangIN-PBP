@@ -175,3 +175,11 @@ def admin_mitra_page(request):
 @login_required
 def profile_view(request):
     return render(request, 'profile.html')
+
+def about_view(request):
+    """About page"""
+    return render(request, 'about.html')
+
+def contact_view(request):
+    """Contact page"""
+    return render(request, 'contact.html')

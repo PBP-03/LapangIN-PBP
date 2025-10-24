@@ -29,11 +29,11 @@
       <!-- Desktop Navigation -->
       <div class="hidden md:block">
         <div class="ml-10 flex items-baseline space-x-8">
-          <a href="" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'home' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Beranda</a>
-          <a href="" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'lapangan_list' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Cari Lapangan</a>
-          <a href="" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'about' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Tentang</a>
-          <a href="" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'contact' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Kontak</a>
-        </div>
+          <a href="{% url 'main:home' %}" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'home' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Beranda</a>
+          <a href="{% url 'main:venue_list' %}" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'lapangan_list' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Cari Lapangan</a>
+          <a href="{% url 'main:about' %}" class="nav-link">Tentang</a>
+          <a href="{% url 'main:contact' %}" class="nav-link">Kontak</a>
+        </div>    
       </div>
 
       <!-- Right side actions -->
