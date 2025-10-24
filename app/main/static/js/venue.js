@@ -7,11 +7,11 @@ let currentPage = 1;
 let allVenues = [];
 
 function renderVenueList(venues) {
-  const container = document.getElementById('venue-list');
-  const countEl = document.getElementById('venue-count-number');
+  const container = document.getElementById("venue-list");
+  const countEl = document.getElementById("venue-count-number");
   let list = venues;
-  
-    // If no venues provided, try server-provided data
+
+  // If no venues provided, try server-provided data
   if (!list) {
     list = window.venuesData || [];
   }
@@ -138,11 +138,7 @@ function renderVenueCard(container, v) {
                 v.price_per_hour ||
                 v.price ||
                 0
-              ).toLocaleString("id-ID")}</div>
-              <div class="text-xs text-neutral-500">/ jam</div>
-            </div>
-            <div class="gradient-primary text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:shadow-medium transition-all">
-              Lihat Detail
+              ).toLocaleString("id-ID")}<span class="text-xs text-neutral-500">/jam</span></div>
             </div>
           </div>
         </div>

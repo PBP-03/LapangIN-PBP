@@ -12,7 +12,7 @@ from datetime import date
 
 # Import models from new apps
 from app.users.models import User
-from app.venues.models import Venue, SportsCategory, VenueFacility
+from app.venues.models import Venue, SportsCategory, VenueFacility, Facility
 from app.courts.models import Court, CourtSession
 from app.bookings.models import Booking, Payment
 from app.reviews.models import Review
@@ -47,7 +47,7 @@ def api_venue_list(request):
     page = int(request.GET.get('page', 1))
     page_size = int(request.GET.get('page_size', 9))
 
-    venues = Venue.objects.filter(verification_status='approved')
+    venues = Venue.objects.filter(verification_status='approved').order_by('-created_at', 'name')
     if name:
         venues = venues.filter(name__icontains=name)
     if category:
@@ -61,6 +61,10 @@ def api_venue_list(request):
 
     # Get total count before pagination
     total_count = venues.count()
+    
+    # Debug logging
+    print(f"[API] Total approved venues found: {total_count}")
+    print(f"[API] Page: {page}, Page size: {page_size}")
     
     # Calculate pagination
     total_pages = (total_count + page_size - 1) // page_size  # Ceiling division
@@ -88,6 +92,14 @@ def api_venue_list(request):
         categories_display = ', '.join(sorted(categories)) if categories else ''
         avg_price = total_price / court_count if court_count > 0 else 0
         
+        # Get venue facilities
+        facilities = [
+            {
+                'name': vf.facility.name,
+                'icon': vf.facility.icon
+            } for vf in VenueFacility.objects.filter(venue=v).select_related('facility')
+        ]
+        
         data.append({
             'id': str(v.id),
             'name': v.name,
@@ -101,6 +113,7 @@ def api_venue_list(request):
             'images': images,
             'avg_rating': round(avg_rating, 1),
             'rating_count': Review.objects.filter(booking__court__venue=v).count(),
+            'facilities': facilities,
         })
     
     return JsonResponse({
@@ -938,6 +951,29 @@ def api_venues(request):
                 except (json.JSONDecodeError, ValueError):
                     pass  # Continue without images if parsing fails
                 
+                # Handle facilities (JSON array of facility objects)
+                facilities_str = request.POST.get('facilities', '[]')
+                try:
+                    facilities = json.loads(facilities_str)
+                    for facility_data in facilities:
+                        if facility_data.get('name'):
+                            # Get or create facility
+                            facility, created = Facility.objects.get_or_create(
+                                name=facility_data['name'],
+                                defaults={'icon': facility_data.get('icon', '')}
+                            )
+                            # If facility exists but icon is different, update it
+                            if not created and facility_data.get('icon') and facility.icon != facility_data.get('icon'):
+                                facility.icon = facility_data.get('icon')
+                                facility.save()
+                            # Create venue-facility relationship
+                            VenueFacility.objects.get_or_create(
+                                venue=venue,
+                                facility=facility
+                            )
+                except (json.JSONDecodeError, ValueError):
+                    pass  # Continue without facilities if parsing fails
+                
                 # Log the activity
                 ActivityLog.objects.create(
                     user=request.user,
@@ -1004,6 +1040,14 @@ def api_venue_detail(request, venue_id):
                 'caption': img.caption
             })
         
+        # Get venue facilities
+        facilities = []
+        for vf in VenueFacility.objects.filter(venue=venue).select_related('facility'):
+            facilities.append({
+                'name': vf.facility.name,
+                'icon': vf.facility.icon
+            })
+        
         venue_data = {
             'id': str(venue.id),
             'name': venue.name,
@@ -1016,7 +1060,8 @@ def api_venue_detail(request, venue_id):
             'is_verified': venue.is_verified,
             'created_at': venue.created_at.isoformat(),
             'updated_at': venue.updated_at.isoformat(),
-            'images': images
+            'images': images,
+            'facilities': facilities
         }
         
         return JsonResponse({
@@ -1060,6 +1105,47 @@ def api_venue_detail(request, venue_id):
                                 )
                     except (json.JSONDecodeError, ValueError):
                         pass  # Continue without images if parsing fails
+                
+                # Handle facilities update
+                facilities_str = request.POST.get('facilities', '')
+                if facilities_str:
+                    try:
+                        facilities = json.loads(facilities_str)
+                        
+                        # Get current facilities
+                        current_facility_names = set(
+                            VenueFacility.objects.filter(venue=venue).values_list('facility__name', flat=True)
+                        )
+                        
+                        # Get submitted facility names
+                        submitted_facility_names = set()
+                        for facility_data in facilities:
+                            if facility_data.get('name'):
+                                submitted_facility_names.add(facility_data['name'])
+                                # Get or create facility
+                                facility, created = Facility.objects.get_or_create(
+                                    name=facility_data['name'],
+                                    defaults={'icon': facility_data.get('icon', '')}
+                                )
+                                # If facility exists but icon is different, update it
+                                if not created and facility_data.get('icon') and facility.icon != facility_data.get('icon'):
+                                    facility.icon = facility_data.get('icon')
+                                    facility.save()
+                                # Create venue-facility relationship if doesn't exist
+                                VenueFacility.objects.get_or_create(
+                                    venue=venue,
+                                    facility=facility
+                                )
+                        
+                        # Remove facilities that are no longer in the list
+                        facilities_to_remove = current_facility_names - submitted_facility_names
+                        if facilities_to_remove:
+                            VenueFacility.objects.filter(
+                                venue=venue,
+                                facility__name__in=facilities_to_remove
+                            ).delete()
+                    except (json.JSONDecodeError, ValueError):
+                        pass  # Continue without facilities if parsing fails
                 
                 # Log the activity
                 ActivityLog.objects.create(

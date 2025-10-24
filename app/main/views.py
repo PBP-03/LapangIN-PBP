@@ -23,8 +23,10 @@ def venue_list_view(request):
     # Don't send initial data, let JavaScript fetch from API with pagination
     venues = []
     try:
-        # Only send first page for initial load
-        qs = Venue.objects.all()[:9]
+        # Only send first page for initial load - filter for approved venues only
+        qs = Venue.objects.filter(verification_status='approved').order_by('-created_at', 'name')[:9]
+        print(f"[Initial Load] Found {Venue.objects.filter(verification_status='approved').count()} approved venues")
+        print(f"[Initial Load] Showing first {qs.count()} venues")
         for v in qs:
             # pick a safe first image if available
             first_img = ''
@@ -58,13 +60,15 @@ def venue_list_view(request):
                 'avg_rating': round(avg_rating, 1),
                 'rating_count': rating_count,
             })
+            print(f"[Initial Load] Added venue: {v.name} (ID: {v.id})")
     except Exception as e:
         print(f"Error in venue_list_view: {e}")
         import traceback
         traceback.print_exc()
         venues = []
-    print(f"Total venues loaded: {len(venues)}")
-    print(venues)
+    print(f"[Initial Load] Total venues loaded: {len(venues)}")
+    venue_names = [v['name'] for v in venues]
+    print(f"[Initial Load] Venue names: {venue_names}")
     context = {
         'venues_json': mark_safe(json.dumps(venues, default=str)),
     }
@@ -89,9 +93,15 @@ def venue_detail_view(request, venue_id):
     # Get operational hours
     operational_hours = OperationalHour.objects.filter(venue=venue).order_by('day_of_week')
     
-    # Get venue reviews
-    reviews = Review.objects.filter(booking__court__venue=venue).select_related('booking__user')
-    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+    # Get venue reviews with pagination
+    from django.core.paginator import Paginator
+    all_reviews = Review.objects.filter(booking__court__venue=venue).select_related('booking__user').order_by('-created_at')
+    avg_rating = all_reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+    
+    # Pagination
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(all_reviews, 5)  # Show 5 reviews per page
+    reviews = paginator.get_page(page_number)
     
     # Check if user has completed booking at this venue (eligible to review)
     can_review = False
@@ -160,9 +170,10 @@ def venue_detail_view(request, venue_id):
         'operational_hours': operational_hours,
         'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
-        'review_count': reviews.count(),
+        'review_count': all_reviews.count(),
         'is_authenticated': request.user.is_authenticated,
-        'can_review': can_review
+        'can_review': can_review,
+        'today': today.isoformat()
     }
     return render(request, 'venue_detail.html', context)
 

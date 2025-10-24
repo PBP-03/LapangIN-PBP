@@ -735,6 +735,14 @@ def api_booking_detail(request, booking_id):
             # Update payment status to refunded if payment is marked as paid
             if booking.payment_status == 'paid':
                 booking.payment_status = 'refunded'
+                
+                # Update corresponding Pendapatan record
+                try:
+                    pendapatan = Pendapatan.objects.get(booking=booking)
+                    pendapatan.payment_status = 'refunded'
+                    pendapatan.save()
+                except Pendapatan.DoesNotExist:
+                    print(f'Warning: No Pendapatan record found for booking {booking.id}')
             
             booking.save()
             
@@ -2293,6 +2301,17 @@ def create_booking(request):
                 paid_at=datetime.now() if auto_confirm else None
             )
             
+            # Create Pendapatan record for mitra
+            mitra = court.venue.owner  # The venue owner (mitra)
+            Pendapatan.objects.create(
+                mitra=mitra,
+                booking=booking,
+                amount=price,
+                commission_rate=Decimal('10.00'),  # 10% platform commission
+                payment_status='paid' if auto_confirm else 'pending',
+                paid_at=datetime.now() if auto_confirm else None
+            )
+            
             created_bookings.append({
                 'id': str(booking.id),
                 'session': session.session_name,
@@ -2549,6 +2568,14 @@ def cancel_booking(request, booking_id):
         # If payment was made, mark for refund
         if booking.payment_status == 'paid':
             booking.payment_status = 'refunded'
+            
+            # Update corresponding Pendapatan record
+            try:
+                pendapatan = Pendapatan.objects.get(booking=booking)
+                pendapatan.payment_status = 'refunded'
+                pendapatan.save()
+            except Pendapatan.DoesNotExist:
+                print(f'Warning: No Pendapatan record found for booking {booking.id}')
         
         # Save the booking
         booking.save()
