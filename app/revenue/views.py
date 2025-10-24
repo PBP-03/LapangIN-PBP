@@ -163,6 +163,10 @@ def api_refunds(request):
         # Create refund
         try:
             data = json.loads(request.body)
+            print(f"[REFUND DEBUG] Raw request.body: {request.body}")
+            print(f"[REFUND DEBUG] Parsed data: {data}")
+            print(f"[REFUND DEBUG] data.get('pendapatan_id'): {data.get('pendapatan_id')}")
+            
             pendapatan_id = data.get('pendapatan_id')
             reason = data.get('reason', '')
             

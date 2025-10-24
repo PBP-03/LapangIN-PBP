@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}Daftar - LapangIN{% endblock %} {%block content %}
+{% extends 'base.html' %} {% load static %} {% block title %}Daftar - LapangIN{% endblock %} {%block content %}
 <div
   class="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-12 px-4 sm:px-6 lg:px-8"
 >
@@ -15,26 +15,7 @@
   <div class="relative max-w-lg w-full space-y-8">
     <!-- Header -->
     <div class="text-center">
-      <div
-        class="mx-auto w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mb-6"
-      >
-        <svg
-          class="w-8 h-8 text-white"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-          ></path>
-        </svg>
-      </div>
-      <h2 class="text-3xl font-display font-bold text-neutral-900 mb-2">
-        Bergabung dengan <span class="text-gradient">LapangIN</span>
-      </h2>
+      <img src="{% static 'img/logo/Lapangan Logo.png' %}" alt="LapangIN Logo" class="mx-auto h-16 w-auto mb-4">
       <p class="text-neutral-600">
         Buat akun Anda untuk mulai menikmati layanan kami
       </p>
@@ -65,27 +46,83 @@
 
         <!-- Role Selection -->
         <div>
-          <label
-            for="role"
-            class="block text-sm font-medium text-neutral-700 mb-2"
-          >
+          <label class="block text-sm font-medium text-neutral-700 mb-4">
             Daftar sebagai *
           </label>
-          <select
-            id="role"
-            name="role"
-            required
-            class="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-          >
-            <option value="">Pilih peran Anda</option>
-            <option value="user">User (Penyewa Lapangan)</option>
-            <option value="mitra">Mitra (Penyedia Lapangan)</option>
-          </select>
-          <p class="mt-1 text-xs text-neutral-500">
-            Pilih peran Anda: User untuk menyewa lapangan, Mitra untuk
-            menyediakan lapangan
+          
+          <!-- Hidden select for form submission -->
+          <input type="hidden" id="role" name="role" value="" required />
+          
+          <!-- Custom Role Cards -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- User Card -->
+            <div class="role-option-card group cursor-pointer" data-role="user">
+              <div class="relative bg-gradient-to-br from-blue-50 to-accent-50 border-2 border-blue-200 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:border-blue-400 overflow-hidden">
+                <!-- Decorative background circles -->
+                <div class="absolute -top-8 -right-8 w-24 h-24 bg-blue-100 rounded-full opacity-30"></div>
+                <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-accent-100 rounded-full opacity-30"></div>
+                
+                <!-- Icon -->
+                <div class="flex justify-center mb-3 relative z-10">
+                  <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-accent-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                  </div>
+                </div>
+                
+                <!-- Title -->
+                <h3 class="text-center text-base font-bold text-neutral-900 mb-2 relative z-10">
+                  User
+                </h3>
+                <p class="text-center text-xs text-neutral-600 mb-3 relative z-10">
+                  Penyewa Lapangan
+                </p>
+                          
+                <!-- Selection Indicator -->
+                <div class="absolute top-3 right-3 w-6 h-6 rounded-full border-2 border-blue-400 bg-white flex items-center justify-center transition-all z-10">
+                  <div class="w-3 h-3 rounded-full bg-blue-600 scale-0 transition-transform duration-200"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mitra Card -->
+            <div class="role-option-card group cursor-pointer" data-role="mitra">
+              <div class="relative bg-gradient-to-br from-green-50 to-primary-50 border-2 border-primary-200 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:border-primary-400 overflow-hidden">
+                <!-- Decorative background circles -->
+                <div class="absolute -top-8 -right-8 w-24 h-24 bg-primary-100 rounded-full opacity-30"></div>
+                <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-green-100 rounded-full opacity-30"></div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-green-50 rounded-full opacity-20"></div>
+                
+                <!-- Icon -->
+                <div class="flex justify-center mb-3 relative z-10">
+                  <div class="w-14 h-14 bg-primary-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                  </div>
+                </div>
+                
+                <!-- Title -->
+                <h3 class="text-center text-base font-bold text-neutral-900 mb-2 relative z-10">
+                  Mitra
+                </h3>
+                <p class="text-center text-xs text-neutral-600 mb-3 relative z-10">
+                  Penyedia Lapangan
+                </p>
+                
+                <!-- Selection Indicator -->
+                <div class="absolute top-3 right-3 w-6 h-6 rounded-full border-2 border-primary-400 bg-white flex items-center justify-center transition-all z-10">
+                  <div class="w-3 h-3 rounded-full bg-primary-600 scale-0 transition-transform duration-200"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <p class="mt-3 text-xs text-neutral-500 text-center">
+            Pilih peran Anda: User untuk menyewa lapangan, Mitra untuk menyediakan lapangan
           </p>
-          <div id="roleError" class="mt-1 text-sm text-red-600 hidden"></div>
+          <div id="roleError" class="mt-2 text-sm text-red-600 hidden text-center"></div>
         </div>
 
         <!-- Name Fields -->
@@ -391,6 +428,30 @@
   </div>
 </div>
 {% endblock %} {% block script %}
+<style>
+  .role-option-card.selected > div {
+    border-width: 3px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .role-option-card.selected[data-role="user"] > div {
+    border-color: rgb(37, 99, 235); /* blue-600 */
+    background: linear-gradient(to bottom right, rgb(239, 246, 255), rgb(219, 234, 254));
+  }
+  
+  .role-option-card.selected[data-role="mitra"] > div {
+    border-color: rgb(5, 150, 105); /* green-600 */
+    background: linear-gradient(to bottom right, rgb(236, 253, 245), rgb(209, 250, 229));
+  }
+  
+  .role-option-card.selected .absolute.top-3.right-3 > div {
+    transform: scale(1);
+  }
+  
+  .role-option-card.selected .absolute.top-3.right-3 {
+    border-width: 3px;
+  }
+</style>
 <script>
   // CSRF Token helper
   function getCookie(name) {
@@ -407,6 +468,25 @@
     }
     return cookieValue;
   }
+
+  // Role card selection
+  document.querySelectorAll('.role-option-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const role = this.getAttribute('data-role');
+      
+      // Remove selection from all cards
+      document.querySelectorAll('.role-option-card').forEach(c => c.classList.remove('selected'));
+      
+      // Add selection to clicked card
+      this.classList.add('selected');
+      
+      // Update hidden input
+      document.getElementById('role').value = role;
+      
+      // Clear error if any
+      document.getElementById('roleError').classList.add('hidden');
+    });
+  });
 
   // Show alert message
   function showAlert(message, type = "error") {
@@ -488,6 +568,14 @@
 
       clearFieldErrors();
 
+      // Check if role is selected
+      const roleValue = document.getElementById("role").value;
+      if (!roleValue) {
+        showFieldError("role", "Silakan pilih peran Anda");
+        document.getElementById("roleError").scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
       const termsCheckbox = document.getElementById("terms");
       if (!termsCheckbox.checked) {
         showAlert(
@@ -508,7 +596,7 @@
       registerArrow.classList.add("hidden");
 
       const formData = {
-        role: document.getElementById("role").value,
+        role: roleValue,
         first_name: document.getElementById("first_name").value,
         last_name: document.getElementById("last_name").value,
         username: document.getElementById("username").value,
@@ -535,6 +623,8 @@
 
           // Clear form
           document.getElementById("registerForm").reset();
+          // Clear role selection
+          document.querySelectorAll('.role-option-card').forEach(c => c.classList.remove('selected'));
 
           // Redirect to login after short delay
           setTimeout(() => {
@@ -564,7 +654,7 @@
       }
     });
 
-  // Auto-focus on first input
-  document.getElementById("role").focus();
+  // Auto-focus on first role card (visual indication)
+  document.querySelector('.role-option-card')?.focus();
 </script>
 {% endblock %}
