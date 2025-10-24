@@ -167,6 +167,7 @@ class VenueForm(forms.ModelForm):
     )
     
     number_of_courts = forms.IntegerField(
+        required=False,  # Made optional since it's auto-calculated from actual courts
         widget=forms.NumberInput(attrs={
             'class': 'w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200',
             'placeholder': 'Jumlah Lapangan',
