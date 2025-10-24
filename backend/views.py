@@ -1,35 +1,24 @@
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.forms.models import model_to_dict
 from django.db.models import Sum, Count, Q, Avg
+from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, Review, VenueFacility
 from decimal import Decimal
 import json
+from .models import User, ActivityLog
+from .forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm
+from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, CourtSession
+from django.views.decorators.csrf import csrf_exempt
+from .forms import CustomLoginForm, CustomUserCreationForm, VenueForm, CourtForm
+from .decorators import login_required, role_required, anonymous_required
 from datetime import date
-
-# Import models from new apps
-from app.users.models import User
-from app.venues.models import Venue, SportsCategory, VenueFacility
-from app.courts.models import Court, CourtSession
-from app.bookings.models import Booking, Payment
-from app.reviews.models import Review
-from app.revenue.models import Pendapatan, ActivityLog
-
-# Import forms and decorators from users app
-from app.users.forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm, VenueForm, CourtForm
-from app.users.decorators import login_required, role_required, anonymous_required
-
-
-# Helper function to update venue court count
-def update_venue_court_count(venue):
-    """Update the number_of_courts field based on actual courts count"""
-    court_count = venue.courts.count()
-    if venue.number_of_courts != court_count:
-        venue.number_of_courts = court_count  # Allow 0 for venues without courts yet
-        venue.save(update_fields=['number_of_courts'])
+from django.shortcuts import get_object_or_404
+from .models import User, ActivityLog, Booking
 
 
 # Venue List & Search API
@@ -42,83 +31,42 @@ def api_venue_list(request):
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
     location = request.GET.get('location')
-    
-    # Pagination params
-    page = int(request.GET.get('page', 1))
-    page_size = int(request.GET.get('page_size', 9))
 
     venues = Venue.objects.filter(verification_status='approved')
     if name:
         venues = venues.filter(name__icontains=name)
     if category:
-        venues = venues.filter(courts__category__name=category).distinct()
+        venues = venues.filter(category__name=category)
     if min_price:
-        venues = venues.filter(courts__price_per_hour__gte=min_price).distinct()
+        venues = venues.filter(price_per_hour__gte=min_price)
     if max_price:
-        venues = venues.filter(courts__price_per_hour__lte=max_price).distinct()
+        venues = venues.filter(price_per_hour__lte=max_price)
     if location:
         venues = venues.filter(address__icontains=location)
 
-    # Get total count before pagination
-    total_count = venues.count()
-    
-    # Calculate pagination
-    total_pages = (total_count + page_size - 1) // page_size  # Ceiling division
-    offset = (page - 1) * page_size
-    
-    # Apply pagination
-    venues = venues[offset:offset + page_size]
-
     data = []
     for v in venues:
-        images = [img.image_url for img in v.images.all()]
+        images = [img.image.url for img in v.images.all()]
         avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0
-        
-        # Get all unique categories from courts in this venue
-        courts = Court.objects.filter(venue=v).select_related('category')
-        categories = set()
-        total_price = 0
-        court_count = 0
-        for court in courts:
-            if court.category:
-                categories.add(court.category.get_name_display())
-            total_price += float(court.price_per_hour)
-            court_count += 1
-        
-        categories_display = ', '.join(sorted(categories)) if categories else ''
-        avg_price = total_price / court_count if court_count > 0 else 0
-        
         data.append({
             'id': str(v.id),
             'name': v.name,
-            'category': categories_display,
-            'category_icon': None,  # Venue model doesn't have category field
+            'category': v.category.get_name_display(),
+            'category_icon': v.category.icon.url if v.category.icon else None,
             'address': v.address,
             'location_url': v.location_url,
             'contact': v.contact,
-            'price_per_hour': float(avg_price),
+            'price_per_hour': float(v.price_per_hour),
             'number_of_courts': v.number_of_courts,
             'images': images,
-            'avg_rating': round(avg_rating, 1),
+            'avg_rating': avg_rating,
             'rating_count': Review.objects.filter(booking__court__venue=v).count(),
         })
-    
-    return JsonResponse({
-        'status': 'ok', 
-        'data': data,
-        'pagination': {
-            'page': page,
-            'page_size': page_size,
-            'total_count': total_count,
-            'total_pages': total_pages,
-            'has_next': page < total_pages,
-            'has_previous': page > 1
-        }
-    })
+    return JsonResponse({'status': 'ok', 'data': data})
 
 # Public Venue Detail API (no authentication required)
 @require_http_methods(["GET"])
-def api_venue_detail_public(request, venue_id):
+def api_venue_detail(request, venue_id):
     try:
         print(f'Looking up venue with ID: {venue_id}')
         v = Venue.objects.get(pk=venue_id, verification_status='approved')
@@ -136,25 +84,14 @@ def api_venue_detail_public(request, venue_id):
         ]
         
         # Get courts
-        courts = []
-        for c in v.courts.all():
-            # Get sessions for this court
-            sessions = [
-                {
-                    'id': s.id,
-                    'session_name': s.session_name,
-                    'start_time': str(s.start_time),
-                    'end_time': str(s.end_time),
-                    'is_active': s.is_active
-                } for s in c.sessions.all()
-            ]
-            courts.append({
+        courts = [
+            {
                 'id': c.id,
                 'name': c.name,
                 'is_active': c.is_active,
-                'price_per_hour': float(c.price_per_hour),
-                'sessions': sessions
-            })
+                'price_per_hour': float(c.price_per_hour)
+            } for c in v.courts.all()
+        ]
         
         # Get ratings and reviews
         avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0
@@ -171,10 +108,12 @@ def api_venue_detail_public(request, venue_id):
         data = {
             'id': str(v.id),
             'name': v.name,
+            'category': v.category.name if v.category else None,
             'address': v.address,
             'location_url': v.location_url,
             'contact': v.contact,
             'description': v.description,
+            'price_per_hour': float(v.price_per_hour),
             'number_of_courts': v.number_of_courts,
             'images': images,
             'facilities': facilities,
@@ -191,7 +130,73 @@ def api_venue_detail_public(request, venue_id):
     except Exception as e:
         print(f'Error retrieving venue: {e}')
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
+    images = [img.image.url for img in v.images.all()]
+    facilities = [
+        {
+            'name': vf.facility.name,
+            'icon': vf.facility.icon.url if vf.facility.icon else None
+        } for vf in VenueFacility.objects.filter(venue=v)
+    ]
+    courts = [
+        {
+            'id': c.id,
+            'name': c.name,
+            'is_active': c.is_active
+        } for c in v.courts.all()
+    ]
+    avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0
+    rating_count = Review.objects.filter(booking__court__venue=v).count()
+    reviews = [
+        {
+            'user': r.booking.user.username,
+            'rating': r.rating,
+            'comment': r.comment,
+            'created_at': r.created_at.isoformat() if r.created_at else None
+        } for r in Review.objects.filter(booking__court__venue=v).order_by('-created_at')
+    ]
+    # Bookings for current month
+    from datetime import date
+    today = date.today()
+    first_of_month = today.replace(day=1)
+    # last day of month: move to next month then back one day
+    if today.month == 12:
+        next_month = today.replace(year=today.year+1, month=1, day=1)
+    else:
+        next_month = today.replace(month=today.month+1, day=1)
+    bookings_qs = Booking.objects.filter(booking_date__gte=first_of_month, booking_date__lt=next_month, court__venue=v)
+    bookings = [
+        {
+            'id': b.id,
+            'court_id': b.court.id,
+            'court_name': b.court.name,
+            'user': b.user.username if b.user else None,
+            'booking_date': b.booking_date.isoformat() if b.booking_date else None,
+            'start_time': b.start_time.isoformat() if b.start_time else None,
+            'end_time': b.end_time.isoformat() if b.end_time else None,
+            'status': b.booking_status,
+        }
+        for b in bookings_qs.order_by('booking_date', 'start_time')
+    ]
+    data = {
+        'id': str(v.id),
+        'name': v.name,
+        'category': v.category.get_name_display(),
+        'category_icon': v.category.icon.url if v.category.icon else None,
+        'address': v.address,
+        'location_url': v.location_url,
+        'contact': v.contact,
+        'description': v.description,
+        'price_per_hour': float(v.price_per_hour),
+        'number_of_courts': v.number_of_courts,
+        'images': images,
+        'facilities': facilities,
+        'courts': courts,
+        'avg_rating': avg_rating,
+        'rating_count': rating_count,
+        'reviews': reviews,
+        'bookings': bookings,
+    }
+    return JsonResponse({'status': 'ok', 'data': data})
 
 # Venue Review List & Create API
 @require_http_methods(["GET", "POST"])
@@ -686,6 +691,7 @@ def api_booking_detail(request, booking_id):
 def api_mitra_list(request):
     """Return list of mitra users as JSON. Uses existing User model (role='mitra')."""
     try:
+        from .models import Venue, Court
         mitras = User.objects.filter(role='mitra')
         data = []
         for m in mitras:
@@ -919,15 +925,13 @@ def api_venues(request):
             if form.is_valid():
                 venue = form.save(commit=False)
                 venue.owner = request.user
-                # Set initial number_of_courts to 0 (will be updated when courts are added)
-                venue.number_of_courts = 0
                 venue.save()
                 
                 # Handle image URLs (JSON array of URLs)
                 image_urls_str = request.POST.get('image_urls', '[]')
                 try:
                     image_urls = json.loads(image_urls_str)
-                    from app.venues.models import VenueImage
+                    from .models import VenueImage
                     for idx, url in enumerate(image_urls):
                         if url and url.strip():
                             VenueImage.objects.create(
@@ -1038,7 +1042,7 @@ def api_venue_detail(request, venue_id):
                 if image_urls_str:
                     try:
                         image_urls = json.loads(image_urls_str)
-                        from app.venues.models import VenueImage
+                        from .models import VenueImage
                         
                         # Clean and normalize submitted URLs
                         submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
@@ -1184,7 +1188,7 @@ def api_courts(request):
                 image_urls_str = request.POST.get('image_urls', '[]')
                 try:
                     image_urls = json.loads(image_urls_str)
-                    from app.courts.models import CourtImage
+                    from .models import CourtImage
                     for idx, url in enumerate(image_urls):
                         if url and url.strip():
                             CourtImage.objects.create(
@@ -1199,7 +1203,7 @@ def api_courts(request):
                 sessions_json = request.POST.get('sessions', '[]')
                 try:
                     sessions = json.loads(sessions_json)
-                    from app.courts.models import CourtSession
+                    from .models import CourtSession
                     for session_data in sessions:
                         CourtSession.objects.create(
                             court=court,
@@ -1211,9 +1215,6 @@ def api_courts(request):
                 except (json.JSONDecodeError, ValueError) as e:
                     # If session parsing fails, continue without sessions
                     pass
-                
-                # Update venue's court count
-                update_venue_court_count(court.venue)
                 
                 # Log the activity
                 ActivityLog.objects.create(
@@ -1285,7 +1286,7 @@ def api_court_detail(request, court_id):
             })
         
         # Get court sessions
-        from app.courts.models import CourtSession
+        from .models import CourtSession
         sessions = []
         for session in court.sessions.all():
             # Count total bookings for this session (pending or confirmed)
@@ -1339,7 +1340,7 @@ def api_court_detail(request, court_id):
                 if image_urls_str:
                     try:
                         image_urls = json.loads(image_urls_str)
-                        from app.courts.models import CourtImage
+                        from .models import CourtImage
                         
                         # Clean and normalize submitted URLs
                         submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
@@ -1366,7 +1367,7 @@ def api_court_detail(request, court_id):
                 sessions_json = request.POST.get('sessions', '[]')
                 try:
                     sessions = json.loads(sessions_json)
-                    from app.courts.models import CourtSession
+                    from .models import CourtSession
                     
                     # Get existing session IDs from the form data
                     existing_session_ids = [s.get('id') for s in sessions if s.get('id')]
@@ -1439,11 +1440,7 @@ def api_court_detail(request, court_id):
         try:
             court_name = court.name
             venue_name = court.venue.name
-            venue = court.venue  # Store venue reference before deleting court
             court.delete()
-            
-            # Update venue's court count after deletion
-            update_venue_court_count(venue)
             
             # Log the activity
             ActivityLog.objects.create(
@@ -1799,7 +1796,7 @@ def api_delete_venue_image(request, image_id):
         }, status=403)
     
     try:
-        from app.venues.models import VenueImage
+        from .models import VenueImage
         image = VenueImage.objects.get(id=image_id, venue__owner=request.user)
         image.delete()
         
@@ -1836,7 +1833,7 @@ def api_delete_court_image(request, image_id):
         }, status=403)
     
     try:
-        from app.courts.models import CourtImage
+        from .models import CourtImage
         image = CourtImage.objects.get(id=image_id, court__venue__owner=request.user)
         image.delete()
         
