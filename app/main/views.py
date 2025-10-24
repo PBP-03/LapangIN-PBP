@@ -210,3 +210,13 @@ def contact_view(request):
 def daftar_mitra_view(request):
     """Daftar Mitra page"""
     return render(request, 'daftar_mitra.html')
+
+@login_required
+def booking_checkout_view(request):
+    """Booking checkout page"""
+    return render(request, 'booking_checkout.html')
+
+@login_required  
+def booking_history_view(request):
+    """Booking history page"""
+    return render(request, 'booking_history.html')
