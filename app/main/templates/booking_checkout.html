@@ -634,7 +634,7 @@
           "success"
         );
         setTimeout(() => {
-          window.location.href = `/profile`; // Redirect to profile/my bookings
+          window.location.href = `/dashboard`; // Redirect to profile/my bookings
         }, 2000);
       } else {
         throw new Error(result.message || "Failed to create booking");

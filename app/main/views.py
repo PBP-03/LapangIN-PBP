@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.safestring import mark_safe
 from django.db.models import Avg
 import json
@@ -188,6 +189,7 @@ def booking_checkout_view(request):
 
 
 @login_required
+@ensure_csrf_cookie
 def booking_history_view(request):
     """User booking history page"""
     return render(request, 'booking_history.html')
