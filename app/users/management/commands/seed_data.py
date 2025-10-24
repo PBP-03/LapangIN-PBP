@@ -1,19 +1,17 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
 from django.utils import timezone
 from decimal import Decimal
-import requests
 import random
 from datetime import datetime, time, date, timedelta
 
 # Import from new apps
 from app.users.models import User
 from app.venues.models import SportsCategory, Venue, VenueImage, Facility, VenueFacility, OperationalHour
-from app.courts.models import Court
+from app.courts.models import Court, CourtSession, CourtImage
 from app.bookings.models import Booking, Payment
 from app.reviews.models import Review
-from app.revenue.models import ActivityLog
+from app.revenue.models import ActivityLog, Pendapatan
 
 User = get_user_model()
 
@@ -42,10 +40,13 @@ class Command(BaseCommand):
         self.create_venue_images()
         self.create_venue_facilities()
         self.create_courts()
+        self.create_court_sessions()
+        self.create_court_images()
         self.create_operational_hours()
         self.create_bookings()
         self.create_payments()
         self.create_reviews()
+        self.create_pendapatan()
         self.create_activity_logs()
         
         self.stdout.write(self.style.SUCCESS('Data seeding completed successfully!'))
@@ -53,8 +54,8 @@ class Command(BaseCommand):
     def clear_data(self):
         """Clear all existing data"""
         models_to_clear = [
-            ActivityLog, Review, Payment, Booking, OperationalHour,
-            Court, VenueFacility, VenueImage, Venue, Facility,
+            ActivityLog, Pendapatan, Review, Payment, Booking, OperationalHour,
+            CourtImage, CourtSession, Court, VenueFacility, VenueImage, Venue, Facility,
             SportsCategory, User
         ]
         
@@ -423,16 +424,6 @@ class Command(BaseCommand):
 
         self.stdout.write(f'Created {Venue.objects.count()} venues')
 
-    def download_and_save_image(self, url, filename):
-        """Download image from URL and return ContentFile"""
-        try:
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                return ContentFile(response.content, filename)
-        except Exception as e:
-            self.stdout.write(self.style.WARNING(f'Failed to download image: {e}'))
-        return None
-
     def create_venue_images(self):
         """Create venue images using the provided URL"""
         self.stdout.write('Creating venue images...')
@@ -446,18 +437,12 @@ class Command(BaseCommand):
             num_images = random.randint(2, 4)
             
             for j in range(num_images):
-                image_file = self.download_and_save_image(
-                    image_url, 
-                    f'venue_{venue.id}_{j+1}.webp'
+                VenueImage.objects.create(
+                    venue=venue,
+                    image_url=image_url,
+                    is_primary=(j == 0),  # First image is primary
+                    caption=f'Lapangan {venue.name} - View {j+1}',
                 )
-                
-                if image_file:
-                    venue_image = VenueImage.objects.create(
-                        venue=venue,
-                        image=image_file,
-                        is_primary=(j == 0),  # First image is primary
-                        caption=f'Lapangan {venue.name} - View {j+1}',
-                    )
 
         self.stdout.write(f'Created {VenueImage.objects.count()} venue images')
 
@@ -508,6 +493,87 @@ class Command(BaseCommand):
                 )
 
         self.stdout.write(f'Created {Court.objects.count()} courts')
+
+    def create_court_sessions(self):
+        """Create time slot sessions for courts"""
+        self.stdout.write('Creating court sessions...')
+        
+        courts = Court.objects.all()
+        
+        # Common session patterns
+        session_patterns = [
+            # Pattern 1: Morning, Afternoon, Evening sessions
+            [
+                {'name': 'Morning Session', 'start': time(6, 0), 'end': time(12, 0)},
+                {'name': 'Afternoon Session', 'start': time(12, 0), 'end': time(18, 0)},
+                {'name': 'Evening Session', 'start': time(18, 0), 'end': time(23, 0)},
+            ],
+            # Pattern 2: Hourly slots
+            [
+                {'name': f'Session {i+1}', 'start': time(6 + i, 0), 'end': time(7 + i, 0)}
+                for i in range(17)  # 6 AM to 11 PM
+            ],
+            # Pattern 3: 2-hour blocks
+            [
+                {'name': 'Early Morning', 'start': time(6, 0), 'end': time(8, 0)},
+                {'name': 'Morning', 'start': time(8, 0), 'end': time(10, 0)},
+                {'name': 'Late Morning', 'start': time(10, 0), 'end': time(12, 0)},
+                {'name': 'Afternoon', 'start': time(12, 0), 'end': time(14, 0)},
+                {'name': 'Mid Afternoon', 'start': time(14, 0), 'end': time(16, 0)},
+                {'name': 'Late Afternoon', 'start': time(16, 0), 'end': time(18, 0)},
+                {'name': 'Evening', 'start': time(18, 0), 'end': time(20, 0)},
+                {'name': 'Night', 'start': time(20, 0), 'end': time(22, 0)},
+                {'name': 'Late Night', 'start': time(22, 0), 'end': time(23, 59)},
+            ],
+        ]
+        
+        for court in courts:
+            # Choose a random session pattern for variety
+            pattern = random.choice(session_patterns)
+            
+            for session_data in pattern:
+                CourtSession.objects.get_or_create(
+                    court=court,
+                    start_time=session_data['start'],
+                    defaults={
+                        'session_name': session_data['name'],
+                        'end_time': session_data['end'],
+                        'is_active': True,
+                    }
+                )
+        
+        self.stdout.write(f'Created {CourtSession.objects.count()} court sessions')
+
+    def create_court_images(self):
+        """Create images for individual courts"""
+        self.stdout.write('Creating court images...')
+        
+        # Sample court image URLs (using sports-related images)
+        image_urls = [
+            'https://cnc-magazine.oramiland.com/parenting/images/ukuran_lapangan_sepak_bola.width-800.format-webp.webp',
+            'https://images.unsplash.com/photo-1575361204480-aadea25e6e68',  # Futsal court
+            'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea',  # Basketball court
+            'https://images.unsplash.com/photo-1554068865-24cecd4e34b8',  # Tennis court
+            'https://images.unsplash.com/photo-1593786481097-3c5e02d5e10c',  # Badminton
+        ]
+        
+        courts = Court.objects.all()
+        
+        for court in courts:
+            # Create 1-3 images per court
+            num_images = random.randint(1, 3)
+            
+            for i in range(num_images):
+                image_url = random.choice(image_urls)
+                
+                CourtImage.objects.create(
+                    court=court,
+                    image_url=image_url,
+                    is_primary=(i == 0),  # First image is primary
+                    caption=f'{court.name} - View {i+1}',
+                )
+        
+        self.stdout.write(f'Created {CourtImage.objects.count()} court images')
 
     def create_operational_hours(self):
         """Create operational hours for venues"""
@@ -721,6 +787,56 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(f'Created {Review.objects.count()} reviews')
+
+    def create_pendapatan(self):
+        """Create revenue/pendapatan entries for paid bookings"""
+        self.stdout.write('Creating pendapatan records...')
+        
+        # Get all paid bookings that don't have pendapatan yet
+        paid_bookings = Booking.objects.filter(payment_status='paid')
+        
+        for booking in paid_bookings:
+            # Get the mitra (venue owner)
+            mitra = booking.court.venue.owner
+            
+            # Skip if mitra is not actually a mitra
+            if mitra.role != 'mitra':
+                continue
+            
+            # Commission rate varies between 5% to 15%
+            commission_rate = Decimal(str(random.choice([5.00, 7.50, 10.00, 12.50, 15.00])))
+            
+            # Determine payment status based on booking date
+            if booking.booking_date < date.today() - timedelta(days=14):
+                payment_status = 'paid'
+                paid_at = booking.created_at + timedelta(days=random.randint(7, 14))
+            elif booking.booking_date < date.today():
+                payment_status = random.choice(['paid', 'pending'])
+                paid_at = booking.created_at + timedelta(days=random.randint(7, 14)) if payment_status == 'paid' else None
+            else:
+                payment_status = 'pending'
+                paid_at = None
+            
+            # Create pendapatan entry
+            pendapatan, created = Pendapatan.objects.get_or_create(
+                booking=booking,
+                defaults={
+                    'mitra': mitra,
+                    'amount': booking.total_price,
+                    'commission_rate': commission_rate,
+                    'payment_status': payment_status,
+                    'paid_at': paid_at,
+                    'notes': random.choice([
+                        None,
+                        'Commission processed successfully',
+                        'Payment verified and transferred',
+                        'Standard commission rate applied',
+                        'Special rate for premium venue'
+                    ])
+                }
+            )
+        
+        self.stdout.write(f'Created {Pendapatan.objects.count()} pendapatan records')
 
     def create_activity_logs(self):
         """Create activity logs for user actions"""
