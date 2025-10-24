@@ -1,6 +1,11 @@
 // venue.js - consolidated
 const staticBase = window.staticUrl || '/static/';
 
+// Pagination settings
+const ITEMS_PER_PAGE = 9;
+let currentPage = 1;
+let allVenues = [];
+
 function renderVenueList(venues) {
   const container = document.getElementById('venue-list');
   const countEl = document.getElementById('venue-count-number');
@@ -26,22 +31,55 @@ function renderVenueList(venues) {
     return;
   }
 
+  // Store all venues for pagination
+  allVenues = list;
+  
   if (countEl) countEl.textContent = list.length;
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedList = list.slice(startIndex, endIndex);
+  
   container.innerHTML = '';
-  list.forEach(v => {
-    const imgSrc = (v.images && v.images.length) ? v.images[0] : (staticBase + 'img/no-image.png');
-    const cardWrap = document.createElement('div');
-    cardWrap.className = 'rounded-2xl bg-white shadow-soft overflow-hidden';
-    // Prefer using the venue's UUID-like id when available (safe and unambiguous).
-    // Otherwise fall back to the URL-encoded venue name (for dummy/test data).
-    let detailId = '';
-    if (v.id && typeof v.id === 'string' && v.id.indexOf('-') !== -1 && v.id.length > 20) {
-      // Probably a UUID
-      detailId = v.id;
-    } else {
-      detailId = encodeURIComponent(v.name || v.id || '');
-    }
-    const detailHref = `/lapangan/${detailId}/`;
+  paginatedList.forEach(v => {
+    renderVenueCard(container, v);
+  });
+  
+  // Render pagination
+  renderPagination(totalPages);
+}
+
+function renderVenueListFromServer(venues) {
+  const container = document.getElementById('venue-list');
+  
+  // Show "no results" message if no venues
+  if (!venues || !venues.length) {
+    container.innerHTML = '<div class="col-span-full text-center py-12 text-neutral-600">Tidak ada venue yang sesuai dengan pencarian.</div>';
+    return;
+  }
+  
+  container.innerHTML = '';
+  venues.forEach(v => {
+    renderVenueCard(container, v);
+  });
+}
+
+function renderVenueCard(container, v) {
+  const imgSrc = (v.images && v.images.length) ? v.images[0] : (staticBase + 'img/no-image.png');
+  const cardWrap = document.createElement('div');
+  cardWrap.className = 'rounded-2xl bg-white shadow-soft overflow-hidden';
+  // Prefer using the venue's UUID-like id when available (safe and unambiguous).
+  // Otherwise fall back to the URL-encoded venue name (for dummy/test data).
+  let detailId = '';
+  if (v.id && typeof v.id === 'string' && v.id.indexOf('-') !== -1 && v.id.length > 20) {
+    // Probably a UUID
+    detailId = v.id;
+  } else {
+    detailId = encodeURIComponent(v.name || v.id || '');
+  }
+  const detailHref = `/lapangan/${detailId}/`;
 
   cardWrap.innerHTML = `
       <a href="${detailHref}" class="block hover:shadow-medium transition-shadow">
@@ -84,12 +122,233 @@ function renderVenueList(venues) {
         </div>
       </a>
     `;
-    container.appendChild(cardWrap);
-  });
+  container.appendChild(cardWrap);
+}
+
+function renderServerPagination(pagination) {
+  const paginationContainer = document.getElementById('pagination-container');
+  
+  if (!paginationContainer || !pagination || pagination.total_pages <= 1) {
+    if (paginationContainer) paginationContainer.innerHTML = '';
+    return;
+  }
+  
+  const currentPage = pagination.page;
+  const totalPages = pagination.total_pages;
+  
+  let paginationHTML = '';
+  
+  // First Page Button
+  paginationHTML += `
+    <button onclick="goToPage(1)" 
+            class="px-4 py-2 rounded-lg border ${currentPage === 1 ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all"
+            ${currentPage === 1 ? 'disabled' : ''}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+      </svg>
+    </button>
+  `;
+  
+  // Previous Button
+  paginationHTML += `
+    <button onclick="goToPage(${currentPage - 1})" 
+            class="px-4 py-2 rounded-lg border ${currentPage === 1 ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all"
+            ${currentPage === 1 ? 'disabled' : ''}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+  `;
+  
+  // Page Numbers
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  // Adjust start if we're near the end
+  if (endPage - startPage < maxVisiblePages - 1) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+  
+  // Show first page and ellipsis if needed
+  if (startPage > 1) {
+    paginationHTML += `
+      <button onclick="goToPage(1)" 
+              class="px-4 py-2 rounded-lg border bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300 transition-all">
+        1
+      </button>
+    `;
+    if (startPage > 2) {
+      paginationHTML += `<span class="px-2 text-neutral-500">...</span>`;
+    }
+  }
+  
+  // Page number buttons
+  for (let i = startPage; i <= endPage; i++) {
+    paginationHTML += `
+      <button onclick="goToPage(${i})" 
+              class="px-4 py-2 rounded-lg border ${i === currentPage ? 'gradient-primary text-white font-semibold' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all">
+        ${i}
+      </button>
+    `;
+  }
+  
+  // Show last page and ellipsis if needed
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      paginationHTML += `<span class="px-2 text-neutral-500">...</span>`;
+    }
+    paginationHTML += `
+      <button onclick="goToPage(${totalPages})" 
+              class="px-4 py-2 rounded-lg border bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300 transition-all">
+        ${totalPages}
+      </button>
+    `;
+  }
+  
+  // Next Button
+  paginationHTML += `
+    <button onclick="goToPage(${currentPage + 1})" 
+            class="px-4 py-2 rounded-lg border ${currentPage === totalPages ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all"
+            ${currentPage === totalPages ? 'disabled' : ''}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  `;
+  
+  // Last Page Button
+  paginationHTML += `
+    <button onclick="goToPage(${totalPages})" 
+            class="px-4 py-2 rounded-lg border ${currentPage === totalPages ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all"
+            ${currentPage === totalPages ? 'disabled' : ''}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+      </svg>
+    </button>
+  `;
+  
+  paginationContainer.innerHTML = paginationHTML;
+}
+
+function goToPage(page) {
+  const pagination = window.currentPagination || {};
+  const totalPages = pagination.total_pages || 1;
+  
+  if (page < 1 || page > totalPages) return;
+  
+  // Fetch new page from server
+  const searchForm = document.getElementById('venue-search-form');
+  const params = searchForm ? Object.fromEntries(new FormData(searchForm)) : {};
+  fetchAndRenderVenueList(params, page);
+  
+  // Scroll to top of venue list
+  document.getElementById('venue-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Keep old client-side pagination function for fallback
+function renderPagination(totalPages) {
+  const paginationContainer = document.getElementById('pagination-container');
+  
+  if (!paginationContainer || totalPages <= 1) {
+    if (paginationContainer) paginationContainer.innerHTML = '';
+    return;
+  }
+  
+  let paginationHTML = '';
+  
+  // First Page Button
+  paginationHTML += `
+    <button onclick="goToPage(1)" 
+            class="px-4 py-2 rounded-lg border ${currentPage === 1 ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all"
+            ${currentPage === 1 ? 'disabled' : ''}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+      </svg>
+    </button>
+  `;
+  
+  // Previous Button
+  paginationHTML += `
+    <button onclick="goToPage(${currentPage - 1})" 
+            class="px-4 py-2 rounded-lg border ${currentPage === 1 ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all"
+            ${currentPage === 1 ? 'disabled' : ''}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+  `;
+  
+  // Page Numbers
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage < maxVisiblePages - 1) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+  
+  if (startPage > 1) {
+    paginationHTML += `
+      <button onclick="goToPage(1)" 
+              class="px-4 py-2 rounded-lg border bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300 transition-all">
+        1
+      </button>
+    `;
+    if (startPage > 2) {
+      paginationHTML += `<span class="px-2 text-neutral-500">...</span>`;
+    }
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    paginationHTML += `
+      <button onclick="goToPage(${i})" 
+              class="px-4 py-2 rounded-lg border ${i === currentPage ? 'gradient-primary text-white font-semibold' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all">
+        ${i}
+      </button>
+    `;
+  }
+  
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      paginationHTML += `<span class="px-2 text-neutral-500">...</span>`;
+    }
+    paginationHTML += `
+      <button onclick="goToPage(${totalPages})" 
+              class="px-4 py-2 rounded-lg border bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300 transition-all">
+        ${totalPages}
+      </button>
+    `;
+  }
+  
+  // Next Button
+  paginationHTML += `
+    <button onclick="goToPage(${currentPage + 1})" 
+            class="px-4 py-2 rounded-lg border ${currentPage === totalPages ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all"
+            ${currentPage === totalPages ? 'disabled' : ''}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  `;
+  
+  // Last Page Button
+  paginationHTML += `
+    <button onclick="goToPage(${totalPages})" 
+            class="px-4 py-2 rounded-lg border ${currentPage === totalPages ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' : 'bg-white text-neutral-700 hover:bg-neutral-50 border-neutral-300'} transition-all"
+            ${currentPage === totalPages ? 'disabled' : ''}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+      </svg>
+    </button>
+  `;
+  
+  paginationContainer.innerHTML = paginationHTML;
 }
 
 // expose render function globally
 window._renderVenueList = renderVenueList;
+window.goToPage = goToPage;
 
 function sortVenues(venues, sortBy) {
   if (!venues) return venues;
@@ -155,16 +414,25 @@ function applyFilters(venues, params) {
   });
 }
 
-function fetchAndRenderVenueList(params = {}) {
+function fetchAndRenderVenueList(params = {}, page = 1) {
+  // Store current page
+  currentPage = page;
+  
   // params is an object of form values
   const url = new URL('/api/venues/', window.location.origin);
   Object.keys(params).forEach(k => {
     if (params[k]) url.searchParams.append(k, params[k]);
   });
+  
+  // Add pagination params
+  url.searchParams.append('page', page);
+  url.searchParams.append('page_size', ITEMS_PER_PAGE);
+  
   fetch(url)
     .then(res => res.json())
     .then(json => {
       let venues = json.data;
+      const pagination = json.pagination || {};
       // If API returns empty, prefer server snapshot injected into the page
       if ((!venues || venues.length === 0) && Array.isArray(window.venuesData) && window.venuesData.length > 0) {
         venues = window.venuesData;
@@ -185,17 +453,31 @@ function fetchAndRenderVenueList(params = {}) {
         return v;
       });
 
+      // Store pagination info globally
+      window.currentPagination = pagination;
+      
+      // Update total count
+      const countEl = document.getElementById('venue-count-number');
+      if (countEl) countEl.textContent = pagination.total_count || venues.length;
+      
       const sortSelect = document.getElementById('venue-sort');
       const sortBy = sortSelect ? sortSelect.value : '';
       venues = sortVenues(venues, sortBy);
-      renderVenueList(venues);
+      
+      // Store venues for rendering
+      allVenues = venues;
+      
+      // Render venues (already paginated from server)
+      renderVenueListFromServer(venues);
+      
+      // Render pagination controls
+      renderServerPagination(pagination);
     })
     .catch(err => {
-      // On error, prefer server-injected snapshot if present, otherwise dummy
-      const venues = (Array.isArray(window.venuesData) && window.venuesData.length > 0)
-        ? applyFilters(window.venuesData, params)
-        : applyFilters(DUMMY_VENUES, params);
-      renderVenueList(venues);
+      console.error('Error fetching venues:', err);
+      // On error, show empty state
+      const container = document.getElementById('venue-list');
+      container.innerHTML = '<div class="col-span-full text-center py-12 text-neutral-600">Gagal memuat data venue.</div>';
     });
 }
 
@@ -215,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       const params = Object.fromEntries(new FormData(searchForm));
       window.lastAppliedParams = params; // Store for re-use
-      fetchAndRenderVenueList(params);
+      fetchAndRenderVenueList(params, 1); // Reset to page 1 on new search
     });
     
     // Update search as you type
@@ -223,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
       input.addEventListener('input', function() {
         const params = Object.fromEntries(new FormData(searchForm));
         window.lastAppliedParams = params;
-        fetchAndRenderVenueList(params);
+        fetchAndRenderVenueList(params, 1);
       });
     });
     
@@ -233,14 +515,14 @@ document.addEventListener('DOMContentLoaded', function() {
       categorySelect.addEventListener('change', function() {
         const params = Object.fromEntries(new FormData(searchForm));
         window.lastAppliedParams = params;
-        fetchAndRenderVenueList(params);
+        fetchAndRenderVenueList(params, 1);
       });
     }
     
     // initial load uses empty params
-    fetchAndRenderVenueList({});
+    fetchAndRenderVenueList({}, 1);
   } else {
-    fetchAndRenderVenueList({});
+    fetchAndRenderVenueList({}, 1);
   }
   
   if (sortSelect) {
@@ -249,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // re-fetch using last params (or current form values)
       const params = searchForm ? Object.fromEntries(new FormData(searchForm)) : {};
       window.lastAppliedParams = params;
-      fetchAndRenderVenueList(params);
+      fetchAndRenderVenueList(params, 1);
     });
   }
 });
