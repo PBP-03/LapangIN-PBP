@@ -58,6 +58,10 @@ urlpatterns = [
     path('api/mitra/<uuid:mitra_id>/', revenue_views.api_mitra_update_status, name='api_mitra_update_status'),
     path('api/mitra/<uuid:mitra_id>/venues/', revenue_views.api_mitra_venue_details, name='api_mitra_venue_details'),
     path('api/mitra/<uuid:mitra_id>/earnings/', revenue_views.api_mitra_earnings_detail, name='api_mitra_earnings_detail'),
+    
+    # Refund Management APIs
+    path('api/refunds/', revenue_views.api_refunds, name='api_refunds'),
+    path('api/refunds/<uuid:pendapatan_id>/cancel/', revenue_views.api_cancel_refund, name='api_cancel_refund'),
 ]
 
 # Serve static and media files during development

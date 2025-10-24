@@ -118,6 +118,178 @@ def api_mitra_earnings_detail(request, mitra_id):
         }
     })
 
+
+# Refund Management APIs
+@require_http_methods(["GET", "POST"])
+@csrf_exempt
+def api_refunds(request):
+    """Combined endpoint: GET to list refunds, POST to create refund"""
+    if not request.user.is_authenticated or request.user.role != 'admin':
+        return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+    
+    if request.method == 'GET':
+        # List all refunds
+        refunds = Pendapatan.objects.filter(
+            payment_status='refunded'
+        ).select_related('mitra', 'booking', 'booking__user', 'booking__court', 'booking__court__venue').order_by('-updated_at')
+        
+        data = []
+        for p in refunds:
+            # Parse refund info from notes
+            refund_reason = ''
+            if p.notes and 'REFUND:' in p.notes:
+                parts = p.notes.split('|')
+                if len(parts) > 0:
+                    refund_reason = parts[0].replace('REFUND:', '').strip()
+            
+            data.append({
+                'id': str(p.id),
+                'mitra_name': p.mitra.get_full_name() or p.mitra.username,
+                'customer_name': p.booking.user.get_full_name() or p.booking.user.username,
+                'venue_name': p.booking.court.venue.name,
+                'court_name': p.booking.court.name,
+                'amount': float(p.net_amount),
+                'reason': refund_reason,
+                'refunded_at': p.updated_at.isoformat(),
+                'booking_date': p.booking.booking_date.isoformat()
+            })
+        
+        return JsonResponse({'status': 'ok', 'data': data})
+    
+    elif request.method == 'POST':
+        # Create refund
+        try:
+            data = json.loads(request.body)
+            pendapatan_id = data.get('pendapatan_id')
+            reason = data.get('reason', '')
+            
+            if not pendapatan_id:
+                return JsonResponse({'status': 'error', 'message': 'pendapatan_id is required'}, status=400)
+            
+            pendapatan = Pendapatan.objects.get(id=pendapatan_id)
+            
+            # Check if already refunded
+            if pendapatan.payment_status == 'refunded':
+                return JsonResponse({'status': 'error', 'message': 'Already refunded'}, status=400)
+            
+            # Mark as refunded and add note
+            pendapatan.payment_status = 'refunded'
+            pendapatan.notes = f"REFUND: {reason} | Processed by: {request.user.username} | Original notes: {pendapatan.notes or ''}"
+            pendapatan.save()
+            
+            return JsonResponse({
+                'status': 'ok',
+                'message': 'Refund processed successfully',
+                'data': {
+                    'pendapatan_id': str(pendapatan.id),
+                    'amount': float(pendapatan.net_amount),
+                    'status': 'refunded'
+                }
+            })
+        except Pendapatan.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Transaction not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def api_create_refund(request, pendapatan_id):
+    """Create a refund request by marking pendapatan as refunded"""
+    if not request.user.is_authenticated or request.user.role != 'admin':
+        return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        reason = data.get('reason', '')
+        
+        pendapatan = Pendapatan.objects.get(id=pendapatan_id)
+        
+        # Check if already refunded
+        if pendapatan.payment_status == 'refunded':
+            return JsonResponse({'status': 'error', 'message': 'Already refunded'}, status=400)
+        
+        # Mark as refunded and add note
+        pendapatan.payment_status = 'refunded'
+        pendapatan.notes = f"REFUND: {reason} | Processed by: {request.user.username} | Original notes: {pendapatan.notes or ''}"
+        pendapatan.save()
+        
+        return JsonResponse({
+            'status': 'ok',
+            'message': 'Refund processed successfully',
+            'data': {
+                'pendapatan_id': str(pendapatan.id),
+                'amount': float(pendapatan.net_amount),
+                'status': 'refunded'
+            }
+        })
+    except Pendapatan.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Transaction not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@require_http_methods(["GET"])
+@csrf_exempt
+def api_list_refunds(request):
+    """List all refunded transactions"""
+    if not request.user.is_authenticated or request.user.role != 'admin':
+        return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+    
+    refunds = Pendapatan.objects.filter(
+        payment_status='refunded'
+    ).select_related('mitra', 'booking', 'booking__user', 'booking__court', 'booking__court__venue').order_by('-updated_at')
+    
+    data = []
+    for p in refunds:
+        # Parse refund info from notes
+        refund_reason = ''
+        if p.notes and 'REFUND:' in p.notes:
+            parts = p.notes.split('|')
+            if len(parts) > 0:
+                refund_reason = parts[0].replace('REFUND:', '').strip()
+        
+        data.append({
+            'id': str(p.id),
+            'mitra_name': p.mitra.get_full_name() or p.mitra.username,
+            'customer_name': p.booking.user.get_full_name() or p.booking.user.username,
+            'venue_name': p.booking.court.venue.name,
+            'court_name': p.booking.court.name,
+            'amount': float(p.net_amount),
+            'reason': refund_reason,
+            'refunded_at': p.updated_at.isoformat(),
+            'booking_date': p.booking.booking_date.isoformat()
+        })
+    
+    return JsonResponse({'status': 'ok', 'data': data})
+
+
+@require_http_methods(["DELETE"])
+@csrf_exempt
+def api_cancel_refund(request, pendapatan_id):
+    """Cancel a refund by reverting status back to paid"""
+    if not request.user.is_authenticated or request.user.role != 'admin':
+        return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+    
+    try:
+        pendapatan = Pendapatan.objects.get(id=pendapatan_id, payment_status='refunded')
+        
+        # Revert status
+        pendapatan.payment_status = 'paid'
+        # Keep the refund note for history but mark as cancelled
+        pendapatan.notes = f"[CANCELLED] {pendapatan.notes}"
+        pendapatan.save()
+        
+        return JsonResponse({
+            'status': 'ok',
+            'message': 'Refund cancelled successfully'
+        })
+    except Pendapatan.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Refunded transaction not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
 # Import forms and decorators from users app
 from app.users.forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm, VenueForm, CourtForm
 from app.users.decorators import login_required, role_required, anonymous_required
