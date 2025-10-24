@@ -1,0 +1,1546 @@
+{% extends 'base.html' %} {% load static %} {% block title %}LapangIN - Platform
+Booking Lapangan Olahraga Terpercaya{% endblock %} {% block content %}
+
+<!-- Hero Section with Video Background -->
+<section class="relative min-h-screen overflow-hidden">
+  <!-- Background Video with Overlay -->
+  <div class="absolute inset-0">
+    <div
+      class="absolute inset-0 bg-gradient-to-br from-primary-600/75 via-secondary-600/70 to-teal-600/75 z-10"
+    ></div>
+    <video
+      autoplay
+      muted
+      loop
+      playsinline
+      class="absolute inset-0 w-full h-full object-cover"
+    >
+      <source src="{% static 'videos/hero.mp4' %}" type="video/mp4" />
+      <!-- Fallback image if video fails to load -->
+      <img
+        src="https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=1920&h=1080&fit=crop"
+        alt="Professional Sports Arena"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+    </video>
+  </div>
+
+  <!-- Decorative Elements -->
+  <div class="absolute inset-0 opacity-10">
+    <div
+      class="absolute top-0 right-0 w-48 h-48 md:w-72 md:h-72 lg:w-96 lg:h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"
+    ></div>
+    <div
+      class="absolute bottom-0 left-0 w-32 h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"
+    ></div>
+  </div>
+
+  <!-- Hero Content -->
+  <div class="relative min-h-screen flex items-center py-20 z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="max-w-4xl mx-auto text-center text-white">
+        <!-- Badge -->
+        <div
+          class="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4 sm:mb-6 animate-fade-in-down"
+        >
+          <div
+            class="w-2 h-2 bg-teal-300 rounded-full mr-2"
+          ></div>
+          <span class="text-xs sm:text-sm font-semibold"
+            >Platform Booking Lapangan #1 di Indonesia</span
+          >
+        </div>
+
+        <!-- Main Heading -->
+        <h1
+          class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight animate-fade-in"
+        >
+          <span class="block mb-2">Book Your</span>
+          <span
+            class="block text-teal-300 min-h-[60px] sm:min-h-[80px] md:min-h-[100px] lg:min-h-[120px]"
+          >
+            <span id="typing-text" class="typing-cursor"></span>
+          </span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p
+          class="text-md sm:text-lg md:text-xl mb-8 sm:mb-10 max-w-3xl mx-auto opacity-95 leading-relaxed animate-fade-in-up px-4 sm:px-0"
+        >
+          Temukan dan pesan lapangan olahraga favorit Anda dengan mudah. Dari
+          futsal hingga tennis, semua ada di LapangIN
+        </p>
+
+        <!-- CTA Buttons -->
+        <div
+          class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-12 sm:mb-16 animate-fade-in-up animation-delay-200 px-4 sm:px-0"
+        >
+          <a
+            href="/lapangan"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-neutral-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105 transform"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              ></path>
+            </svg>
+            Cari Lapangan
+          </a>
+          <a
+            href="/tentang"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-primary-600 transition-all"
+          >
+            Pelajari Lebih Lanjut
+            <svg
+              class="w-5 h-5 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              ></path>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div
+          class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto px-4 sm:px-0"
+        >
+          <div
+            class="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/20 transition-all"
+          >
+            <div class="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">
+              100+
+            </div>
+            <div class="text-xs sm:text-sm opacity-90">Lapangan</div>
+          </div>
+          <div
+            class="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/20 transition-all"
+          >
+            <div class="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">
+              10K+
+            </div>
+            <div class="text-xs sm:text-sm opacity-90">Pengguna</div>
+          </div>
+          <div
+            class="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/20 transition-all"
+          >
+            <div class="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">
+              10+
+            </div>
+            <div class="text-xs sm:text-sm opacity-90">Kota</div>
+          </div>
+          <div
+            class="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/20 transition-all"
+          >
+            <div class="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">
+              4.9★
+            </div>
+            <div class="text-xs sm:text-sm opacity-90">Rating</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll Indicator -->
+  <div
+    class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce"
+  >
+    <svg
+      class="w-6 h-6 text-white opacity-75"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+      ></path>
+    </svg>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section
+  class="py-20 bg-gradient-to-b from-white via-primary-50/30 to-white relative overflow-hidden"
+>
+  <!-- Decorative Background Elements -->
+  <div
+    class="absolute top-20 left-10 w-72 h-72 bg-primary-200/20 rounded-full blur-3xl"
+  ></div>
+  <div
+    class="absolute bottom-20 right-10 w-96 h-96 bg-primary-300/20 rounded-full blur-3xl"
+  ></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <!-- Section Header -->
+    <div class="text-center mb-20 scroll-animate">
+      <div class="inline-block mb-4">
+        <span
+          class="px-4 py-2 bg-primary-100 text-primary-700 font-bold uppercase tracking-wider text-sm rounded-full"
+        >
+          Cara Kerja
+        </span>
+      </div>
+      <h2
+        class="text-4xl md:text-6xl font-black text-neutral-900 mb-6 leading-tight"
+      >
+        Mudah Dalam <span class="text-primary-600">3 Langkah</span>
+      </h2>
+      <p class="text-xl text-neutral-600 max-w-2xl mx-auto">
+        Proses booking yang simpel dan cepat untuk pengalaman terbaik Anda
+      </p>
+    </div>
+
+    <!-- Steps Grid with Connecting Lines -->
+    <div class="relative">
+      <!-- Connection Lines (Desktop Only) -->
+      <div class="hidden lg:block absolute top-24 left-0 right-0 h-1">
+        <div class="max-w-5xl mx-auto relative">
+          <div
+            class="absolute left-1/4 right-1/4 top-0 h-1 bg-gradient-to-r from-primary-400 via-primary-500 to-primary-400 opacity-30"
+          ></div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 lg:gap-12 mb-16">
+        <!-- Step 1 -->
+        <div class="relative scroll-animate-scale group">
+          <!-- Glowing Effect on Hover -->
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-primary-400/0 to-primary-600/0 group-hover:from-primary-400/10 group-hover:to-primary-600/10 rounded-3xl transition-all duration-500 blur-xl"
+          ></div>
+
+          <div
+            class="relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 h-full border-2 border-primary-100 group-hover:border-primary-300 group-hover:-translate-y-2"
+          >
+            <!-- Animated Step Number Badge -->
+            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+              <div class="relative">
+                <div
+                  class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl group-hover:scale-110 transition-transform duration-300 rotate-3 group-hover:rotate-6"
+                >
+                  <span class="relative z-10">1</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Large Icon with Gradient Background -->
+            <div class="mt-12 mb-6 flex justify-center">
+              <div class="relative">
+                <div
+                  class="w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg"
+                >
+                  <svg
+                    class="w-12 h-12 text-primary-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    ></path>
+                  </svg>
+                </div>
+                <!-- Icon Glow -->
+                <div
+                  class="absolute inset-0 bg-primary-300 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Content with Better Typography -->
+            <div class="text-center">
+              <h3
+                class="text-2xl font-black text-neutral-900 mb-4 group-hover:text-primary-600 transition-colors"
+              >
+                Cari Lapangan
+              </h3>
+              <p class="text-neutral-600 leading-relaxed text-base">
+                Pilih jenis olahraga dan lokasi yang Anda inginkan. Filter
+                berdasarkan harga, fasilitas, dan rating.
+              </p>
+            </div>
+
+            <!-- Decorative Corner Elements -->
+            <div
+              class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-primary-200 rounded-tr-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+            <div
+              class="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-primary-200 rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative scroll-animate-scale group">
+          <!-- Glowing Effect on Hover -->
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-primary-400/0 to-primary-600/0 group-hover:from-primary-400/10 group-hover:to-primary-600/10 rounded-3xl transition-all duration-500 blur-xl"
+          ></div>
+
+          <div
+            class="relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 h-full border-2 border-primary-100 group-hover:border-primary-300 group-hover:-translate-y-2"
+          >
+            <!-- Animated Step Number Badge -->
+            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+              <div class="relative">
+                <div
+                  class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl group-hover:scale-110 transition-transform duration-300 rotate-3 group-hover:rotate-6"
+                >
+                  <span class="relative z-10">2</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Large Icon with Gradient Background -->
+            <div class="mt-12 mb-6 flex justify-center">
+              <div class="relative">
+                <div
+                  class="w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg"
+                >
+                  <svg
+                    class="w-12 h-12 text-primary-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                </div>
+                <!-- Icon Glow -->
+                <div
+                  class="absolute inset-0 bg-primary-300 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Content with Better Typography -->
+            <div class="text-center">
+              <h3
+                class="text-2xl font-black text-neutral-900 mb-4 group-hover:text-primary-600 transition-colors"
+              >
+                Pilih Jadwal & Bayar
+              </h3>
+              <p class="text-neutral-600 leading-relaxed text-base">
+                Lihat slot waktu yang tersedia, pilih jadwal yang cocok, dan
+                lakukan pembayaran dengan metode yang Anda suka.
+              </p>
+            </div>
+
+            <!-- Decorative Corner Elements -->
+            <div
+              class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-primary-200 rounded-tr-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+            <div
+              class="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-primary-200 rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative scroll-animate-scale group">
+          <!-- Glowing Effect on Hover -->
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-primary-400/0 to-primary-600/0 group-hover:from-primary-400/10 group-hover:to-primary-600/10 rounded-3xl transition-all duration-500 blur-xl"
+          ></div>
+
+          <div
+            class="relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 h-full border-2 border-primary-100 group-hover:border-primary-300 group-hover:-translate-y-2"
+          >
+            <!-- Animated Step Number Badge -->
+            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+              <div class="relative">
+                <div
+                  class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl group-hover:scale-110 transition-transform duration-300 rotate-3 group-hover:rotate-6"
+                >
+                  <span class="relative z-10">3</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Large Icon with Gradient Background -->
+            <div class="mt-12 mb-6 flex justify-center">
+              <div class="relative">
+                <div
+                  class="w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg"
+                >
+                  <svg
+                    class="w-12 h-12 text-primary-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                </div>
+                <!-- Icon Glow -->
+                <div
+                  class="absolute inset-0 bg-primary-300 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Content with Better Typography -->
+            <div class="text-center">
+              <h3
+                class="text-2xl font-black text-neutral-900 mb-4 group-hover:text-primary-600 transition-colors"
+              >
+                Main & Nikmati
+              </h3>
+              <p class="text-neutral-600 leading-relaxed text-base">
+                Datang ke lapangan sesuai jadwal, tunjukkan bukti booking, dan
+                nikmati permainan Anda!
+              </p>
+            </div>
+
+            <!-- Decorative Corner Elements -->
+            <div
+              class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-primary-200 rounded-tr-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+            <div
+              class="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-primary-200 rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Highlights -->
+    <div class="grid md:grid-cols-4 gap-6">
+      <div
+        class="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-all scroll-animate"
+      >
+        <div
+          class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            class="w-6 h-6 text-primary-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+        </div>
+        <h4 class="font-bold text-neutral-900 mb-1">Real-Time</h4>
+        <p class="text-sm text-neutral-600">Update ketersediaan langsung</p>
+      </div>
+
+      <div
+        class="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-all scroll-animate"
+      >
+        <div
+          class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            class="w-6 h-6 text-primary-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+            ></path>
+          </svg>
+        </div>
+        <h4 class="font-bold text-neutral-900 mb-1">Aman</h4>
+        <p class="text-sm text-neutral-600">Pembayaran terenkripsi SSL</p>
+      </div>
+
+      <div
+        class="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-all scroll-animate"
+      >
+        <div
+          class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            class="w-6 h-6 text-primary-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+        </div>
+        <h4 class="font-bold text-neutral-900 mb-1">Harga Jelas</h4>
+        <p class="text-sm text-neutral-600">Tanpa biaya tersembunyi</p>
+      </div>
+
+      <div
+        class="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-all scroll-animate"
+      >
+        <div
+          class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            class="w-6 h-6 text-primary-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
+            ></path>
+          </svg>
+        </div>
+        <h4 class="font-bold text-neutral-900 mb-1">24/7 Support</h4>
+        <p class="text-sm text-neutral-600">Siap membantu kapan saja</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About LapangIN Section - Story & Photos -->
+<section class="py-20 bg-white relative overflow-hidden">
+  <!-- Subtle Decorative Elements -->
+  <div
+    class="absolute top-0 right-0 w-96 h-96 bg-primary-50 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50"
+  ></div>
+  <div
+    class="absolute bottom-0 left-0 w-64 h-64 bg-primary-50 rounded-full translate-y-1/2 -translate-x-1/2 opacity-50"
+  ></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Section Header -->
+    <div class="text-center mb-16 scroll-animate">
+      <div class="inline-block mb-4">
+        <span
+          class="text-primary-600 font-bold uppercase tracking-wider text-sm bg-primary-50 px-4 py-2 rounded-full"
+        >
+          Tentang Kami
+        </span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold text-neutral-900 mb-4">
+        Kenapa <span class="text-primary-600">LapangIN?</span>
+      </h2>
+      <p class="text-lg text-neutral-600 max-w-2xl mx-auto">
+        Platform terpercaya untuk pengalaman booking lapangan yang sempurna
+      </p>
+    </div>
+
+    <!-- Main Content Grid: Text Left, Photos Right -->
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <!-- Left Side: Explanation with Icons -->
+      <div class="scroll-animate-left space-y-8">
+        <!-- Feature 1 -->
+        <div class="flex items-start space-x-4 group">
+          <div class="flex-shrink-0">
+            <div
+              class="w-14 h-14 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+            >
+              <svg
+                class="w-7 h-7 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold text-neutral-900 mb-2">
+              Instant Booking
+            </h3>
+            <p class="text-neutral-600 leading-relaxed">
+              Book lapangan dalam hitungan detik. Sistem real-time kami
+              memastikan ketersediaan akurat dan konfirmasi instan.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="flex items-start space-x-4 group">
+          <div class="flex-shrink-0">
+            <div
+              class="w-14 h-14 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+            >
+              <svg
+                class="w-7 h-7 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold text-neutral-900 mb-2">
+              Verified Venues
+            </h3>
+            <p class="text-neutral-600 leading-relaxed">
+              Semua venue telah terverifikasi dengan standar kualitas tinggi.
+              Bermain dengan tenang dan aman.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="flex items-start space-x-4 group">
+          <div class="flex-shrink-0">
+            <div
+              class="w-14 h-14 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+            >
+              <svg
+                class="w-7 h-7 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold text-neutral-900 mb-2">
+              Best Price Guarantee
+            </h3>
+            <p class="text-neutral-600 leading-relaxed">
+              Harga transparan tanpa biaya tersembunyi. Dapatkan deal terbaik
+              untuk setiap booking Anda.
+            </p>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-3 gap-6 pt-6 border-t border-neutral-200">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-primary-600 mb-1">150+</div>
+            <div class="text-sm text-neutral-600">Venues</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-primary-600 mb-1">10K+</div>
+            <div class="text-sm text-neutral-600">Users</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-primary-600 mb-1">4.9★</div>
+            <div class="text-sm text-neutral-600">Rating</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Creative Photo Layout -->
+      <div class="scroll-animate-right">
+        <div class="relative">
+          <!-- Main Large Photo -->
+          <div class="relative rounded-3xl overflow-hidden shadow-2xl group">
+            <img
+              src="https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=700&h=500&fit=crop"
+              alt="Modern Sports Complex"
+              class="w-full h-[500px] object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"
+            ></div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div
+                class="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm text-neutral-600 mb-1">
+                      Available Now
+                    </div>
+                    <div class="text-lg font-bold text-neutral-900">
+                      Premium Sports Arena
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-2xl font-bold text-primary-600">
+                      ⭐ 4.9
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Small Photos Grid - Overlapping Style -->
+          <div class="grid grid-cols-3 gap-3 mt-4">
+            <!-- Photo 1 -->
+            <div
+              class="rounded-2xl overflow-hidden shadow-lg h-32 group relative"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=300&h=200&fit=crop"
+                alt="Indoor Badminton"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div
+                class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"
+              ></div>
+            </div>
+
+            <!-- Photo 2 -->
+            <div
+              class="rounded-2xl overflow-hidden shadow-lg h-32 group relative"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=300&h=200&fit=crop"
+                alt="Outdoor Soccer"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div
+                class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"
+              ></div>
+            </div>
+
+            <!-- Photo 3 -->
+            <div
+              class="rounded-2xl overflow-hidden shadow-lg h-32 group relative"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=300&h=200&fit=crop"
+                alt="Tennis Court"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div
+                class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Floating Badge -->
+          <div
+            class="absolute -top-4 -right-4 bg-primary-600 text-white rounded-2xl px-6 py-3 shadow-xl z-10"
+          >
+            <div class="text-center">
+              <div class="text-2xl font-bold">100%</div>
+              <div class="text-xs opacity-90">Verified</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Live Venues Showcase -->
+<section
+  class="py-20 bg-gradient-to-b from-white via-neutral-50 to-white relative overflow-hidden"
+>
+  <!-- Decorative Elements -->
+  <div
+    class="absolute top-0 right-0 w-96 h-96 bg-teal-200/30 rounded-full filter blur-3xl"
+  ></div>
+  <div
+    class="absolute bottom-0 left-0 w-96 h-96 bg-primary-200/30 rounded-full filter blur-3xl"
+  ></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Section header -->
+    <div class="text-center mb-16 scroll-animate">
+      <div class="inline-flex items-center justify-center space-x-2 mb-4">
+        <div class="w-2 h-2 bg-teal-500 rounded-full"></div>
+        <span class="text-teal-600 font-bold uppercase tracking-wider text-sm"
+          >Live Venues</span
+        >
+      </div>
+      <h2 class="text-4xl md:text-6xl font-black text-neutral-900 mb-6">
+        Jelajahi
+        <span
+          class="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-primary-600 to-secondary-600"
+          >Venue Terbaik</span
+        >
+      </h2>
+      <p class="text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed">
+        Dari futsal hingga tennis, semua tersedia untuk Anda. Pilih, book, dan
+        mainkan!
+      </p>
+    </div>
+
+    <!-- Modern Sports Grid with Bento Box Layout -->
+    <div class="grid grid-cols-12 gap-4 md:gap-6">
+      <!-- Large Feature - Futsal (Takes 2 rows, 7 columns) -->
+      <div
+        class="col-span-12 lg:col-span-7 row-span-2 group cursor-pointer scroll-animate-scale"
+      >
+        <div
+          class="relative rounded-3xl overflow-hidden h-full min-h-[400px] lg:min-h-[500px] shadow-2xl"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1556817411-58c45dd94e8c?w=800&h=800&fit=crop"
+            alt="Futsal Courts"
+            class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-teal-900/40 via-primary-900/60 to-black/80"
+          ></div>
+
+          <!-- Content -->
+          <div class="absolute inset-0 p-8 lg:p-12 flex flex-col justify-end">
+            <!-- Live Badge -->
+            <div
+              class="absolute top-8 right-8 flex items-center space-x-2 bg-red-500/90 backdrop-blur-sm px-4 py-2 rounded-full"
+            >
+              <div class="w-2 h-2 bg-white rounded-full"></div>
+              <span class="text-white text-sm font-bold">LIVE</span>
+            </div>
+
+            <!-- Icon & Title -->
+            <div class="mb-4">
+              <div
+                class="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl mb-4 group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-4xl lg:text-5xl font-black text-white mb-3">
+                Futsal Arena
+              </h3>
+              <p class="text-white/90 text-lg mb-4">
+                Lapangan futsal premium dengan rumput sintetis terbaik
+              </p>
+            </div>
+
+            <!-- Stats -->
+            <div class="flex flex-wrap gap-4">
+              <div
+                class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20"
+              >
+                <span class="text-white font-bold">150+ Venues</span>
+              </div>
+              <div
+                class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20"
+              >
+                <span class="text-teal-300 font-bold">Rp 150K - 300K/jam</span>
+              </div>
+              <div
+                class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20"
+              >
+                <span class="text-white">⭐ 4.8 Rating</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badminton (Takes 1 row, 5 columns) -->
+      <div
+        class="col-span-12 lg:col-span-5 group cursor-pointer scroll-animate-scale"
+      >
+        <div
+          class="relative rounded-3xl overflow-hidden h-full min-h-[240px] shadow-xl"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&h=400&fit=crop"
+            alt="Badminton"
+            class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-purple-900/60 to-black/70"
+          ></div>
+
+          <div class="absolute inset-0 p-6 flex flex-col justify-end">
+            <div
+              class="inline-flex items-center justify-center w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl mb-3 group-hover:scale-110 transition-transform"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl lg:text-3xl font-black text-white mb-2">
+              Badminton
+            </h3>
+            <p class="text-white/80 text-sm mb-3">200+ lapangan tersedia</p>
+            <div
+              class="bg-purple-500/20 backdrop-blur-md px-3 py-1.5 rounded-lg border border-purple-300/30 inline-block"
+            >
+              <span class="text-white text-sm font-semibold"
+                >Rp 50K - 120K/jam</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Basketball (Takes 1 row, 5 columns) -->
+      <div
+        class="col-span-12 lg:col-span-5 group cursor-pointer scroll-animate-scale"
+      >
+        <div
+          class="relative rounded-3xl overflow-hidden h-full min-h-[240px] shadow-xl"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=600&h=400&fit=crop"
+            alt="Basketball"
+            class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-orange-900/60 to-black/70"
+          ></div>
+
+          <div class="absolute inset-0 p-6 flex flex-col justify-end">
+            <div
+              class="inline-flex items-center justify-center w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl mb-3 group-hover:scale-110 transition-transform"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <circle
+                  cx="10"
+                  cy="10"
+                  r="8"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  fill="none"
+                />
+              </svg>
+            </div>
+            <h3 class="text-2xl lg:text-3xl font-black text-white mb-2">
+              Basketball
+            </h3>
+            <p class="text-white/80 text-sm mb-3">
+              80+ lapangan indoor & outdoor
+            </p>
+            <div
+              class="bg-orange-500/20 backdrop-blur-md px-3 py-1.5 rounded-lg border border-orange-300/30 inline-block"
+            >
+              <span class="text-white text-sm font-semibold"
+                >Rp 100K - 200K/jam</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tennis & Padel (2 smaller cards side by side) -->
+      <div
+        class="col-span-6 lg:col-span-4 group cursor-pointer scroll-animate-scale"
+      >
+        <div
+          class="relative rounded-3xl overflow-hidden h-full min-h-[200px] shadow-xl"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=500&h=500&fit=crop"
+            alt="Tennis"
+            class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-blue-900/60 to-black/70"
+          ></div>
+
+          <div class="absolute inset-0 p-6 flex flex-col justify-end">
+            <div
+              class="inline-flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl mb-2 group-hover:scale-110 transition-transform"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl lg:text-2xl font-black text-white mb-1">
+              Tennis
+            </h3>
+            <p class="text-white/70 text-xs mb-2">50+ courts</p>
+            <span class="text-blue-300 text-sm font-bold">Rp 80K - 150K</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="col-span-6 lg:col-span-3 group cursor-pointer scroll-animate-scale"
+      >
+        <div
+          class="relative rounded-3xl overflow-hidden h-full min-h-[200px] shadow-xl"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=500&h=500&fit=crop"
+            alt="Padel"
+            class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-pink-900/60 to-black/70"
+          ></div>
+
+          <div class="absolute inset-0 p-6 flex flex-col justify-end">
+            <div
+              class="inline-flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl mb-2 group-hover:scale-110 transition-transform"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl lg:text-2xl font-black text-white mb-1">
+              Padel
+            </h3>
+            <p class="text-white/70 text-xs mb-2">30+ venues</p>
+            <span class="text-pink-300 text-sm font-bold">Rp 120K - 250K</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- View All CTA -->
+      <div
+        class="col-span-6 lg:col-span-5 group cursor-pointer scroll-animate-scale"
+      >
+        <div
+          class="relative rounded-3xl overflow-hidden h-full min-h-[200px] bg-gradient-to-br from-teal-500 via-primary-600 to-secondary-600 shadow-xl hover:shadow-2xl transition-all"
+        >
+          <div class="absolute inset-0 bg-black/20"></div>
+
+          <div
+            class="relative h-full p-6 flex flex-col items-center justify-center text-center"
+          >
+            <div
+              class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+            >
+              <svg
+                class="w-8 h-8 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-black text-white mb-2">Jelajahi Semua</h3>
+            <p class="text-white/90 text-sm">500+ venue menunggu Anda</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section
+  class="py-20 bg-gradient-to-br from-primary-600 via-secondary-600 to-teal-600 relative overflow-hidden"
+>
+  <!-- Decorative Elements -->
+  <div class="absolute inset-0 opacity-10">
+    <div
+      class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-32 -translate-y-32"
+    ></div>
+    <div
+      class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-48 translate-y-48"
+    ></div>
+  </div>
+
+  <div
+    class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white"
+  >
+    <h2 class="text-3xl md:text-4xl font-bold mb-4 scroll-animate">
+      Siap Mulai Berolahraga?
+    </h2>
+    <p class="text-lg mb-8 max-w-2xl mx-auto opacity-95 scroll-animate">
+      Bergabunglah dengan ribuan pengguna yang sudah merasakan kemudahan booking
+      lapangan di LapangIN
+    </p>
+
+    <div
+      class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 scroll-animate"
+    >
+      <a
+        href="/register"
+        class="inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-neutral-50 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+      >
+        <svg
+          class="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+          ></path>
+        </svg>
+        Daftar Sekarang
+      </a>
+      <a
+        href="/tentang"
+        class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-primary-600 transition-all"
+      >
+        Pelajari Lebih Lanjut
+        <svg
+          class="w-5 h-5 ml-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 7l5 5m0 0l-5 5m5-5H6"
+          ></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes fade-in-down {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-down {
+    animation: fade-in-down 0.6s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.8s ease-out;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+    animation-fill-mode: backwards;
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #5409da 0%, #14b8a6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .typing-cursor::after {
+    content: "|";
+    animation: blink 0.7s infinite;
+  }
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* Scroll Animation Styles */
+  .scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-animate.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .scroll-animate-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-animate-left.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .scroll-animate-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-animate-right.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .scroll-animate-scale {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-animate-scale.animate-in {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Staggered animation delays */
+  .scroll-animate:nth-child(1) {
+    transition-delay: 0s;
+  }
+  .scroll-animate:nth-child(2) {
+    transition-delay: 0.1s;
+  }
+  .scroll-animate:nth-child(3) {
+    transition-delay: 0.2s;
+  }
+  .scroll-animate:nth-child(4) {
+    transition-delay: 0.3s;
+  }
+  .scroll-animate:nth-child(5) {
+    transition-delay: 0.4s;
+  }
+  .scroll-animate:nth-child(6) {
+    transition-delay: 0.5s;
+  }
+
+  /* Revolutionary Section Animations */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    33% {
+      transform: translate(30px, -30px) rotate(120deg);
+    }
+    66% {
+      transform: translate(-20px, 20px) rotate(240deg);
+    }
+  }
+
+  @keyframes float-delayed {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    33% {
+      transform: translate(-30px, 30px) rotate(120deg);
+    }
+    66% {
+      transform: translate(20px, -20px) rotate(240deg);
+    }
+  }
+
+  @keyframes float-slow {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(15px, -15px) scale(1.1);
+    }
+  }
+
+  @keyframes gradient {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes ping-slow {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    75%,
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  .animate-float {
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float-delayed 25s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 30s ease-in-out infinite;
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 3s ease infinite;
+  }
+
+  .animate-ping-slow {
+    animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .feature-card {
+    transform-style: preserve-3d;
+  }
+
+  /* Glass morphism effect */
+  .backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  /* Custom gradient text */
+  .text-gradient-custom {
+    background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 50%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+
+<script>
+  // Enhanced infinite typing effect for hero section
+  document.addEventListener("DOMContentLoaded", function () {
+    const phrases = [
+      "Court, Play Your Game",
+      "Favorite Sport Now",
+      "Dream Field Today",
+      "Perfect Venue Fast",
+      "Game, Win Together",
+    ];
+
+    const typingElement = document.getElementById("typing-text");
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let isPaused = false;
+
+    function type() {
+      const currentPhrase = phrases[phraseIndex];
+
+      if (isPaused) {
+        isPaused = false;
+        setTimeout(type, isDeleting ? 1000 : 2000); // Pause before deleting or moving to next
+        return;
+      }
+
+      if (isDeleting) {
+        // Deleting characters
+        typingElement.textContent = currentPhrase.substring(0, charIndex - 1);
+        charIndex--;
+
+        if (charIndex === 0) {
+          isDeleting = false;
+          phraseIndex = (phraseIndex + 1) % phrases.length; // Move to next phrase
+          setTimeout(type, 500); // Short pause before typing next phrase
+          return;
+        }
+      } else {
+        // Typing characters
+        typingElement.textContent = currentPhrase.substring(0, charIndex + 1);
+        charIndex++;
+
+        if (charIndex === currentPhrase.length) {
+          isDeleting = true;
+          isPaused = true;
+          setTimeout(type, 2000); // Pause to read the complete phrase
+          return;
+        }
+      }
+
+      // Dynamic typing speed
+      const typingSpeed = isDeleting ? 50 : 100;
+      setTimeout(type, typingSpeed);
+    }
+
+    // Start the typing effect
+    setTimeout(type, 500); // Initial delay before starting
+  });
+
+  // Intersection Observer for scroll animations
+  document.addEventListener("DOMContentLoaded", function () {
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: "0px 0px -50px 0px",
+    };
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate-in");
+
+          // Trigger counter animation if it's a counter box
+          if (entry.target.classList.contains("counter-box")) {
+            animateCounter(entry.target);
+          }
+
+          // Optional: Stop observing after animation to improve performance
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Observe all elements with scroll animation classes
+    const animateElements = document.querySelectorAll(
+      ".scroll-animate, .scroll-animate-left, .scroll-animate-right, .scroll-animate-scale, .counter-box"
+    );
+
+    animateElements.forEach((element) => {
+      observer.observe(element);
+    });
+  });
+
+  // Counter Animation Function
+  function animateCounter(counterBox) {
+    const counterElement = counterBox.querySelector("[data-count]");
+    if (!counterElement) return;
+
+    const target = parseInt(counterElement.getAttribute("data-count"));
+    const duration = 2000; // 2 seconds
+    const increment = target / (duration / 16); // 60 FPS
+    let current = 0;
+
+    const updateCounter = () => {
+      current += increment;
+      if (current < target) {
+        counterElement.textContent = Math.floor(current).toLocaleString();
+        requestAnimationFrame(updateCounter);
+      } else {
+        counterElement.textContent = target.toLocaleString();
+      }
+    };
+
+    updateCounter();
+  }
+</script>
+
+{% endblock %}

@@ -1,0 +1,653 @@
+{% extends 'base.html' %}
+{% block title %}Kelola Venue - LapangIN{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-neutral-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center space-x-2 text-sm text-neutral-600 mb-2">
+              <a href="/mitra/dashboard" class="hover:text-primary-600">Dashboard</a>
+              <span>/</span>
+              <span class="text-neutral-900">Venue</span>
+            </div>
+            <h1 class="text-2xl font-display font-bold text-neutral-900">
+              Kelola Venue
+            </h1>
+            <p class="text-neutral-600">
+              Kelola venue lapangan olahraga Anda
+            </p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button onclick="openAddVenueModal()" class="btn btn-primary">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Tambah Venue
+            </button>
+            <a href="/mitra/dashboard" class="btn btn-secondary">
+              Kembali
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div id="venuesLoading" class="flex justify-center items-center py-20">
+    <div class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden" id="venuesContent">
+    <!-- Venues Grid -->
+    <div id="venuesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Venues will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-20 hidden">
+      <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+        </svg>
+      </div>
+      <h3 class="text-neutral-900 font-medium mb-2">Belum ada venue</h3>
+      <p class="text-neutral-600 text-sm mb-4">Mulai tambahkan venue untuk memulai bisnis Anda</p>
+      <button onclick="openAddVenueModal()" class="btn btn-primary">Tambah Venue Pertama</button>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="venuesError" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center hidden">
+    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <h3 class="text-neutral-900 font-medium mb-2">Gagal memuat venue</h3>
+    <p class="text-neutral-600 text-sm mb-4">Terjadi kesalahan saat memuat data venue</p>
+    <button onclick="window.location.reload()" class="btn btn-primary">Coba Lagi</button>
+  </div>
+</div>
+
+<!-- Add/Edit Venue Modal -->
+<div id="venueModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="p-6 border-b border-neutral-200">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-display font-bold text-neutral-900" id="modalTitle">Tambah Venue</h2>
+        <button onclick="closeVenueModal()" class="text-neutral-400 hover:text-neutral-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <form id="venueForm" class="p-6 space-y-4">
+      <input type="hidden" id="venueId" name="venue_id">
+      
+      <div>
+        <label for="name" class="block text-sm font-medium text-neutral-700 mb-2">Nama Venue</label>
+        <input type="text" id="name" name="name" required
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+          placeholder="Contoh: Futsal Arena BSD">
+      </div>
+
+      <div>
+        <label for="address" class="block text-sm font-medium text-neutral-700 mb-2">Alamat</label>
+        <textarea id="address" name="address" rows="3" required
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+          placeholder="Alamat lengkap venue"></textarea>
+      </div>
+
+      <div>
+        <label for="location_url" class="block text-sm font-medium text-neutral-700 mb-2">URL Lokasi (Google Maps) - Opsional</label>
+        <input type="url" id="location_url" name="location_url"
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+          placeholder="https://maps.google.com/...">
+      </div>
+
+      <div>
+        <label for="contact" class="block text-sm font-medium text-neutral-700 mb-2">Nomor Kontak</label>
+        <input type="text" id="contact" name="contact"
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+          placeholder="08123456789">
+      </div>
+
+      <div>
+        <label for="description" class="block text-sm font-medium text-neutral-700 mb-2">Deskripsi - Opsional</label>
+        <textarea id="description" name="description" rows="4"
+          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+          placeholder="Deskripsi venue dan fasilitas yang tersedia"></textarea>
+      </div>
+
+      <!-- Facilities Section -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-2">Fasilitas</label>
+        <div class="space-y-2">
+          <div id="facilitiesInputs" class="space-y-2">
+            <!-- Facility inputs will be added here -->
+          </div>
+          <button type="button" onclick="addFacilityInput()" 
+            class="w-full px-4 py-2 border-2 border-dashed border-neutral-300 rounded-xl text-neutral-600 hover:border-primary-500 hover:text-primary-600 transition-colors">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Fasilitas
+          </button>
+        </div>
+      </div>
+
+      <!-- Image URL Section -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-2">Gambar Venue (URL)</label>
+        <div class="space-y-2">
+          <div id="imageUrlInputs">
+            <!-- Image URL inputs will be added here -->
+          </div>
+          <button type="button" onclick="addImageUrlInput()" 
+            class="w-full px-4 py-2 border-2 border-dashed border-neutral-300 rounded-xl text-neutral-600 hover:border-primary-500 hover:text-primary-600 transition-colors">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah URL Gambar
+          </button>
+        </div>
+        
+        <!-- Preview existing images when editing -->
+        <div id="existingImages" class="mt-3 grid grid-cols-3 gap-2 hidden"></div>
+        
+        <!-- Preview new images from URLs -->
+        <div id="imagePreview" class="mt-3 grid grid-cols-3 gap-2 hidden"></div>
+      </div>
+
+      <div class="flex space-x-3 pt-4">
+        <button type="submit" class="btn btn-primary flex-1" id="submitBtn">
+          Simpan
+        </button>
+        <button type="button" onclick="closeVenueModal()" class="btn btn-secondary flex-1">
+          Batal
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+let venuesData = [];
+let editingVenueId = null;
+let imageUrlCounter = 0;
+let currentVenueImages = [];
+
+// Load venues on page load
+document.addEventListener('DOMContentLoaded', async function() {
+  await loadVenues();
+});
+
+let facilityCounter = 0;
+
+// Add new facility input field
+function addFacilityInput(name = '', icon = '') {
+  const container = document.getElementById('facilitiesInputs');
+  const index = facilityCounter++;
+  
+  const div = document.createElement('div');
+  div.className = 'flex gap-2';
+  div.id = `facilityInput-${index}`;
+  div.innerHTML = `
+    <input type="text" name="facility_name_${index}" placeholder="Nama Fasilitas (e.g., Parking, WiFi, Canteen)"
+      value="${name}"
+      class="flex-1 px-4 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none">
+    <input type="url" name="facility_icon_${index}" placeholder="Icon URL (optional)"
+      value="${icon}"
+      class="flex-1 px-4 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none">
+    <button type="button" onclick="removeFacilityInput(${index})"
+      class="px-3 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  `;
+  
+  container.appendChild(div);
+}
+
+// Remove facility input field
+function removeFacilityInput(index) {
+  const element = document.getElementById(`facilityInput-${index}`);
+  if (element) {
+    element.remove();
+  }
+}
+
+// Add new image URL input field
+function addImageUrlInput() {
+  const container = document.getElementById('imageUrlInputs');
+  const index = imageUrlCounter++;
+  
+  const div = document.createElement('div');
+  div.className = 'flex gap-2';
+  div.id = `imageUrlInput-${index}`;
+  div.innerHTML = `
+    <input type="url" name="image_url_${index}" placeholder="https://example.com/image.jpg"
+      class="flex-1 px-4 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+      onchange="previewImageUrl(this, ${index})">
+    <button type="button" onclick="removeImageUrlInput(${index})"
+      class="px-3 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  `;
+  
+  container.appendChild(div);
+}
+
+// Remove image URL input field
+function removeImageUrlInput(index) {
+  const element = document.getElementById(`imageUrlInput-${index}`);
+  if (element) {
+    element.remove();
+  }
+  // Also remove preview if exists
+  const preview = document.getElementById(`imagePreview-${index}`);
+  if (preview) {
+    preview.remove();
+  }
+}
+
+// Preview image from URL
+function previewImageUrl(input, index) {
+  const url = input.value.trim();
+  const previewContainer = document.getElementById('imagePreview');
+  
+  if (!url) {
+    const existingPreview = document.getElementById(`imagePreview-${index}`);
+    if (existingPreview) existingPreview.remove();
+    
+    // Hide container if no previews
+    if (previewContainer.children.length === 0) {
+      previewContainer.classList.add('hidden');
+    }
+    return;
+  }
+  
+  previewContainer.classList.remove('hidden');
+  
+  // Remove existing preview for this index
+  const existingPreview = document.getElementById(`imagePreview-${index}`);
+  if (existingPreview) existingPreview.remove();
+  
+  // Create new preview
+  const div = document.createElement('div');
+  div.id = `imagePreview-${index}`;
+  div.className = 'relative group';
+  div.innerHTML = `
+    <img src="${url}" class="w-full h-24 object-cover rounded-lg" 
+      onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\'%3E%3Crect fill=\\'%23ddd\\' width=\\'100\\' height=\\'100\\'/%3E%3Ctext x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\' fill=\\'%23999\\'%3EError%3C/text%3E%3C/svg%3E'">
+    <button type="button" onclick="removeImageUrlInput(${index})" 
+      class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  `;
+  
+  previewContainer.appendChild(div);
+}
+
+async function deleteVenueImage(imageId) {
+  if (!confirm('Hapus gambar ini?')) return;
+  
+  try {
+    const response = await makeAjaxRequest(`/api/venue-images/${imageId}/delete/`, {
+      method: 'DELETE'
+    });
+    
+    if (response.success) {
+      showNotification('Gambar berhasil dihapus', 'success');
+      // Reload venue data
+      if (editingVenueId) {
+        const venueResponse = await makeAjaxRequest(`/api/venues/${editingVenueId}/`);
+        if (venueResponse.success) {
+          displayExistingImages(venueResponse.data.images || []);
+        }
+      }
+    }
+  } catch (error) {
+    showNotification('Gagal menghapus gambar', 'error');
+  }
+}
+
+function displayExistingImages(images) {
+  currentVenueImages = images;
+  const container = document.getElementById('existingImages');
+  
+  if (images && images.length > 0) {
+    container.classList.remove('hidden');
+    container.innerHTML = images.map(img => `
+      <div class="relative group">
+        <img src="${img.url}" class="w-full h-24 object-cover rounded-lg">
+        <button type="button" onclick="deleteVenueImage(${img.id})" 
+          class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        ${img.is_primary ? '<span class="absolute bottom-1 left-1 bg-primary-500 text-white text-xs px-2 py-0.5 rounded">Utama</span>' : ''}
+      </div>
+    `).join('');
+  } else {
+    container.classList.add('hidden');
+  }
+}
+
+async function loadVenues() {
+  try {
+    const response = await makeAjaxRequest('/api/venues/');
+    
+    if (response.success) {
+      venuesData = response.data;
+      renderVenues();
+      
+      document.getElementById('venuesLoading').classList.add('hidden');
+      document.getElementById('venuesContent').classList.remove('hidden');
+    }
+  } catch (error) {
+    console.error('Error loading venues:', error);
+    document.getElementById('venuesLoading').classList.add('hidden');
+    document.getElementById('venuesError').classList.remove('hidden');
+  }
+}
+
+function renderVenues() {
+  const grid = document.getElementById('venuesGrid');
+  const emptyState = document.getElementById('emptyState');
+  
+  if (venuesData.length === 0) {
+    grid.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  
+  grid.classList.remove('hidden');
+  emptyState.classList.add('hidden');
+  
+  grid.innerHTML = venuesData.map(venue => `
+    <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 overflow-hidden card-hover">
+      ${venue.images && venue.images.length > 0 ? `
+      <div class="relative h-48 bg-neutral-100">
+        <img src="${venue.images.find(img => img.is_primary)?.url || venue.images[0].url}" 
+             alt="${venue.name}" 
+             class="w-full h-full object-cover">
+        ${venue.images.length > 1 ? `
+        <div class="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-lg">
+          +${venue.images.length - 1} foto
+        </div>
+        ` : ''}
+      </div>
+      ` : `
+      <div class="relative h-48 bg-neutral-100 flex items-center justify-center">
+        <svg class="w-16 h-16 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+      `}
+      <div class="p-6">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-1">${venue.name}</h3>
+          </div>
+          <span class="px-2 py-1 text-xs font-medium rounded-full ${getStatusClass(venue.verification_status)}">
+            ${getStatusText(venue.verification_status)}
+          </span>
+        </div>
+        
+        <div class="space-y-2 mb-4">
+          <div class="flex items-start text-sm text-neutral-600">
+            <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span class="line-clamp-2">${venue.address}</span>
+          </div>
+          
+          <div class="flex items-center text-sm text-neutral-600">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+            </svg>
+            <span>${venue.number_of_courts || 0} Lapangan</span>
+          </div>
+        </div>
+        
+        <div class="flex space-x-2 pt-4 border-t border-neutral-200">
+          <button onclick="editVenue('${venue.id}')" class="flex-1 btn btn-secondary text-sm py-2">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            Edit
+          </button>
+          <button onclick="deleteVenue('${venue.id}', '${venue.name}')" class="btn btn-secondary text-sm py-2 text-red-600 hover:bg-red-50">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function getStatusClass(status) {
+  switch(status) {
+    case 'approved': return 'bg-green-100 text-green-800';
+    case 'pending': return 'bg-yellow-100 text-yellow-800';
+    case 'rejected': return 'bg-red-100 text-red-800';
+    default: return 'bg-neutral-100 text-neutral-800';
+  }
+}
+
+function getStatusText(status) {
+  switch(status) {
+    case 'approved': return 'Disetujui';
+    case 'pending': return 'Menunggu';
+    case 'rejected': return 'Ditolak';
+    default: return status;
+  }
+}
+
+function openAddVenueModal() {
+  editingVenueId = null;
+  currentVenueImages = [];
+  imageUrlCounter = 0;
+  facilityCounter = 0;
+  document.getElementById('modalTitle').textContent = 'Tambah Venue';
+  document.getElementById('venueForm').reset();
+  document.getElementById('venueId').value = '';
+  document.getElementById('imageUrlInputs').innerHTML = '';
+  document.getElementById('imagePreview').classList.add('hidden');
+  document.getElementById('imagePreview').innerHTML = '';
+  document.getElementById('existingImages').classList.add('hidden');
+  document.getElementById('existingImages').innerHTML = '';
+  document.getElementById('facilitiesInputs').innerHTML = '';
+  document.getElementById('venueModal').classList.remove('hidden');
+  
+  // Add one initial image URL input
+  addImageUrlInput();
+  
+  // Add one initial facility input
+  addFacilityInput();
+}
+
+async function editVenue(venueId) {
+  try {
+    const response = await makeAjaxRequest(`/api/venues/${venueId}/`);
+    
+    if (response.success) {
+      editingVenueId = venueId;
+      const venue = response.data;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Venue';
+      document.getElementById('venueId').value = venue.id;
+      document.getElementById('name').value = venue.name;
+      document.getElementById('address').value = venue.address;
+      document.getElementById('location_url').value = venue.location_url || '';
+      document.getElementById('contact').value = venue.contact || '';
+      document.getElementById('description').value = venue.description || '';
+      
+      // Display existing images
+      displayExistingImages(venue.images || []);
+      
+      // Clear image URL inputs and preview
+      imageUrlCounter = 0;
+      document.getElementById('imageUrlInputs').innerHTML = '';
+      document.getElementById('imagePreview').classList.add('hidden');
+      document.getElementById('imagePreview').innerHTML = '';
+      
+      // Add one initial image URL input
+      addImageUrlInput();
+      
+      // Clear and populate facilities
+      facilityCounter = 0;
+      document.getElementById('facilitiesInputs').innerHTML = '';
+      if (venue.facilities && venue.facilities.length > 0) {
+        venue.facilities.forEach(facility => {
+          addFacilityInput(facility.name, facility.icon || '');
+        });
+      } else {
+        // Add one empty facility input
+        addFacilityInput();
+      }
+      
+      document.getElementById('venueModal').classList.remove('hidden');
+    }
+  } catch (error) {
+    showNotification('Gagal memuat data venue', 'error');
+  }
+}
+
+function closeVenueModal() {
+  document.getElementById('venueModal').classList.add('hidden');
+  document.getElementById('venueForm').reset();
+  document.getElementById('imageUrlInputs').innerHTML = '';
+  document.getElementById('imagePreview').classList.add('hidden');
+  document.getElementById('imagePreview').innerHTML = '';
+  document.getElementById('existingImages').classList.add('hidden');
+  document.getElementById('existingImages').innerHTML = '';
+  document.getElementById('facilitiesInputs').innerHTML = '';
+  editingVenueId = null;
+  imageUrlCounter = 0;
+  facilityCounter = 0;
+  currentVenueImages = [];
+}
+
+document.getElementById('venueForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('submitBtn');
+  setLoadingState(submitBtn, true);
+  
+  // Use FormData
+  const formData = new FormData(this);
+  
+  // Collect image URLs from all inputs
+  const imageUrls = [];
+  const imageUrlInputs = document.querySelectorAll('[name^="image_url_"]');
+  imageUrlInputs.forEach(input => {
+    const url = input.value.trim();
+    if (url) {
+      imageUrls.push(url);
+    }
+  });
+  
+  // Add image URLs as JSON string
+  if (imageUrls.length > 0) {
+    formData.append('image_urls', JSON.stringify(imageUrls));
+  }
+  
+  // Collect facilities from all inputs
+  const facilities = [];
+  const facilityNameInputs = document.querySelectorAll('[name^="facility_name_"]');
+  facilityNameInputs.forEach((nameInput, idx) => {
+    const name = nameInput.value.trim();
+    if (name) {
+      const iconInput = document.querySelector(`[name="facility_icon_${nameInput.name.split('_')[2]}"]`);
+      facilities.push({
+        name: name,
+        icon: iconInput ? iconInput.value.trim() : ''
+      });
+    }
+  });
+  
+  // Add facilities as JSON string
+  if (facilities.length > 0) {
+    formData.append('facilities', JSON.stringify(facilities));
+  }
+  
+  try {
+    let response;
+    if (editingVenueId) {
+      // For editing
+      response = await fetch(`/api/venues/${editingVenueId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: formData,
+        credentials: 'same-origin'
+      });
+      response = await response.json();
+    } else {
+      response = await fetch('/api/venues/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: formData,
+        credentials: 'same-origin'
+      });
+      response = await response.json();
+    }
+    
+    if (response.success) {
+      showNotification(response.message, 'success');
+      closeVenueModal();
+      await loadVenues();
+    } else {
+      showNotification(response.message || 'Terjadi kesalahan', 'error');
+    }
+  } catch (error) {
+    showNotification(error.message || 'Terjadi kesalahan', 'error');
+  } finally {
+    setLoadingState(submitBtn, false);
+  }
+});
+
+async function deleteVenue(venueId, venueName) {
+  if (!confirm(`Apakah Anda yakin ingin menghapus venue "${venueName}"?\n\nSemua data terkait termasuk lapangan dan booking akan ikut terhapus.`)) {
+    return;
+  }
+  
+  try {
+    const response = await makeAjaxRequest(`/api/venues/${venueId}/`, {
+      method: 'DELETE'
+    });
+    
+    if (response.success) {
+      showNotification(response.message, 'success');
+      await loadVenues();
+    }
+  } catch (error) {
+    showNotification(error.message || 'Gagal menghapus venue', 'error');
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tentang Kami - LapangIN{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50">
+  
+  <!-- Hero Section with Image -->
+  <div class="relative h-[500px] overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-600/90 to-primary-700/90"></div>
+    <img src="https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=1600&h=500&fit=crop" 
+         alt="Sports Field" 
+         class="absolute inset-0 w-full h-full object-cover mix-blend-overlay">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center text-white">
+      <p class="text-sm uppercase tracking-widest mb-4 opacity-90">Platform Booking Lapangan Olahraga</p>
+      <h1 class="text-5xl md:text-7xl font-bold mb-6">
+        Discover <span class="text-white">LapangIN</span>
+      </h1>
+      <p class="text-xl md:text-2xl max-w-3xl opacity-95 leading-relaxed">
+        Platform terpercaya untuk menemukan dan memesan lapangan olahraga di seluruh Indonesia
+      </p>
+    </div>
+  </div>
+
+  <!-- About Us Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center mb-16">
+      <p class="text-sm text-primary-600 font-semibold uppercase tracking-wider mb-2">ABOUT US</p>
+      <h2 class="text-4xl md:text-5xl font-bold text-neutral-900 mb-6">
+        Your Best Gateway to Exceptional <br>
+        <span class="text-primary-600">Sports Fields</span>
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+      <div>
+        <p class="text-lg text-neutral-700 leading-relaxed mb-6">
+          LapangIN adalah platform marketplace yang dirancang untuk menjembatani kesenjangan antara pemilik lapangan olahraga dan komunitas pecinta olahraga. Didirikan dengan visi untuk mendukung gaya hidup sehat dan aktif, kami berkomitmen untuk memberikan pengalaman booking yang mudah, aman, dan terpercaya.
+        </p>
+        <p class="text-lg text-neutral-700 leading-relaxed mb-6">
+          Dengan fokus pada inovasi, kualitas, dan komunitas, LapangIN hadir untuk memastikan setiap orang dapat dengan mudah menemukan lapangan olahraga yang sesuai dengan kebutuhan mereka.
+        </p>
+        <div class="flex items-center space-x-8 mt-8">
+          <div>
+            <div class="text-4xl font-bold text-primary-600 mb-1">10,000+</div>
+            <div class="text-sm text-neutral-600">Monthly Users</div>
+          </div>
+          <div>
+            <div class="text-4xl font-bold text-primary-600 mb-1">100+</div>
+            <div class="text-sm text-neutral-600">Sports Fields</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-4">
+          <div class="rounded-2xl overflow-hidden shadow-lg h-48">
+            <img src="https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=400&h=300&fit=crop" 
+                 alt="Basketball Court" class="w-full h-full object-cover">
+          </div>
+          <div class="rounded-2xl overflow-hidden shadow-lg h-64">
+            <img src="https://images.unsplash.com/photo-1556817411-58c45dd94e8c?w=400&h=400&fit=crop" 
+                 alt="Soccer Field" class="w-full h-full object-cover">
+          </div>
+        </div>
+        <div class="space-y-4 pt-8">
+          <div class="rounded-2xl overflow-hidden shadow-lg h-64">
+            <img src="https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=400&h=400&fit=crop" 
+                 alt="Tennis Court" class="w-full h-full object-cover">
+          </div>
+          <div class="rounded-2xl overflow-hidden shadow-lg h-48">
+            <img src="https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?w=400&h=300&fit=crop" 
+                 alt="Futsal Court" class="w-full h-full object-cover">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="mb-20">
+      <div class="text-center mb-12">
+        <p class="text-sm text-primary-600 font-semibold uppercase tracking-wider mb-2">SIMPLE PROCESS</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">
+          How <span class="text-primary-600">LapangIN</span> Works
+        </h2>
+        <p class="text-neutral-600 max-w-2xl mx-auto">
+          Booking lapangan olahraga kini lebih mudah dengan 4 langkah sederhana
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-4 gap-6">
+        <!-- Step 1 -->
+        <div class="relative group">
+          <div class="bg-white rounded-2xl p-6 border border-neutral-200 hover:shadow-xl transition-all h-full">
+            <!-- Step Number Badge -->
+            <div class="absolute -top-4 -right-4 w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <span class="text-white font-bold text-lg">1</span>
+            </div>
+            
+            <!-- Icon -->
+            <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+
+            <!-- Content -->
+            <h3 class="text-xl font-bold text-neutral-900 mb-3">Cari Lapangan</h3>
+            <p class="text-neutral-600 text-sm leading-relaxed">
+              Browse berbagai pilihan lapangan olahraga di kota Anda dengan filter lokasi, harga, dan jenis olahraga
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative group">
+          <div class="bg-white rounded-2xl p-6 border border-neutral-200 hover:shadow-xl transition-all h-full">
+            <!-- Step Number Badge -->
+            <div class="absolute -top-4 -right-4 w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <span class="text-white font-bold text-lg">2</span>
+            </div>
+            
+            <!-- Icon -->
+            <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+
+            <!-- Content -->
+            <h3 class="text-xl font-bold text-neutral-900 mb-3">Pilih Jadwal</h3>
+            <p class="text-neutral-600 text-sm leading-relaxed">
+              Lihat ketersediaan waktu secara real-time dan pilih tanggal serta jam yang sesuai dengan jadwal Anda
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative group">
+          <div class="bg-white rounded-2xl p-6 border border-neutral-200 hover:shadow-xl transition-all h-full">
+            <!-- Step Number Badge -->
+            <div class="absolute -top-4 -right-4 w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <span class="text-white font-bold text-lg">3</span>
+            </div>
+            
+            <!-- Icon -->
+            <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+              </svg>
+            </div>
+
+            <!-- Content -->
+            <h3 class="text-xl font-bold text-neutral-900 mb-3">Bayar Aman</h3>
+            <p class="text-neutral-600 text-sm leading-relaxed">
+              Lakukan pembayaran dengan berbagai metode yang tersedia - transfer bank, e-wallet, atau kartu kredit
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="relative group">
+          <div class="bg-white rounded-2xl p-6 border border-neutral-200 hover:shadow-xl transition-all h-full">
+            <!-- Step Number Badge -->
+            <div class="absolute -top-4 -right-4 w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <span class="text-white font-bold text-lg">4</span>
+            </div>
+            
+            <!-- Icon -->
+            <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+
+            <!-- Content -->
+            <h3 class="text-xl font-bold text-neutral-900 mb-3">Main & Nikmati</h3>
+            <p class="text-neutral-600 text-sm leading-relaxed">
+              Datang ke lapangan sesuai jadwal, tunjukkan booking confirmation, dan nikmati permainan Anda!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Process Arrow Decoration (Desktop Only) -->
+      <div class="hidden md:flex items-center justify-center mt-8 space-x-4 opacity-30">
+        <div class="flex-1 h-1 bg-primary-200 rounded-full"></div>
+        <svg class="w-6 h-6 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+        </svg>
+        <div class="flex-1 h-1 bg-primary-200 rounded-full"></div>
+        <svg class="w-6 h-6 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+        </svg>
+        <div class="flex-1 h-1 bg-primary-200 rounded-full"></div>
+      </div>
+
+      <!-- Additional Benefits Banner -->
+      <div class="mt-12 bg-primary-600 rounded-2xl p-8 text-white relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+          <div class="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-20 translate-x-20"></div>
+          <div class="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full translate-y-16 -translate-x-16"></div>
+        </div>
+        
+        <div class="relative grid md:grid-cols-3 gap-6 text-center">
+          <div>
+            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-3">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h4 class="font-bold text-lg mb-1">Real-Time Availability</h4>
+            <p class="text-white/80 text-sm">Lihat ketersediaan lapangan secara langsung</p>
+          </div>
+          <div>
+            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-3">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+            </div>
+            <h4 class="font-bold text-lg mb-1">Secure Payment</h4>
+            <p class="text-white/80 text-sm">Transaksi aman dengan enkripsi SSL</p>
+          </div>
+          <div>
+            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-3">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+            </div>
+            <h4 class="font-bold text-lg mb-1">24/7 Support</h4>
+            <p class="text-white/80 text-sm">Tim support siap membantu kapan saja</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Principles Section -->
+    <div class="mb-20">
+      <div class="text-center mb-12">
+        <p class="text-sm text-primary-600 font-semibold uppercase tracking-wider mb-2">VALUES</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-neutral-900">Our Core Principles</h2>
+      </div>
+
+      <div class="grid md:grid-cols-4 gap-6">
+        <!-- Principle 1 -->
+        <div class="bg-white rounded-2xl p-6 border border-neutral-200 hover:shadow-lg transition-all group">
+          <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-neutral-900 mb-2">Innovation</h3>
+          <p class="text-neutral-600 text-sm leading-relaxed">
+            Terus berinovasi untuk memberikan pengalaman terbaik dan fitur terdepan dalam industri
+          </p>
+        </div>
+
+        <!-- Principle 2 -->
+        <div class="bg-white rounded-2xl p-6 border border-neutral-200 hover:shadow-lg transition-all group">
+          <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-neutral-900 mb-2">Quality</h3>
+          <p class="text-neutral-600 text-sm leading-relaxed">
+            Menjaga standar kualitas tinggi dalam setiap aspek layanan kami
+          </p>
+        </div>
+
+        <!-- Principle 3 -->
+        <div class="bg-white rounded-2xl p-6 border border-neutral-200 hover:shadow-lg transition-all group">
+          <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-neutral-900 mb-2">Community</h3>
+          <p class="text-neutral-600 text-sm leading-relaxed">
+            Membangun komunitas yang kuat dan mendukung antar pengguna
+          </p>
+        </div>
+
+        <!-- Principle 4 -->
+        <div class="bg-white rounded-2xl p-6 border border-neutral-200 hover:shadow-lg transition-all group">
+          <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-neutral-900 mb-2">Sustainability</h3>
+          <p class="text-neutral-600 text-sm leading-relaxed">
+            Berkomitmen pada praktik berkelanjutan untuk masa depan yang lebih baik
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-primary-600 rounded-3xl p-12 text-center text-white relative overflow-hidden">
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-32 -translate-y-32"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-48 translate-y-48"></div>
+      </div>
+      <div class="relative z-10">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
+        <p class="text-lg mb-8 max-w-2xl mx-auto opacity-95">
+          Bergabunglah dengan ribuan pengguna yang telah merasakan kemudahan booking lapangan olahraga bersama LapangIN
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/kontak/" class="inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-neutral-50 transition-all shadow-lg hover:shadow-xl hover:scale-105">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            Contact Us
+          </a>
+          <a href="/" class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-primary-600 transition-all">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            Back to Home
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .gradient-text {
+    background: linear-gradient(135deg, #5409da 0%, #4e71ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .text-gradient {
+    display: inline-block;
+  }
+</style>
+{% endblock %}

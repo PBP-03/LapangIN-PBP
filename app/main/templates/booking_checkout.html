@@ -1,0 +1,703 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<!-- Hero Section with Gradient Background -->
+<section
+  class="relative bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-12"
+>
+  <div class="absolute inset-0 overflow-hidden">
+    <div
+      class="absolute -top-40 -right-40 w-80 h-80 rounded-full gradient-accent opacity-20 blur-3xl"
+    ></div>
+    <div
+      class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full gradient-primary opacity-20 blur-3xl"
+    ></div>
+  </div>
+</section>
+
+<div class="max-w-7xl relative z-10 mx-auto px-4 sm:px-6 lg:px-8 -mt-20 pb-20">
+  <!-- Loading State -->
+  <div id="loading-state" class="text-center py-20">
+    <div
+      class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"
+    ></div>
+    <p class="mt-4 text-neutral-600">Loading booking details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div id="error-state" class="hidden text-center py-20">
+    <div class="text-red-500 mb-4">
+      <svg
+        class="w-16 h-16 mx-auto"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.268 15.5C3.498 16.333 4.46 18 6 18z"
+        ></path>
+      </svg>
+    </div>
+    <h2 class="text-xl font-semibold text-neutral-900 mb-2">Booking Error</h2>
+    <p id="error-message" class="text-neutral-600 mb-6">
+      Something went wrong. Please try again.
+    </p>
+    <button
+      onclick="window.history.back()"
+      class="gradient-primary text-white py-3 px-6 rounded-xl font-semibold hover:shadow-medium transition-all"
+    >
+      Go Back
+    </button>
+  </div>
+
+  <!-- Checkout Container -->
+  <div
+    id="checkout-container"
+    class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8"
+  >
+    <!-- Main Checkout Form -->
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-2xl shadow-soft p-8 card-hover">
+        <!-- Header -->
+        <div class="flex items-center mb-8">
+          <a
+            href="javascript:history.back()"
+            class="mr-4 p-2 hover:bg-neutral-100 rounded-full transition-colors"
+          >
+            <svg
+              class="w-6 h-6 text-neutral-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              ></path>
+            </svg>
+          </a>
+          <h1 class="text-3xl font-display font-bold text-neutral-900">
+            Complete Your Booking
+          </h1>
+        </div>
+
+        <!-- Booking Details -->
+        <div class="mb-8">
+          <h2
+            class="text-xl font-semibold text-neutral-900 mb-4 flex items-center"
+          >
+            <span
+              class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 text-white flex items-center justify-center text-sm font-bold mr-3"
+              >1</span
+            >
+            Booking Details
+          </h2>
+
+          <div
+            class="bg-gradient-to-br from-neutral-50 to-light-50 rounded-xl p-6 border border-neutral-200"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-neutral-500 mb-1">Venue</p>
+                <p class="font-semibold text-neutral-900" id="venue-name">
+                  Loading...
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-neutral-500 mb-1">Court</p>
+                <p class="font-semibold text-neutral-900" id="court-name">
+                  Loading...
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-neutral-500 mb-1">Booking Date</p>
+                <div id="booking-date" class="font-semibold text-neutral-900">
+                  Loading...
+                </div>
+              </div>
+              <div>
+                <p class="text-sm text-neutral-500 mb-1">Number of Sessions</p>
+                <p class="font-semibold text-neutral-900" id="session-count">
+                  0
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-neutral-200">
+              <p class="text-sm text-neutral-500 mb-2">Selected Sessions:</p>
+              <div id="sessions-list" class="space-y-2">
+                <!-- Sessions will be loaded here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="mb-8">
+          <h2
+            class="text-xl font-semibold text-neutral-900 mb-4 flex items-center"
+          >
+            <span
+              class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 text-white flex items-center justify-center text-sm font-bold mr-3"
+              >2</span
+            >
+            Payment Method
+          </h2>
+
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 gap-4"
+            id="payment-methods"
+          >
+            <!-- Payment methods will be populated by JavaScript -->
+          </div>
+
+          <div
+            id="payment-selected-info"
+            class="hidden mt-4 p-4 bg-primary-50 border border-primary-200 rounded-xl"
+          >
+            <p class="text-sm text-primary-900">
+              <span class="font-semibold">Selected:</span>
+              <span id="selected-payment-text"></span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Additional Notes -->
+        <div class="mb-8">
+          <h2
+            class="text-xl font-semibold text-neutral-900 mb-4 flex items-center"
+          >
+            <span
+              class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 text-white flex items-center justify-center text-sm font-bold mr-3"
+              >3</span
+            >
+            Additional Notes (Optional)
+          </h2>
+          <textarea
+            id="booking-notes"
+            rows="4"
+            class="w-full border border-neutral-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+            placeholder="Add any special requests or notes..."
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary Sidebar -->
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded-2xl shadow-soft p-6 sticky top-4">
+        <h3 class="text-xl font-semibold text-neutral-900 mb-4">
+          Order Summary
+        </h3>
+
+        <div class="space-y-3 mb-6">
+          <div class="flex justify-between text-neutral-600">
+            <span>Subtotal</span>
+            <span id="subtotal" class="font-medium">Rp 0</span>
+          </div>
+          <div class="flex justify-between text-neutral-600">
+            <span>Tax & Service</span>
+            <span class="font-medium">Rp 0</span>
+          </div>
+          <div
+            class="border-t border-neutral-200 pt-3 flex justify-between text-lg font-bold text-neutral-900"
+          >
+            <span>Total</span>
+            <span id="total-price" class="text-primary-600">Rp 0</span>
+          </div>
+        </div>
+
+        <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+          <div class="flex items-start">
+            <svg
+              class="w-5 h-5 text-yellow-600 mr-2 mt-0.5 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            <p class="text-sm text-yellow-800">
+              <span class="font-semibold">Test Mode:</span> For testing
+              purposes, clicking "Confirm Payment" will automatically confirm
+              your payment.
+            </p>
+          </div>
+        </div>
+
+        <button
+          id="confirm-payment-btn"
+          onclick="confirmPayment()"
+          disabled
+          class="w-full gradient-primary text-white py-3 px-6 rounded-xl font-semibold hover:shadow-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-3"
+        >
+          Confirm Payment
+        </button>
+
+        <p class="text-xs text-neutral-500 text-center">
+          By placing an order, you agree to our
+          <a href="#" class="text-primary-600 hover:underline"
+            >terms and conditions</a
+          >.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let bookingData = {
+    courtId: null,
+    courtName: "",
+    venueName: "",
+    venueId: null,
+    sessions: [],
+    paymentMethod: null,
+    bookingDate: null,
+    totalPrice: 0,
+    pricePerHour: 0,
+  };
+
+  // Payment methods configuration
+  const paymentMethods = [
+    {
+      id: "bank_transfer",
+      name: "Bank Transfer",
+      description: "Transfer to bank account",
+      icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z",
+      color: "from-blue-500 to-blue-600",
+    },
+    {
+      id: "e_wallet",
+      name: "E-Wallet",
+      description: "GoPay, OVO, Dana, etc",
+      icon: "M12 4v16m8-8H4",
+      color: "from-green-500 to-green-600",
+    },
+    {
+      id: "credit_card",
+      name: "Credit Card",
+      description: "Visa, Mastercard",
+      icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z",
+      color: "from-purple-500 to-purple-600",
+    },
+    {
+      id: "cash",
+      name: "Cash",
+      description: "Pay at venue",
+      icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z",
+      color: "from-orange-500 to-orange-600",
+    },
+  ];
+
+  // Get URL parameters
+  function getUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      court: params.get("court"),
+      sessions: params.get("sessions") ? params.get("sessions").split(",") : [],
+      venue: params.get("venue"),
+      date: params.get("date"),
+    };
+  }
+
+  // Show loading state
+  function showLoading() {
+    document.getElementById("loading-state").classList.remove("hidden");
+    document.getElementById("error-state").classList.add("hidden");
+    document.getElementById("checkout-container").classList.add("hidden");
+  }
+
+  // Show error state
+  function showError(message) {
+    document.getElementById("loading-state").classList.add("hidden");
+    document.getElementById("error-state").classList.remove("hidden");
+    document.getElementById("checkout-container").classList.add("hidden");
+    document.getElementById("error-message").textContent = message;
+  }
+
+  // Show checkout form
+  function showCheckout() {
+    document.getElementById("loading-state").classList.add("hidden");
+    document.getElementById("error-state").classList.add("hidden");
+    document.getElementById("checkout-container").classList.remove("hidden");
+  }
+
+  // Load booking data from URL
+  async function loadBookingData() {
+    showLoading();
+
+    const params = getUrlParams();
+    console.log("URL Params:", params);
+
+    // Validate required parameters
+    if (
+      !params.court ||
+      !params.sessions ||
+      params.sessions.length === 0 ||
+      !params.venue ||
+      !params.date
+    ) {
+      showError(
+        "Missing booking information. Please start the booking process again."
+      );
+      return;
+    }
+
+    // Set booking date
+    bookingData.bookingDate = params.date;
+
+    try {
+      // First, get the court sessions for the specific date to verify availability
+      console.log(
+        `Loading sessions for court ${params.court} on date ${params.date}`
+      );
+      const sessionsResponse = await fetch(
+        `/api/courts/${params.court}/sessions/?date=${params.date}`
+      );
+
+      if (!sessionsResponse.ok) {
+        throw new Error(
+          `Failed to load court sessions: ${sessionsResponse.status}`
+        );
+      }
+
+      const sessionsData = await sessionsResponse.json();
+      console.log("Sessions API Response:", sessionsData);
+
+      if (!sessionsData.success || !sessionsData.data) {
+        throw new Error(
+          sessionsData.message || "Failed to load court sessions"
+        );
+      }
+
+      // Update booking data from sessions API
+      bookingData.courtId = sessionsData.data.court_id;
+      bookingData.courtName = sessionsData.data.court_name;
+      bookingData.venueName = sessionsData.data.venue_name;
+      bookingData.venueId = sessionsData.data.venue_id;
+      bookingData.pricePerHour = sessionsData.data.price_per_hour;
+
+      // Filter requested sessions and check availability
+      const availableSessions = sessionsData.data.sessions.filter(
+        (session) =>
+          params.sessions.includes(String(session.id)) && session.is_available
+      );
+
+      if (availableSessions.length === 0) {
+        throw new Error(
+          "None of the selected sessions are available anymore. Please select different sessions."
+        );
+      }
+
+      if (availableSessions.length !== params.sessions.length) {
+        showError(
+          "Some selected sessions are no longer available. Please go back and select different sessions."
+        );
+        return;
+      }
+
+      bookingData.sessions = availableSessions;
+
+      // Update UI
+      updateBookingUI();
+      renderPaymentMethods();
+      calculateTotalPrice();
+      showCheckout();
+    } catch (error) {
+      console.error("Error loading booking data:", error);
+      showError(
+        error.message || "Failed to load booking data. Please try again."
+      );
+    }
+  }
+
+  // Update booking UI elements
+  function updateBookingUI() {
+    document.getElementById("venue-name").textContent = bookingData.venueName;
+    document.getElementById("court-name").textContent = bookingData.courtName;
+    document.getElementById("session-count").textContent =
+      bookingData.sessions.length;
+
+    // Format and display booking date
+    const dateObj = new Date(bookingData.bookingDate);
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    const formattedDate = dateObj.toLocaleDateString("id-ID", options);
+    document.getElementById("booking-date").textContent = formattedDate;
+
+    // Display sessions
+    const sessionsList = document.getElementById("sessions-list");
+    sessionsList.innerHTML = "";
+
+    bookingData.sessions.forEach((session) => {
+      const sessionDiv = document.createElement("div");
+      sessionDiv.className =
+        "flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200";
+
+      const price = bookingData.pricePerHour * (session.duration / 60);
+
+      sessionDiv.innerHTML = `
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-primary-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <span class="text-neutral-900 font-medium">${
+              session.session_name
+            }</span>
+            <div class="text-xs text-neutral-500">${
+              session.duration
+            } minutes</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-neutral-600 text-sm">${session.start_time} - ${
+        session.end_time
+      }</div>
+          <div class="text-sm font-medium text-neutral-900">Rp ${price.toLocaleString(
+            "id-ID"
+          )}</div>
+        </div>
+      `;
+      sessionsList.appendChild(sessionDiv);
+    });
+  }
+
+  // Render payment method options
+  function renderPaymentMethods() {
+    const container = document.getElementById("payment-methods");
+    container.innerHTML = "";
+
+    paymentMethods.forEach((method) => {
+      const methodDiv = document.createElement("div");
+      methodDiv.className =
+        "payment-method-card border-2 border-neutral-200 rounded-xl p-4 cursor-pointer hover:border-primary-500 transition-all";
+      methodDiv.setAttribute("data-method", method.id);
+
+      methodDiv.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center mr-3">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${method.icon}"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold text-neutral-900">${method.name}</p>
+              <p class="text-xs text-neutral-500">${method.description}</p>
+            </div>
+          </div>
+          <div class="payment-check w-6 h-6 rounded-full border-2 border-neutral-300 flex items-center justify-center">
+            <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+        </div>
+      `;
+
+      methodDiv.addEventListener("click", () =>
+        selectPaymentMethod(method.id, method.name)
+      );
+      container.appendChild(methodDiv);
+    });
+  }
+
+  // Select payment method
+  function selectPaymentMethod(methodId, methodName) {
+    // Clear previous selections
+    document.querySelectorAll(".payment-method-card").forEach((card) => {
+      card.classList.remove("border-primary-500", "bg-primary-50");
+      card.classList.add("border-neutral-200");
+      const check = card.querySelector(".payment-check");
+      check.classList.remove("bg-primary-500", "border-primary-500");
+      check.classList.add("border-neutral-300");
+      check.querySelector("svg").classList.add("hidden");
+    });
+
+    // Select current method
+    const selectedCard = document.querySelector(`[data-method="${methodId}"]`);
+    selectedCard.classList.remove("border-neutral-200");
+    selectedCard.classList.add("border-primary-500", "bg-primary-50");
+    const check = selectedCard.querySelector(".payment-check");
+    check.classList.remove("border-neutral-300");
+    check.classList.add("bg-primary-500", "border-primary-500");
+    check.querySelector("svg").classList.remove("hidden");
+
+    // Save selection
+    bookingData.paymentMethod = methodId;
+
+    // Show selected info
+    const paymentInfo = document.getElementById("payment-selected-info");
+    const paymentText = document.getElementById("selected-payment-text");
+    paymentText.textContent = methodName;
+    paymentInfo.classList.remove("hidden");
+
+    checkFormValidity();
+  }
+
+  // Calculate total price
+  function calculateTotalPrice() {
+    let total = 0;
+    bookingData.sessions.forEach((session) => {
+      const sessionPrice = bookingData.pricePerHour * (session.duration / 60);
+      total += sessionPrice;
+    });
+
+    bookingData.totalPrice = total;
+
+    document.getElementById(
+      "subtotal"
+    ).textContent = `Rp ${total.toLocaleString("id-ID")}`;
+    document.getElementById(
+      "total-price"
+    ).textContent = `Rp ${total.toLocaleString("id-ID")}`;
+  }
+
+  // Check if form is valid
+  function checkFormValidity() {
+    const confirmBtn = document.getElementById("confirm-payment-btn");
+    if (
+      bookingData.paymentMethod &&
+      bookingData.bookingDate &&
+      bookingData.sessions.length > 0
+    ) {
+      confirmBtn.disabled = false;
+    } else {
+      confirmBtn.disabled = true;
+    }
+  }
+
+  // Confirm payment and create booking
+  async function confirmPayment() {
+    if (!bookingData.paymentMethod || !bookingData.bookingDate) {
+      showNotification("Please complete all required fields", "error");
+      return;
+    }
+
+    const confirmBtn = document.getElementById("confirm-payment-btn");
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = `
+      <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    `;
+
+    try {
+      const response = await fetch("/bookings/create/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({
+          court_id: bookingData.courtId,
+          session_ids: bookingData.sessions.map((s) => s.id),
+          booking_date: bookingData.bookingDate,
+          payment_method: bookingData.paymentMethod,
+          notes: document.getElementById("booking-notes").value,
+          auto_confirm: true, // For testing purposes
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showNotification(
+          "Booking confirmed successfully! Redirecting...",
+          "success"
+        );
+        setTimeout(() => {
+          window.location.href = `/dashboard`; // Redirect to user dashboard
+        }, 2000);
+      } else {
+        throw new Error(result.message || "Failed to create booking");
+      }
+    } catch (error) {
+      console.error("Error confirming payment:", error);
+      showNotification(
+        error.message || "Failed to confirm booking. Please try again.",
+        "error"
+      );
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "Confirm Payment";
+    }
+  }
+
+  // Helper functions
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  function showNotification(message, type = "info") {
+    const colors = {
+      success: "bg-green-500",
+      error: "bg-red-500",
+      info: "bg-blue-500",
+    };
+
+    const notification = document.createElement("div");
+    notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all transform translate-x-0`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.classList.add("translate-x-full", "opacity-0");
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    loadBookingData();
+  });
+</script>
+
+<style>
+  .payment-method-card {
+    transition: all 0.3s ease;
+  }
+
+  .payment-method-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .payment-check svg {
+    transition: all 0.2s ease;
+  }
+</style>
+{% endblock %}

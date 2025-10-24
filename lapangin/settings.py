@@ -47,10 +47,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main',
-    'backend',
-    'main.mitra.apps.MitraConfig',
-    'main.admin.apps.MainAdminConfig'
+    'django.contrib.humanize',
+    # New separated apps
+    'app.users',
+    'app.venues',
+    'app.courts',
+    'app.bookings',
+    'app.reviews',
+    'app.revenue',
+    # Existing apps
+    'app.main',
+    'app.mitra',
+    'app.admin',
 ]
 
 MIDDLEWARE = [
@@ -157,14 +165,10 @@ STATICFILES_DIRS = [
 # Direktori untuk mengumpulkan semua file static saat production
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # merujuk ke /staticfiles untuk collectstatic
 
-# Media files (User uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
-AUTH_USER_MODEL = 'backend.User'
+AUTH_USER_MODEL = 'users.User'
