@@ -257,8 +257,7 @@
           >
         </p>
         <p class="text-sm text-neutral-600 mt-2">
-          {{ court.sessions|length }} session{{
-          court.sessions|length|pluralize}} available
+          {{ court.sessions|length }} session{{ court.sessions|length|pluralize}} available
         </p>
 
         <!-- Hidden data for JavaScript -->
@@ -947,19 +946,29 @@
         });
     }
 
-    // Show notification function using toaster component
+    // Show notification function
     function showNotification(message, type) {
-      // Use toaster utility if available
-      if (typeof toasterUtils !== 'undefined') {
-        toasterUtils.show({
-          message: message,
-          type: type,
-          duration: 3000
-        });
-      } else {
-        // Fallback to console if toaster not loaded
-        console.warn('Toaster not available:', message);
-      }
+      const notification = document.createElement("div");
+      notification.className = `fixed top-4 right-4 px-6 py-4 rounded-xl shadow-strong text-white font-medium transition-all transform z-50 ${
+        type === "success" ? "bg-green-500" : "bg-red-500"
+      }`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      // Animate in
+      setTimeout(() => {
+        notification.style.opacity = "1";
+        notification.style.transform = "translateY(0)";
+      }, 10);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        notification.style.opacity = "0";
+        notification.style.transform = "translateY(-20px)";
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
     }
 
     // Utility function to get CSRF token
@@ -1183,10 +1192,20 @@
         return;
       }
 
-      // Navigate to booking checkout page with query params
-      const sessionIds = selectedSessions.map(s => s.id).join(',');
-      const venueId = "{{ venue.id }}";
-      window.location.href = `/booking/checkout/?venue=${venueId}&court=${selectedCourt.id}&sessions=${sessionIds}`;
+      // For now, just show an alert with the selection
+      const sessionTimes = selectedSessions.map(s => `${s.start_time} - ${s.end_time}`).join(', ');
+      showNotification(
+        `Selected: ${selectedCourt.name} - Sessions: ${sessionTimes}`,
+        'success'
+      );
+
+      // TODO: Navigate to booking confirmation page
+      // window.location.href = `/booking/confirm?court=${selectedCourt.id}&sessions=${selectedSessions.map(s => s.id).join(',')}`;
+
+      console.log('Booking data:', {
+        court: selectedCourt,
+        sessions: selectedSessions
+      });
     }
   </script>
 

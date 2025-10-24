@@ -29,9 +29,10 @@ urlpatterns = [
     path('api/user-dashboard/', users_views.api_user_dashboard, name='api_user_dashboard'),
     
     # Venues & Sports Categories (from venues app)
-    path('api/venues/', venues_views.api_venues, name='api_venues'),
-    path('api/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_venue_detail'),
+    path('api/public/venues/', venues_views.api_venue_list, name='api_public_venue_list'),  # Public venue list with pagination
     path('api/public/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_public_venue_detail'),
+    path('api/venues/', venues_views.api_venues, name='api_venues'),  # Mitra-only venue management
+    path('api/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_venue_detail'),
     path('api/sports-categories/', venues_views.api_sports_categories, name='api_sports_categories'),
     path('api/venue-images/<int:image_id>/delete/', venues_views.api_delete_venue_image, name='api_delete_venue_image'),
     
@@ -42,6 +43,7 @@ urlpatterns = [
     path('api/court-images/<int:image_id>/delete/', courts_views.api_delete_court_image, name='api_delete_court_image'),
     
     # Bookings & Payments (from bookings app)
+    path('bookings/', include('app.bookings.urls')),
     path('api/bookings/', bookings_views.api_bookings, name='api_bookings'),
     path('api/bookings/<uuid:booking_id>/', bookings_views.api_booking_detail, name='api_booking_detail'),
     
@@ -54,8 +56,14 @@ urlpatterns = [
     path('api/mitra-dashboard/', revenue_views.api_mitra_dashboard, name='api_mitra_dashboard'),
     path('api/admin-dashboard/', revenue_views.api_admin_dashboard, name='api_admin_dashboard'),
     path('api/mitra/', revenue_views.api_mitra_list, name='api_mitra_list'),
+    path('api/mitra/earnings/', revenue_views.api_mitra_earnings, name='api_mitra_earnings'),
     path('api/mitra/<uuid:mitra_id>/', revenue_views.api_mitra_update_status, name='api_mitra_update_status'),
     path('api/mitra/<uuid:mitra_id>/venues/', revenue_views.api_mitra_venue_details, name='api_mitra_venue_details'),
+    path('api/mitra/<uuid:mitra_id>/earnings/', revenue_views.api_mitra_earnings_detail, name='api_mitra_earnings_detail'),
+    
+    # Refund Management APIs
+    path('api/refunds/', revenue_views.api_refunds, name='api_refunds'),
+    path('api/refunds/<uuid:pendapatan_id>/cancel/', revenue_views.api_cancel_refund, name='api_cancel_refund'),
 ]
 
 # Serve static and media files during development

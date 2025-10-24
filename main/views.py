@@ -1,30 +1,23 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.safestring import mark_safe
 from django.db.models import Avg
 import json
 
-from app.users.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
-from app.venues.models import Venue, VenueImage, VenueFacility, Facility, OperationalHour
-from app.courts.models import Court
-from app.reviews.models import Review
-from app.bookings.models import Booking
-
-
-@admin_required
-def admin_mitra_earnings_page(request):
-    """Render the admin mitra earnings dashboard page."""
-    return render(request, 'dashboard/admin_mitra_earnings.html')
-
+from backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
+from backend.models import (
+    Venue, VenueImage, VenueFacility, Facility, 
+    Court, Review, OperationalHour, Booking
+)
 
 
 def venue_list_view(request):
     """Render halaman daftar venue"""
-    # Don't send initial data, let JavaScript fetch from API with pagination
+    # Provide a small server-side snapshot of venues so the frontend can render
+    # seeded data immediately and avoid falling back to client-only dummy IDs
+    # (which produce links like /venue/dummy-1/).
     venues = []
     try:
-        # Only send first page for initial load
-        qs = Venue.objects.all()[:9]
+        qs = Venue.objects.all()[:100]
         for v in qs:
             # pick a safe first image if available
             first_img = ''
@@ -32,38 +25,21 @@ def venue_list_view(request):
                 img = VenueImage.objects.filter(venue=v).order_by('-is_primary', 'id').first()
                 if img and img.image_url:
                     first_img = img.image_url
-            except Exception as e:
-                print(f"Error getting image for venue {v.name}: {e}")
+            except Exception:
                 first_img = ''
 
-            # Calculate average rating
-            avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0.0
-            rating_count = Review.objects.filter(booking__court__venue=v).count()
-            
-            # Get all unique categories from courts in this venue
-            courts = Court.objects.filter(venue=v).select_related('category')
-            categories = set()
-            for court in courts:
-                if court.category:
-                    categories.add(court.category.get_name_display())
-            categories_display = ', '.join(sorted(categories)) if categories else ''
-            
             venues.append({
                 'id': str(v.id),
                 'name': v.name,
-                'category': categories_display,
+                'category': v.category.name if getattr(v, 'category', None) else '',
                 'address': getattr(v, 'address', '') or '',
                 'price_per_hour': float(Court.objects.filter(venue=v).aggregate(Avg('price_per_hour'))['price_per_hour__avg'] or 0),
                 'images': [first_img] if first_img else [],
-                'avg_rating': round(avg_rating, 1),
-                'rating_count': rating_count,
+                'avg_rating': 0.0,
+                'rating_count': Review.objects.filter(booking__court__venue=v).count(),
             })
-    except Exception as e:
-        print(f"Error in venue_list_view: {e}")
-        import traceback
-        traceback.print_exc()
+    except Exception:
         venues = []
-    print(f"Total venues loaded: {len(venues)}")
     print(venues)
     context = {
         'venues_json': mark_safe(json.dumps(venues, default=str)),
@@ -198,15 +174,3 @@ def admin_mitra_page(request):
 @login_required
 def profile_view(request):
     return render(request, 'profile.html')
-
-def about_view(request):
-    """About page"""
-    return render(request, 'about.html')
-
-def contact_view(request):
-    """Contact page"""
-    return render(request, 'contact.html')
-
-def daftar_mitra_view(request):
-    """Daftar Mitra page"""
-    return render(request, 'daftar_mitra.html')
