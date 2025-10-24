@@ -166,9 +166,10 @@ def api_logout(request):
             }, status=401)
             
     except Exception as e:
+        print(f"Logout error: {str(e)}")  # Debug logging
         return JsonResponse({
             'success': False,
-            'message': 'Terjadi kesalahan server'
+            'message': f'Terjadi kesalahan server: {str(e)}'
         }, status=500)
 
 
