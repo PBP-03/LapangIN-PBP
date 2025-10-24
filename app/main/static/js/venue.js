@@ -7,11 +7,11 @@ let currentPage = 1;
 let allVenues = [];
 
 function renderVenueList(venues) {
-  const container = document.getElementById('venue-list');
-  const countEl = document.getElementById('venue-count-number');
+  const container = document.getElementById("venue-list");
+  const countEl = document.getElementById("venue-count-number");
   let list = venues;
-  
-    // If no venues provided, try server-provided data
+
+  // If no venues provided, try server-provided data
   if (!list) {
     list = window.venuesData || [];
   }
