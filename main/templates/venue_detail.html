@@ -1,719 +1,1238 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block content %}
+{% extends 'base.html' %} {% load static %} {% block content %}
 <!-- Hero Section with Gradient Background -->
-<section class="relative bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-12">
-    <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute -top-40 -right-40 w-80 h-80 rounded-full gradient-accent opacity-20 blur-3xl"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full gradient-primary opacity-20 blur-3xl"></div>
-    </div>
+<section
+  class="relative bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-12"
+>
+  <div class="absolute inset-0 overflow-hidden">
+    <div
+      class="absolute -top-40 -right-40 w-80 h-80 rounded-full gradient-accent opacity-20 blur-3xl"
+    ></div>
+    <div
+      class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full gradient-primary opacity-20 blur-3xl"
+    ></div>
+  </div>
 </section>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 pb-20">
-    <!-- Venue Header -->
-    <div class="bg-white rounded-2xl shadow-soft p-8 mb-8 card-hover">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Image Gallery -->
-            <div class="relative">
-                {% if images %}
-                    <img src="{{ images.0.image_url }}" alt="{{ venue.name }}" class="w-full h-96 object-cover rounded-2xl shadow-medium">
-                    <div class="flex mt-4 space-x-3 overflow-x-auto pb-2">
-                        {% for image in images %}
-                            <img src="{{ image.image_url }}" alt="" class="w-24 h-24 object-cover rounded-xl cursor-pointer hover:scale-105 transition-transform shadow-soft">
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="w-full h-96 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-2xl flex items-center justify-center shadow-soft">
-                        <div class="text-center">
-                            <svg class="w-16 h-16 text-neutral-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span class="text-neutral-500 font-medium">No images available</span>
-                        </div>
-                    </div>
-                {% endif %}
+<div class="max-w-7xl relative z-10 mx-auto px-4 sm:px-6 lg:px-8 -mt-20 pb-20">
+  <!-- Venue Header -->
+  <div class="bg-white rounded-2xl shadow-soft p-8 mb-8 card-hover">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Image Gallery -->
+      <div class="relative">
+        {% if images %}
+        <img
+          src="{{ images.0.image_url }}"
+          alt="{{ venue.name }}"
+          class="w-full h-96 object-cover rounded-2xl shadow-medium"
+        />
+        <div class="flex mt-4 space-x-3 overflow-x-auto pb-2">
+          {% for image in images %}
+          <img
+            src="{{ image.image_url }}"
+            alt=""
+            class="w-24 h-24 object-cover rounded-xl cursor-pointer hover:scale-105 transition-transform shadow-soft"
+          />
+          {% endfor %}
+        </div>
+        {% else %}
+        <div
+          class="w-full h-96 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-2xl flex items-center justify-center shadow-soft"
+        >
+          <div class="text-center">
+            <svg
+              class="w-16 h-16 text-neutral-400 mx-auto mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              ></path>
+            </svg>
+            <span class="text-neutral-500 font-medium"
+              >No images available</span
+            >
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Venue Info -->
+      <div>
+        <h1 class="text-4xl font-display font-bold text-neutral-900 mb-3">
+          {{ venue.name }}
+        </h1>
+        <div class="flex items-center mb-6">
+          <div
+            class="flex items-center bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-3 py-1 rounded-full"
+          >
+            <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"
+              />
+            </svg>
+            <span class="font-semibold">{{ avg_rating }}</span>
+          </div>
+          <span class="mx-3 text-neutral-400">•</span>
+          <span class="text-neutral-600 font-medium"
+            >{{ review_count }} reviews</span
+          >
+        </div>
+        <p class="text-neutral-600 mb-6 leading-relaxed">
+          {{ venue.description }}
+        </p>
+        <div class="mb-6">
+          <div class="flex items-start space-x-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center flex-shrink-0"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+              </svg>
             </div>
-            
-            <!-- Venue Info -->
             <div>
-                <h1 class="text-4xl font-display font-bold text-neutral-900 mb-3">{{ venue.name }}</h1>
-                <div class="flex items-center mb-6">
-                    <div class="flex items-center bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-3 py-1 rounded-full">
-                        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
-                        </svg>
-                        <span class="font-semibold">{{ avg_rating }}</span>
-                    </div>
-                    <span class="mx-3 text-neutral-400">•</span>
-                    <span class="text-neutral-600 font-medium">{{ review_count }} reviews</span>
-                </div>
-                <p class="text-neutral-600 mb-6 leading-relaxed">{{ venue.description }}</p>
-                <div class="mb-6">
-                    <div class="flex items-start space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-neutral-900 mb-1">Location</h3>
-                            <p class="text-neutral-600">{{ venue.address }}</p>
-                            {% if venue.location_url %}
-                                <a href="{{ venue.location_url }}" target="_blank" class="inline-flex items-center text-primary-600 hover:text-primary-700 mt-1 font-medium">
-                                    View on Maps
-                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                    </svg>
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <div class="flex items-start space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-400 to-light-400 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-neutral-900 mb-1">Contact</h3>
-                            <p class="text-neutral-600">{{ venue.contact }}</p>
-                        </div>
-                    </div>
-                </div>
+              <h3 class="font-semibold text-neutral-900 mb-1">Location</h3>
+              <p class="text-neutral-600">{{ venue.address }}</p>
+              {% if venue.location_url %}
+              <a
+                href="{{ venue.location_url }}"
+                target="_blank"
+                class="inline-flex items-center text-primary-600 hover:text-primary-700 mt-1 font-medium"
+              >
+                View on Maps
+                <svg
+                  class="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  ></path>
+                </svg>
+              </a>
+              {% endif %}
             </div>
+          </div>
         </div>
-    </div>
-
-    <!-- Facilities -->
-    {% if facilities %}
-    <div class="bg-white rounded-2xl shadow-soft p-8 mb-8 card-hover">
-        <h2 class="text-3xl font-display font-bold text-neutral-900 mb-6">Facilities</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {% for facility in facilities %}
-                <div class="flex items-center space-x-3 p-4 rounded-xl bg-gradient-to-br from-neutral-50 to-white border border-neutral-100 hover:shadow-soft transition-all">
-                    {% if facility.facility.icon %}
-                        <img src="{{ facility.facility.icon }}" alt="{{ facility.facility.name }}" class="w-8 h-8">
-                    {% else %}
-                        <div class="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                    {% endif %}
-                    <span class="font-medium text-neutral-700">{{ facility.facility.name }}</span>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Courts and Booking -->
-    <div class="bg-white rounded-2xl shadow-soft p-8 mb-8 card-hover">
-        <h2 class="text-3xl font-display font-bold text-neutral-900 mb-6">Available Courts</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for court in courts %}
-                <div class="border border-neutral-200 rounded-2xl p-6 hover:shadow-medium transition-all card-hover bg-gradient-to-br from-white to-neutral-50">
-                    <h3 class="text-xl font-display font-semibold text-neutral-900 mb-3">{{ court.name }}</h3>
-                    {% if court.category %}
-                        <div class="inline-block px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4">
-                            {{ court.category.get_name_display }}
-                        </div>
-                    {% endif %}
-                    <p class="text-2xl font-bold text-primary-600 mb-6">Rp {{ court.price_per_hour|floatformat:0 }}<span class="text-sm font-normal text-neutral-500">/hour</span></p>
-                    
-                    {% if court.sessions.all %}
-                        <h4 class="font-semibold text-neutral-900 mb-3">Available Sessions:</h4>
-                        <div class="space-y-2 mb-6">
-                            {% for session in court.sessions.all %}
-                                <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-neutral-100 hover:border-primary-200 transition-colors">
-                                    <span class="font-medium text-neutral-700">{{ session.session_name }}</span>
-                                    <span class="text-sm text-neutral-600 font-medium">
-                                        {{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}
-                                    </span>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-
-                    {% if is_authenticated %}
-                        <button onclick="window.location.href='/booking/{{ court.id }}'"
-                                class="w-full gradient-primary text-white py-3 px-6 rounded-xl font-medium hover:shadow-medium transition-all transform hover:scale-105">
-                            Book Now
-                        </button>
-                    {% else %}
-                        <button onclick="window.location.href='/login'"
-                                class="w-full bg-neutral-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-neutral-700 transition-all">
-                            Login to Book
-                        </button>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Operating Hours -->
-    {% if operational_hours %}
-    <div class="bg-white rounded-2xl shadow-soft p-8 mb-8 card-hover">
-        <h2 class="text-3xl font-display font-bold text-neutral-900 mb-6">Operating Hours</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {% for hour in operational_hours %}
-                <div class="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-neutral-50 to-white border border-neutral-100 {% if hour.is_closed %}opacity-60{% endif %}">
-                    <span class="font-semibold text-neutral-900">{{ hour.get_day_of_week_display }}</span>
-                    {% if hour.is_closed %}
-                        <span class="text-red-500 font-medium">Closed</span>
-                    {% else %}
-                        <span class="text-neutral-600 font-medium">{{ hour.open_time|time:"H:i" }} - {{ hour.close_time|time:"H:i" }}</span>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Reviews Section -->
-    <div class="bg-white rounded-2xl shadow-soft p-8 mb-8 card-hover">
-        <div class="flex justify-between items-center mb-6">
+        <div class="mb-4">
+          <div class="flex items-start space-x-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-400 to-light-400 flex items-center justify-center flex-shrink-0"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                ></path>
+              </svg>
+            </div>
             <div>
-                <h2 class="text-3xl font-display font-bold text-neutral-900">Reviews</h2>
-                <p class="text-neutral-600 mt-1">{{ review_count }} reviews • {{ avg_rating }} average rating</p>
+              <h3 class="font-semibold text-neutral-900 mb-1">Contact</h3>
+              <p class="text-neutral-600">{{ venue.contact }}</p>
             </div>
-            
-            {% if can_review %}
-            <button onclick="openReviewModal()" 
-                    class="gradient-primary text-white px-6 py-3 rounded-xl font-medium hover:shadow-medium transition-all transform hover:scale-105">
-                Write a Review
-            </button>
-            {% elif is_authenticated %}
-            <div class="text-neutral-500 text-sm italic px-6 py-3">
-                Selesaikan booking untuk memberikan review
-            </div>
-            {% else %}
-            <a href="/login" class="gradient-primary text-white px-6 py-3 rounded-xl font-medium hover:shadow-medium transition-all transform hover:scale-105">
-                Login to Review
-            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Facilities -->
+  {% if facilities %}
+  <div class="bg-white rounded-2xl shadow-soft p-6 mb-8">
+    <h3 class="text-lg font-semibold text-neutral-900 mb-4">Facilities</h3>
+    <div class="flex flex-wrap gap-2">
+      {% for facility in facilities %}
+      <div
+        class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-neutral-50 border border-neutral-200"
+      >
+        {% if facility.facility.icon %}
+        <img
+          src="{{ facility.facility.icon }}"
+          alt="{{ facility.facility.name }}"
+          class="w-4 h-4"
+        />
+        {% else %}
+        <svg
+          class="w-4 h-4 text-primary-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          ></path>
+        </svg>
+        {% endif %}
+        <span class="text-sm text-neutral-700"
+          >{{ facility.facility.name }}</span
+        >
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Courts and Booking -->
+  <div class="bg-white rounded-2xl shadow-soft p-8 mb-8">
+    <h2 class="text-3xl font-display font-bold text-neutral-900 mb-6">
+      Select a Court
+    </h2>
+
+    <!-- Court Selection List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      {% for court in courts %}
+      <div
+        onclick="selectCourt('{{ court.id }}', '{{ court.name }}', {{ court.price_per_hour }})"
+        id="court-card-{{ court.id }}"
+        data-court-id="{{ court.id }}"
+        data-court-name="{{ court.name }}"
+        data-court-price="{{ court.price_per_hour }}"
+        data-sessions="{{ court.sessions|safe }}"
+        class="court-card border-2 border-neutral-200 rounded-xl p-5 cursor-pointer hover:border-primary-500 hover:shadow-md transition-all bg-white"
+      >
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-neutral-900 mb-2">
+              {{ court.name }}
+            </h3>
+            {% if court.category %}
+            <span
+              class="inline-block px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-medium"
+            >
+              {{ court.category.get_name_display }}
+            </span>
             {% endif %}
+          </div>
+          <div class="court-check hidden">
+            <svg
+              class="w-6 h-6 text-primary-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
         </div>
+        <p class="text-xl font-bold text-primary-600">
+          Rp {{ court.price_per_hour|floatformat:0 }}<span
+            class="text-sm font-normal text-neutral-500"
+            >/hour</span
+          >
+        </p>
+        <p class="text-sm text-neutral-600 mt-2">
+          {{ court.sessions|length }} session{{ court.sessions|length|pluralize}} available
+        </p>
 
-        <!-- Review List -->
-        <div class="space-y-6" id="review-list">
-            {% for review in reviews %}
-                <div class="border-b border-neutral-200 pb-6 last:border-0" id="review-{{ review.id }}">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white font-semibold">
-                                {{ review.booking.user.username|slice:":1"|upper }}
-                            </div>
-                            <div class="ml-3">
-                                <span class="font-semibold text-neutral-900">{{ review.booking.user.username }}</span>
-                                <div class="flex items-center mt-1">
-                                    {% for i in "12345"|make_list %}
-                                    <svg class="w-4 h-4 {% if forloop.counter <= review.rating %}text-yellow-400{% else %}text-neutral-300{% endif %}" 
-                                         fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
-                                    </svg>
-                                    {% endfor %}
-                                    <span class="mx-2 text-neutral-400">•</span>
-                                    <span class="text-neutral-500 text-sm">{{ review.created_at|date:"M d, Y" }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Edit and Delete buttons for own review -->
-                        {% if is_authenticated and review.booking.user == request.user %}
-                        <div class="flex space-x-2">
-                            <button onclick="openEditReviewModal('{{ review.id }}', {{ review.rating }}, '{{ review.comment|escapejs }}')" 
-                                    class="px-3 py-1.5 text-sm border border-primary-500 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors">
-                                Edit
-                            </button>
-                            <button onclick="deleteReview('{{ review.id }}')" 
-                                    class="px-3 py-1.5 text-sm border border-red-500 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
-                                Delete
-                            </button>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% if review.comment %}
-                        <p class="text-neutral-600 leading-relaxed ml-13">{{ review.comment }}</p>
-                    {% endif %}
-                </div>
-            {% empty %}
-                <div class="text-center py-12">
-                    <svg class="w-16 h-16 text-neutral-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                    </svg>
-                    <p class="text-neutral-500 font-medium">No reviews yet. Be the first to review!</p>
-                </div>
-            {% endfor %}
-        </div>
+        <!-- Hidden data for JavaScript -->
+        <script
+          type="application/json"
+          class="court-sessions-data"
+          data-court="{{ court.id }}"
+        >
+          {{ court.sessions|safe }}
+        </script>
+      </div>
+      {% endfor %}
     </div>
 
-    <!-- Review Modal -->
-    <div id="review-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 shadow-strong">
-            <h3 class="text-2xl font-display font-bold text-neutral-900 mb-6">Write a Review</h3>
-            
-            <!-- Star Rating -->
-            <div class="flex items-center mb-6">
-                <div class="flex items-center" id="star-rating">
-                    {% for i in "12345"|make_list %}
-                    <svg class="star-icon w-10 h-10 text-neutral-300 cursor-pointer transition-colors" 
-                         data-rating="{{ forloop.counter }}"
-                         fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
-                    </svg>
-                    {% endfor %}
-                </div>
-                <span class="ml-3 text-2xl font-bold text-neutral-900" id="rating-value">0.0</span>
-            </div>
-
-            <!-- Review Comment -->
-            <textarea id="review-comment" 
-                      class="w-full p-4 border border-neutral-200 rounded-xl mb-6 h-32 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" 
-                      placeholder="Share your experience with this venue..."></textarea>
-
-            <!-- Buttons -->
-            <div class="flex justify-end space-x-3">
-                <button onclick="closeReviewModal()" 
-                        class="px-6 py-3 border border-neutral-300 rounded-xl hover:bg-neutral-50 transition-colors font-medium text-neutral-700">
-                    Cancel
-                </button>
-                <button onclick="submitReview(event)" 
-                        id="submit-review-btn"
-                        class="px-6 py-3 gradient-primary text-white rounded-xl hover:shadow-medium transition-all font-medium">
-                    Submit Review
-                </button>
-            </div>
+    <!-- Selected Court Sessions -->
+    <div id="sessions-container" class="hidden">
+      <div class="border-t border-neutral-200 pt-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold text-neutral-900">
+            Select Time Slots for
+            <span id="selected-court-name" class="text-primary-600"></span>
+          </h3>
+          <button
+            onclick="clearCourtSelection()"
+            class="text-sm text-neutral-600 hover:text-neutral-900 font-medium"
+          >
+            ← Back to courts
+          </button>
         </div>
+
+        <div
+          id="sessions-grid"
+          class="grid grid-cols-4 md:grid-cols-6 gap-3 mb-6"
+        >
+          <!-- Sessions will be loaded here dynamically -->
+        </div>
+
+        <div
+          id="booking-summary"
+          class="hidden bg-neutral-50 rounded-xl p-6 mb-4"
+        >
+          <h4 class="font-semibold text-neutral-900 mb-3">Selected Sessions</h4>
+          <div id="selected-sessions-list" class="space-y-2 mb-4">
+            <!-- Selected sessions will appear here -->
+          </div>
+          <div
+            class="flex items-center justify-between pt-4 border-t border-neutral-200"
+          >
+            <div>
+              <p class="text-sm text-neutral-600">Total Duration</p>
+              <p class="text-xl font-bold text-neutral-900">
+                <span id="total-duration">0</span> minutes
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-neutral-600">Estimated Price</p>
+              <p class="text-xl font-bold text-primary-600">
+                Rp <span id="total-price">0</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {% if is_authenticated %}
+        <button
+          id="proceed-booking-btn"
+          onclick="proceedToBooking()"
+          class="hidden w-full gradient-primary text-white py-4 px-6 rounded-xl font-medium hover:shadow-medium transition-all transform"
+        >
+          Proceed to Booking
+        </button>
+        {% else %}
+        <button
+          onclick="window.location.href='/login'"
+          class="w-full bg-neutral-600 text-white py-4 px-6 rounded-xl font-medium hover:bg-neutral-700 transition-all"
+        >
+          Login to Book
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews Section -->
+  <div class="bg-white rounded-2xl shadow-soft p-8 mb-8 card-hover">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h2 class="text-3xl font-display font-bold text-neutral-900">
+          Reviews
+        </h2>
+        <p class="text-neutral-600 mt-1">
+          {{ review_count }} reviews • {{ avg_rating }} average rating
+        </p>
+      </div>
+
+      {% if can_review %}
+      <button
+        onclick="openReviewModal()"
+        class="gradient-primary text-white px-6 py-3 rounded-xl font-medium hover:shadow-medium transition-all transform hover:scale-105"
+      >
+        Write a Review
+      </button>
+      {% elif is_authenticated %}
+      <div class="text-neutral-500 text-sm italic px-6 py-3">
+        Selesaikan booking untuk memberikan review
+      </div>
+      {% else %}
+      <a
+        href="/login"
+        class="gradient-primary text-white px-6 py-3 rounded-xl font-medium hover:shadow-medium transition-all transform hover:scale-105"
+      >
+        Login to Review
+      </a>
+      {% endif %}
     </div>
 
-    <!-- Edit Review Modal -->
-    <div id="edit-review-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 shadow-strong">
-            <h3 class="text-2xl font-display font-bold text-neutral-900 mb-6">Edit Review</h3>
-            
-            <!-- Star Rating -->
-            <div class="flex items-center mb-6">
-                <div class="flex items-center" id="edit-star-rating">
-                    {% for i in "12345"|make_list %}
-                    <svg class="edit-star-icon w-10 h-10 text-neutral-300 cursor-pointer transition-colors" 
-                         data-rating="{{ forloop.counter }}"
-                         fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
-                    </svg>
-                    {% endfor %}
-                </div>
-                <span class="ml-3 text-2xl font-bold text-neutral-900" id="edit-rating-value">0.0</span>
+    <!-- Review List -->
+    <div class="space-y-6" id="review-list">
+      {% for review in reviews %}
+      <div
+        class="border-b border-neutral-200 pb-6 last:border-0"
+        id="review-{{ review.id }}"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center">
+            <div
+              class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white font-semibold"
+            >
+              {{ review.booking.user.username|slice:":1"|upper }}
             </div>
-
-            <!-- Review Comment -->
-            <textarea id="edit-review-comment" 
-                      class="w-full p-4 border border-neutral-200 rounded-xl mb-6 h-32 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" 
-                      placeholder="Share your experience with this venue..."></textarea>
-
-            <!-- Hidden field for review ID -->
-            <input type="hidden" id="edit-review-id">
-
-            <!-- Buttons -->
-            <div class="flex justify-end space-x-3">
-                <button onclick="closeEditReviewModal()" 
-                        class="px-6 py-3 border border-neutral-300 rounded-xl hover:bg-neutral-50 transition-colors font-medium text-neutral-700">
-                    Cancel
-                </button>
-                <button onclick="updateReview(event)" 
-                        id="update-review-btn"
-                        class="px-6 py-3 gradient-primary text-white rounded-xl hover:shadow-medium transition-all font-medium">
-                    Update Review
-                </button>
+            <div class="ml-3">
+              <span class="font-semibold text-neutral-900"
+                >{{ review.booking.user.username }}</span
+              >
+              <div class="flex items-center mt-1">
+                {% for i in "12345"|make_list %}
+                <svg
+                  class="w-4 h-4 {% if forloop.counter <= review.rating %}text-yellow-400{% else %}text-neutral-300{% endif %}"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"
+                  />
+                </svg>
+                {% endfor %}
+                <span class="mx-2 text-neutral-400">•</span>
+                <span class="text-neutral-500 text-sm"
+                  >{{ review.created_at|date:"M d, Y" }}</span
+                >
+              </div>
             </div>
+          </div>
+
+          <!-- Edit and Delete buttons for own review -->
+          {% if is_authenticated and review.booking.user == request.user %}
+          <div class="flex space-x-2">
+            <button
+              onclick="openEditReviewModal('{{ review.id }}',  '{{ review.rating }}', '{{ review.comment|escapejs }}')"
+              class="px-3 py-1.5 text-sm border border-primary-500 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              onclick="deleteReview('{{ review.id }}')"
+              class="px-3 py-1.5 text-sm border border-red-500 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+          {% endif %}
         </div>
+        {% if review.comment %}
+        <p class="text-neutral-600 leading-relaxed ml-13">
+          {{ review.comment }}
+        </p>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="text-center py-12">
+        <svg
+          class="w-16 h-16 text-neutral-300 mx-auto mb-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          ></path>
+        </svg>
+        <p class="text-neutral-500 font-medium">
+          No reviews yet. Be the first to review!
+        </p>
+      </div>
+      {% endfor %}
     </div>
+  </div>
 
-    <!-- JavaScript for Review Functionality -->
-    <script>
-        let currentRating = 0;
-        let editCurrentRating = 0;
-        const venueId = '{{ venue.id }}';
+  <!-- Review Modal -->
+  <div
+    id="review-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+  >
+    <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 shadow-strong">
+      <h3 class="text-2xl font-display font-bold text-neutral-900 mb-6">
+        Write a Review
+      </h3>
 
-        // Initialize star rating functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            // Create review stars
-            const stars = document.querySelectorAll('.star-icon');
-            
-            stars.forEach((star, index) => {
-                // Hover effect
-                star.addEventListener('mouseenter', function() {
-                    highlightStars(index + 1);
-                });
-                
-                // Click to set rating
-                star.addEventListener('click', function() {
-                    setRating(index + 1);
-                });
-            });
-            
-            // Reset stars when mouse leaves the rating container
-            const starRating = document.getElementById('star-rating');
-            starRating.addEventListener('mouseleave', function() {
-                highlightStars(currentRating);
-            });
+      <!-- Star Rating -->
+      <div class="flex items-center mb-6">
+        <div class="flex items-center" id="star-rating">
+          {% for i in "12345"|make_list %}
+          <svg
+            class="star-icon w-10 h-10 text-neutral-300 cursor-pointer transition-colors"
+            data-rating="{{ forloop.counter }}"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"
+            />
+          </svg>
+          {% endfor %}
+        </div>
+        <span class="ml-3 text-2xl font-bold text-neutral-900" id="rating-value"
+          >0.0</span
+        >
+      </div>
 
-            // Edit review stars
-            const editStars = document.querySelectorAll('.edit-star-icon');
-            
-            editStars.forEach((star, index) => {
-                star.addEventListener('mouseenter', function() {
-                    highlightEditStars(index + 1);
-                });
-                
-                star.addEventListener('click', function() {
-                    setEditRating(index + 1);
-                });
-            });
-            
-            const editStarRating = document.getElementById('edit-star-rating');
-            editStarRating.addEventListener('mouseleave', function() {
-                highlightEditStars(editCurrentRating);
-            });
+      <!-- Review Comment -->
+      <textarea
+        id="review-comment"
+        class="w-full p-4 border border-neutral-200 rounded-xl mb-6 h-32 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        placeholder="Share your experience with this venue..."
+      ></textarea>
+
+      <!-- Buttons -->
+      <div class="flex justify-end space-x-3">
+        <button
+          onclick="closeReviewModal()"
+          class="px-6 py-3 border border-neutral-300 rounded-xl hover:bg-neutral-50 transition-colors font-medium text-neutral-700"
+        >
+          Cancel
+        </button>
+        <button
+          onclick="submitReview(event)"
+          id="submit-review-btn"
+          class="px-6 py-3 gradient-primary text-white rounded-xl hover:shadow-medium transition-all font-medium"
+        >
+          Submit Review
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Review Modal -->
+  <div
+    id="edit-review-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+  >
+    <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 shadow-strong">
+      <h3 class="text-2xl font-display font-bold text-neutral-900 mb-6">
+        Edit Review
+      </h3>
+
+      <!-- Star Rating -->
+      <div class="flex items-center mb-6">
+        <div class="flex items-center" id="edit-star-rating">
+          {% for i in "12345"|make_list %}
+          <svg
+            class="edit-star-icon w-10 h-10 text-neutral-300 cursor-pointer transition-colors"
+            data-rating="{{ forloop.counter }}"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"
+            />
+          </svg>
+          {% endfor %}
+        </div>
+        <span
+          class="ml-3 text-2xl font-bold text-neutral-900"
+          id="edit-rating-value"
+          >0.0</span
+        >
+      </div>
+
+      <!-- Review Comment -->
+      <textarea
+        id="edit-review-comment"
+        class="w-full p-4 border border-neutral-200 rounded-xl mb-6 h-32 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        placeholder="Share your experience with this venue..."
+      ></textarea>
+
+      <!-- Hidden field for review ID -->
+      <input type="hidden" id="edit-review-id" />
+
+      <!-- Buttons -->
+      <div class="flex justify-end space-x-3">
+        <button
+          onclick="closeEditReviewModal()"
+          class="px-6 py-3 border border-neutral-300 rounded-xl hover:bg-neutral-50 transition-colors font-medium text-neutral-700"
+        >
+          Cancel
+        </button>
+        <button
+          onclick="updateReview(event)"
+          id="update-review-btn"
+          class="px-6 py-3 gradient-primary text-white rounded-xl hover:shadow-medium transition-all font-medium"
+        >
+          Update Review
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript for Review Functionality -->
+  <script>
+    let currentRating = 0;
+    let editCurrentRating = 0;
+    const venueId = "{{ venue.id }}";
+
+    // Initialize star rating functionality
+    document.addEventListener("DOMContentLoaded", function () {
+      // Create review stars
+      const stars = document.querySelectorAll(".star-icon");
+
+      stars.forEach((star, index) => {
+        // Hover effect
+        star.addEventListener("mouseenter", function () {
+          highlightStars(index + 1);
         });
 
-        function openReviewModal() {
-            document.getElementById('review-modal').classList.remove('hidden');
-            document.getElementById('review-modal').classList.add('flex');
-        }
+        // Click to set rating
+        star.addEventListener("click", function () {
+          setRating(index + 1);
+        });
+      });
 
-        function closeReviewModal() {
-            document.getElementById('review-modal').classList.add('hidden');
-            document.getElementById('review-modal').classList.remove('flex');
-            resetReviewForm();
-        }
+      // Reset stars when mouse leaves the rating container
+      const starRating = document.getElementById("star-rating");
+      starRating.addEventListener("mouseleave", function () {
+        highlightStars(currentRating);
+      });
 
-        function openEditReviewModal(reviewId, rating, comment) {
-            document.getElementById('edit-review-id').value = reviewId;
-            setEditRating(rating);
-            document.getElementById('edit-review-comment').value = comment || '';
-            document.getElementById('edit-review-modal').classList.remove('hidden');
-            document.getElementById('edit-review-modal').classList.add('flex');
-        }
+      // Edit review stars
+      const editStars = document.querySelectorAll(".edit-star-icon");
 
-        function closeEditReviewModal() {
-            document.getElementById('edit-review-modal').classList.add('hidden');
-            document.getElementById('edit-review-modal').classList.remove('flex');
-            resetEditReviewForm();
-        }
+      editStars.forEach((star, index) => {
+        star.addEventListener("mouseenter", function () {
+          highlightEditStars(index + 1);
+        });
 
-        function highlightStars(rating) {
-            const stars = document.querySelectorAll('.star-icon');
-            stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.remove('text-neutral-300');
-                    star.classList.add('text-yellow-400');
-                } else {
-                    star.classList.remove('text-yellow-400');
-                    star.classList.add('text-neutral-300');
+        star.addEventListener("click", function () {
+          setEditRating(index + 1);
+        });
+      });
+
+      const editStarRating = document.getElementById("edit-star-rating");
+      editStarRating.addEventListener("mouseleave", function () {
+        highlightEditStars(editCurrentRating);
+      });
+    });
+
+    function openReviewModal() {
+      document.getElementById("review-modal").classList.remove("hidden");
+      document.getElementById("review-modal").classList.add("flex");
+    }
+
+    function closeReviewModal() {
+      document.getElementById("review-modal").classList.add("hidden");
+      document.getElementById("review-modal").classList.remove("flex");
+      resetReviewForm();
+    }
+
+    function openEditReviewModal(reviewId, rating, comment) {
+      document.getElementById("edit-review-id").value = reviewId;
+      setEditRating(rating);
+      document.getElementById("edit-review-comment").value = comment || "";
+      document.getElementById("edit-review-modal").classList.remove("hidden");
+      document.getElementById("edit-review-modal").classList.add("flex");
+    }
+
+    function closeEditReviewModal() {
+      document.getElementById("edit-review-modal").classList.add("hidden");
+      document.getElementById("edit-review-modal").classList.remove("flex");
+      resetEditReviewForm();
+    }
+
+    function highlightStars(rating) {
+      const stars = document.querySelectorAll(".star-icon");
+      stars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.remove("text-neutral-300");
+          star.classList.add("text-yellow-400");
+        } else {
+          star.classList.remove("text-yellow-400");
+          star.classList.add("text-neutral-300");
+        }
+      });
+    }
+
+    function highlightEditStars(rating) {
+      const stars = document.querySelectorAll(".edit-star-icon");
+      stars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.remove("text-neutral-300");
+          star.classList.add("text-yellow-400");
+        } else {
+          star.classList.remove("text-yellow-400");
+          star.classList.add("text-neutral-300");
+        }
+      });
+    }
+
+    function setRating(rating) {
+      currentRating = rating;
+      document.getElementById("rating-value").textContent = rating.toFixed(1);
+      highlightStars(rating);
+
+      // Add a visual feedback animation
+      const ratingValue = document.getElementById("rating-value");
+      ratingValue.classList.add("scale-110");
+      setTimeout(() => {
+        ratingValue.classList.remove("scale-110");
+      }, 200);
+    }
+
+    function setEditRating(rating) {
+      editCurrentRating = rating;
+      document.getElementById("edit-rating-value").textContent =
+        rating.toFixed(1);
+      highlightEditStars(rating);
+
+      // Add a visual feedback animation
+      const ratingValue = document.getElementById("edit-rating-value");
+      ratingValue.classList.add("scale-110");
+      setTimeout(() => {
+        ratingValue.classList.remove("scale-110");
+      }, 200);
+    }
+
+    function resetReviewForm() {
+      currentRating = 0;
+      document.getElementById("rating-value").textContent = "0.0";
+      document.getElementById("review-comment").value = "";
+      highlightStars(0);
+    }
+
+    function resetEditReviewForm() {
+      editCurrentRating = 0;
+      document.getElementById("edit-rating-value").textContent = "0.0";
+      document.getElementById("edit-review-comment").value = "";
+      document.getElementById("edit-review-id").value = "";
+      highlightEditStars(0);
+    }
+
+    function submitReview(event) {
+      if (currentRating === 0) {
+        showNotification("Please select a rating", "error");
+        return;
+      }
+
+      const comment = document.getElementById("review-comment").value;
+
+      // Show loading state
+      const submitBtn = event
+        ? event.target
+        : document.querySelector("#submit-review-btn");
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting...";
+
+      console.log("Submitting review:", {
+        rating: currentRating,
+        comment: comment,
+        venueId: venueId,
+      });
+
+      fetch(`/api/venues/${venueId}/reviews/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({
+          rating: parseInt(currentRating),
+          comment: comment,
+        }),
+      })
+        .then((response) => {
+          console.log("Response status:", response.status);
+          // Check if response is ok before parsing JSON
+          if (!response.ok) {
+            return response
+              .json()
+              .then((data) => {
+                console.error("Error response:", data);
+                throw new Error(
+                  data.message || `Server error: ${response.status}`
+                );
+              })
+              .catch((err) => {
+                // If JSON parsing fails, throw a generic error
+                if (err.message && err.message.includes("Server error")) {
+                  throw err;
                 }
-            });
-        }
-
-        function highlightEditStars(rating) {
-            const stars = document.querySelectorAll('.edit-star-icon');
-            stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.remove('text-neutral-300');
-                    star.classList.add('text-yellow-400');
-                } else {
-                    star.classList.remove('text-yellow-400');
-                    star.classList.add('text-neutral-300');
-                }
-            });
-        }
-
-        function setRating(rating) {
-            currentRating = rating;
-            document.getElementById('rating-value').textContent = rating.toFixed(1);
-            highlightStars(rating);
-            
-            // Add a visual feedback animation
-            const ratingValue = document.getElementById('rating-value');
-            ratingValue.classList.add('scale-110');
+                throw new Error(`Server error: ${response.status}`);
+              });
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Success response:", data);
+          if (data.status === "success") {
+            // Show success message
+            showNotification(
+              data.message || "Review submitted successfully!",
+              "success"
+            );
+            closeReviewModal();
+            // Reload the page to show the new review
             setTimeout(() => {
-                ratingValue.classList.remove('scale-110');
-            }, 200);
-        }
+              window.location.reload();
+            }, 1000);
+          } else {
+            showNotification(
+              data.message || "Error submitting review",
+              "error"
+            );
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        })
+        .catch((error) => {
+          console.error("Catch error:", error);
+          showNotification(error.message || "Error submitting review", "error");
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        });
+    }
 
-        function setEditRating(rating) {
-            editCurrentRating = rating;
-            document.getElementById('edit-rating-value').textContent = rating.toFixed(1);
-            highlightEditStars(rating);
-            
-            // Add a visual feedback animation
-            const ratingValue = document.getElementById('edit-rating-value');
-            ratingValue.classList.add('scale-110');
+    function updateReview(event) {
+      if (editCurrentRating === 0) {
+        showNotification("Please select a rating", "error");
+        return;
+      }
+
+      const reviewId = document.getElementById("edit-review-id").value;
+      const comment = document.getElementById("edit-review-comment").value;
+
+      // Show loading state
+      const updateBtn = event
+        ? event.target
+        : document.querySelector("#update-review-btn");
+      const originalText = updateBtn.textContent;
+      updateBtn.disabled = true;
+      updateBtn.textContent = "Updating...";
+
+      console.log("Updating review:", {
+        reviewId,
+        rating: editCurrentRating,
+        comment,
+      });
+
+      fetch(`/api/reviews/${reviewId}/`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({
+          rating: parseInt(editCurrentRating),
+          comment: comment,
+        }),
+      })
+        .then((response) => {
+          console.log("Response status:", response.status);
+          if (!response.ok) {
+            return response
+              .json()
+              .then((data) => {
+                console.error("Error response:", data);
+                throw new Error(
+                  data.message || `Server error: ${response.status}`
+                );
+              })
+              .catch((err) => {
+                if (err.message && err.message.includes("Server error")) {
+                  throw err;
+                }
+                throw new Error(`Server error: ${response.status}`);
+              });
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Success response:", data);
+          if (data.status === "success") {
+            showNotification(
+              data.message || "Review updated successfully!",
+              "success"
+            );
+            closeEditReviewModal();
             setTimeout(() => {
-                ratingValue.classList.remove('scale-110');
-            }, 200);
-        }
+              window.location.reload();
+            }, 1000);
+          } else {
+            showNotification(data.message || "Error updating review", "error");
+            updateBtn.disabled = false;
+            updateBtn.textContent = originalText;
+          }
+        })
+        .catch((error) => {
+          console.error("Catch error:", error);
+          showNotification(error.message || "Error updating review", "error");
+          updateBtn.disabled = false;
+          updateBtn.textContent = originalText;
+        });
+    }
 
-        function resetReviewForm() {
-            currentRating = 0;
-            document.getElementById('rating-value').textContent = '0.0';
-            document.getElementById('review-comment').value = '';
-            highlightStars(0);
-        }
+    function deleteReview(reviewId) {
+      if (
+        !confirm(
+          "Are you sure you want to delete this review? This action cannot be undone."
+        )
+      ) {
+        return;
+      }
 
-        function resetEditReviewForm() {
-            editCurrentRating = 0;
-            document.getElementById('edit-rating-value').textContent = '0.0';
-            document.getElementById('edit-review-comment').value = '';
-            document.getElementById('edit-review-id').value = '';
-            highlightEditStars(0);
-        }
+      console.log("Deleting review:", reviewId);
 
-        function submitReview(event) {
-            if (currentRating === 0) {
-                showNotification('Please select a rating', 'error');
-                return;
+      fetch(`/api/reviews/${reviewId}/`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+      })
+        .then((response) => {
+          console.log("Response status:", response.status);
+          if (!response.ok) {
+            return response
+              .json()
+              .then((data) => {
+                console.error("Error response:", data);
+                throw new Error(
+                  data.message || `Server error: ${response.status}`
+                );
+              })
+              .catch((err) => {
+                if (err.message && err.message.includes("Server error")) {
+                  throw err;
+                }
+                throw new Error(`Server error: ${response.status}`);
+              });
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Success response:", data);
+          if (data.status === "success") {
+            showNotification(
+              data.message || "Review deleted successfully!",
+              "success"
+            );
+            // Remove the review element from DOM
+            const reviewElement = document.getElementById(`review-${reviewId}`);
+            if (reviewElement) {
+              reviewElement.remove();
             }
-
-            const comment = document.getElementById('review-comment').value;
-            
-            // Show loading state
-            const submitBtn = event ? event.target : document.querySelector('#submit-review-btn');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-            
-            console.log('Submitting review:', { rating: currentRating, comment: comment, venueId: venueId });
-            
-            fetch(`/api/venues/${venueId}/reviews/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    rating: parseInt(currentRating),
-                    comment: comment
-                })
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                // Check if response is ok before parsing JSON
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        console.error('Error response:', data);
-                        throw new Error(data.message || `Server error: ${response.status}`);
-                    }).catch(err => {
-                        // If JSON parsing fails, throw a generic error
-                        if (err.message && err.message.includes('Server error')) {
-                            throw err;
-                        }
-                        throw new Error(`Server error: ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success response:', data);
-                if (data.status === 'success') {
-                    // Show success message
-                    showNotification(data.message || 'Review submitted successfully!', 'success');
-                    closeReviewModal();
-                    // Reload the page to show the new review
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    showNotification(data.message || 'Error submitting review', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = originalText;
-                }
-            })
-            .catch(error => {
-                console.error('Catch error:', error);
-                showNotification(error.message || 'Error submitting review', 'error');
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            });
-        }
-
-        function updateReview(event) {
-            if (editCurrentRating === 0) {
-                showNotification('Please select a rating', 'error');
-                return;
-            }
-
-            const reviewId = document.getElementById('edit-review-id').value;
-            const comment = document.getElementById('edit-review-comment').value;
-            
-            // Show loading state
-            const updateBtn = event ? event.target : document.querySelector('#update-review-btn');
-            const originalText = updateBtn.textContent;
-            updateBtn.disabled = true;
-            updateBtn.textContent = 'Updating...';
-            
-            console.log('Updating review:', { reviewId, rating: editCurrentRating, comment });
-            
-            fetch(`/api/reviews/${reviewId}/`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    rating: parseInt(editCurrentRating),
-                    comment: comment
-                })
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        console.error('Error response:', data);
-                        throw new Error(data.message || `Server error: ${response.status}`);
-                    }).catch(err => {
-                        if (err.message && err.message.includes('Server error')) {
-                            throw err;
-                        }
-                        throw new Error(`Server error: ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success response:', data);
-                if (data.status === 'success') {
-                    showNotification(data.message || 'Review updated successfully!', 'success');
-                    closeEditReviewModal();
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    showNotification(data.message || 'Error updating review', 'error');
-                    updateBtn.disabled = false;
-                    updateBtn.textContent = originalText;
-                }
-            })
-            .catch(error => {
-                console.error('Catch error:', error);
-                showNotification(error.message || 'Error updating review', 'error');
-                updateBtn.disabled = false;
-                updateBtn.textContent = originalText;
-            });
-        }
-
-        function deleteReview(reviewId) {
-            if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-                return;
-            }
-
-            console.log('Deleting review:', reviewId);
-            
-            fetch(`/api/reviews/${reviewId}/`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        console.error('Error response:', data);
-                        throw new Error(data.message || `Server error: ${response.status}`);
-                    }).catch(err => {
-                        if (err.message && err.message.includes('Server error')) {
-                            throw err;
-                        }
-                        throw new Error(`Server error: ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success response:', data);
-                if (data.status === 'success') {
-                    showNotification(data.message || 'Review deleted successfully!', 'success');
-                    // Remove the review element from DOM
-                    const reviewElement = document.getElementById(`review-${reviewId}`);
-                    if (reviewElement) {
-                        reviewElement.remove();
-                    }
-                    // Reload after a short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    showNotification(data.message || 'Error deleting review', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Catch error:', error);
-                showNotification(error.message || 'Error deleting review', 'error');
-            });
-        }
-
-        // Show notification function
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-4 rounded-xl shadow-strong text-white font-medium transition-all transform z-50 ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            // Animate in
+            // Reload after a short delay
             setTimeout(() => {
-                notification.style.opacity = '1';
-                notification.style.transform = 'translateY(0)';
-            }, 10);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateY(-20px)';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
+              window.location.reload();
+            }, 1000);
+          } else {
+            showNotification(data.message || "Error deleting review", "error");
+          }
+        })
+        .catch((error) => {
+          console.error("Catch error:", error);
+          showNotification(error.message || "Error deleting review", "error");
+        });
+    }
+
+    // Show notification function
+    function showNotification(message, type) {
+      const notification = document.createElement("div");
+      notification.className = `fixed top-4 right-4 px-6 py-4 rounded-xl shadow-strong text-white font-medium transition-all transform z-50 ${
+        type === "success" ? "bg-green-500" : "bg-red-500"
+      }`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      // Animate in
+      setTimeout(() => {
+        notification.style.opacity = "1";
+        notification.style.transform = "translateY(0)";
+      }, 10);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        notification.style.opacity = "0";
+        notification.style.transform = "translateY(-20px)";
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+
+    // Utility function to get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // ====================
+    // Court and Session Selection Logic
+    // ====================
+
+    let selectedCourt = null;
+    let selectedSessions = [];
+    let courtsData = {{ courts_json|safe }};
+
+    console.log('Courts data loaded:', courtsData);
+
+    function selectCourt(courtId, courtName, courtPrice) {
+      console.log('Selecting court:', { courtId, courtName, courtPrice });
+
+      // Clear previous selection
+      document.querySelectorAll('.court-card').forEach(card => {
+        card.classList.remove('border-primary-600', 'bg-primary-50');
+        card.classList.add('border-neutral-200');
+        card.querySelector('.court-check').classList.add('hidden');
+      });
+
+      // Highlight selected court
+      const selectedCard = document.getElementById(`court-card-${courtId}`);
+      if (!selectedCard) {
+        console.error('Court card not found:', courtId);
+        return;
+      }
+
+      selectedCard.classList.remove('border-neutral-200');
+      selectedCard.classList.add('border-primary-600', 'bg-primary-50');
+      selectedCard.querySelector('.court-check').classList.remove('hidden');
+
+      // Store selected court
+      selectedCourt = {
+        id: courtId,
+        name: courtName,
+        price: parseFloat(courtPrice)
+      };
+
+      // Find court sessions from courtsData - compare as strings
+      const court = courtsData.find(c => String(c.id) === String(courtId));
+      console.log('Found court:', court);
+
+      if (court && court.sessions) {
+        console.log('Loading sessions:', court.sessions);
+        loadCourtSessions(court.sessions);
+      } else {
+        console.error('Court or sessions not found');
+        showNotification('Error loading sessions. Please try again.', 'error');
+      }
+
+      // Show sessions container
+      document.getElementById('selected-court-name').textContent = courtName;
+      document.getElementById('sessions-container').classList.remove('hidden');
+
+      // Scroll to sessions
+      document.getElementById('sessions-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function loadCourtSessions(sessions) {
+      console.log('loadCourtSessions called with:', sessions);
+      const sessionsGrid = document.getElementById('sessions-grid');
+
+      if (!sessionsGrid) {
+        console.error('Sessions grid element not found');
+        return;
+      }
+
+      sessionsGrid.innerHTML = '';
+      selectedSessions = [];
+
+      if (!sessions || sessions.length === 0) {
+        sessionsGrid.innerHTML = '<div class="col-span-full text-center text-neutral-500 py-8">No sessions available for this court.</div>';
+        return;
+      }
+
+      sessions.forEach(session => {
+        console.log('Creating session card for:', session);
+        const sessionCard = document.createElement('div');
+        sessionCard.className = `session-card border-2 rounded-lg p-4 text-center cursor-pointer transition-all ${
+          session.is_available
+            ? 'border-neutral-200 hover:border-primary-400 bg-white'
+            : 'border-neutral-100 bg-neutral-50 opacity-60 cursor-not-allowed'
+        }`;
+        sessionCard.setAttribute('data-session-id', session.id);
+        sessionCard.setAttribute('data-available', session.is_available);
+
+        if (session.is_available) {
+          sessionCard.onclick = () => toggleSession(session);
         }
 
-        // Utility function to get CSRF token
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-    </script>
-    
-    <!-- Additional styling for animations -->
-    <style>
-        .scale-110 {
-            transform: scale(1.1);
-            transition: transform 0.2s ease;
-        }
-        
-        .star-icon:hover,
-        .edit-star-icon:hover {
-            transform: scale(1.1);
-        }
-        
-        .star-icon,
-        .edit-star-icon {
-            transition: all 0.2s ease;
-        }
-    </style>
+        sessionCard.innerHTML = `
+          <div class="session-check hidden absolute top-2 right-2">
+            <svg class="w-5 h-5 text-white bg-primary-600 rounded-full p-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="text-xs text-neutral-500 mb-1">${session.duration} Menit</div>
+          <div class="text-sm font-bold text-neutral-800 mb-2">
+            ${session.start_time} - ${session.end_time}
+          </div>
+          ${session.is_available
+            ? `<div class="text-xs px-2 text-neutral-600 rounded-md font-medium inline-block">Rp ${(selectedCourt.price * (session.duration / 60)).toLocaleString('id-ID')}</div>`
+            : '<div class="text-xs px-2 text-neutral-600 rounded-md font-medium inline-block">Booked</div>'
+          }
+        `;
+
+        // Make position relative for absolute check icon
+        sessionCard.style.position = 'relative';
+
+        sessionsGrid.appendChild(sessionCard);
+      });
+    }
+
+    function toggleSession(session) {
+      const sessionIndex = selectedSessions.findIndex(s => s.id === session.id);
+      const sessionCard = document.querySelector(`[data-session-id="${session.id}"]`);
+
+      if (sessionIndex > -1) {
+        // Deselect
+        selectedSessions.splice(sessionIndex, 1);
+        sessionCard.classList.remove('border-primary-600', 'bg-primary-50');
+        sessionCard.classList.add('border-neutral-200');
+        sessionCard.querySelector('.session-check').classList.add('hidden');
+      } else {
+        // Select
+        selectedSessions.push(session);
+        sessionCard.classList.remove('border-neutral-200');
+        sessionCard.classList.add('border-primary-600', 'bg-primary-50');
+        sessionCard.querySelector('.session-check').classList.remove('hidden');
+      }
+
+      updateBookingSummary();
+    }
+
+    function updateBookingSummary() {
+      const summaryContainer = document.getElementById('booking-summary');
+      const sessionsList = document.getElementById('selected-sessions-list');
+      const proceedBtn = document.getElementById('proceed-booking-btn');
+
+      if (selectedSessions.length === 0) {
+        summaryContainer.classList.add('hidden');
+        if (proceedBtn) proceedBtn.classList.add('hidden');
+        return;
+      }
+
+      summaryContainer.classList.remove('hidden');
+      if (proceedBtn) proceedBtn.classList.remove('hidden');
+
+      // Calculate totals
+      let totalDuration = 0;
+      let totalPrice = 0;
+
+      sessionsList.innerHTML = '';
+      selectedSessions.forEach(session => {
+        const duration = parseInt(session.duration);
+        const hours = duration / 60;
+        const price = selectedCourt.price * hours;
+
+        totalDuration += duration;
+        totalPrice += price;
+
+        const sessionItem = document.createElement('div');
+        sessionItem.className = 'flex justify-between items-center text-sm';
+        sessionItem.innerHTML = `
+          <span class="text-neutral-700">${session.start_time} - ${session.end_time}</span>
+          <span class="font-medium text-neutral-900">Rp ${price.toLocaleString('id-ID')}</span>
+        `;
+        sessionsList.appendChild(sessionItem);
+      });
+
+      document.getElementById('total-duration').textContent = totalDuration;
+      document.getElementById('total-price').textContent = totalPrice.toLocaleString('id-ID');
+    }
+
+    function clearCourtSelection() {
+      selectedCourt = null;
+      selectedSessions = [];
+
+      // Clear court selection UI
+      document.querySelectorAll('.court-card').forEach(card => {
+        card.classList.remove('border-primary-600', 'bg-primary-50');
+        card.classList.add('border-neutral-200');
+        card.querySelector('.court-check').classList.add('hidden');
+      });
+
+      // Hide sessions container
+      document.getElementById('sessions-container').classList.add('hidden');
+      document.getElementById('booking-summary').classList.add('hidden');
+
+      const proceedBtn = document.getElementById('proceed-booking-btn');
+      if (proceedBtn) proceedBtn.classList.add('hidden');
+
+      // Scroll back to courts
+      document.querySelector('.bg-white.rounded-2xl.shadow-soft.p-8.mb-8').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+
+    function proceedToBooking() {
+      if (!selectedCourt || selectedSessions.length === 0) {
+        showNotification('Please select at least one session', 'error');
+        return;
+      }
+
+      // For now, just show an alert with the selection
+      const sessionTimes = selectedSessions.map(s => `${s.start_time} - ${s.end_time}`).join(', ');
+      showNotification(
+        `Selected: ${selectedCourt.name} - Sessions: ${sessionTimes}`,
+        'success'
+      );
+
+      // TODO: Navigate to booking confirmation page
+      // window.location.href = `/booking/confirm?court=${selectedCourt.id}&sessions=${selectedSessions.map(s => s.id).join(',')}`;
+
+      console.log('Booking data:', {
+        court: selectedCourt,
+        sessions: selectedSessions
+      });
+    }
+  </script>
+
+  <!-- Additional styling for animations -->
+  <style>
+    .scale-110 {
+      transform: scale(1.1);
+      transition: transform 0.2s ease;
+    }
+
+    .star-icon:hover,
+    .edit-star-icon:hover {
+      transform: scale(1.1);
+    }
+
+    .star-icon,
+    .edit-star-icon {
+      transition: all 0.2s ease;
+    }
+
+    .court-card.selected {
+      border-color: #dc2626;
+    }
+
+    .session-card:not([data-available="true"]) {
+      pointer-events: none;
+    }
+  </style>
 </div>
 {% endblock %}

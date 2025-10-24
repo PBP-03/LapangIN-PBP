@@ -1,49 +1,6 @@
 // venue.js - consolidated
 const staticBase = window.staticUrl || '/static/';
 
-// Dummy dataset for local testing and filters
-const DUMMY_VENUES = [
-  {
-    id: 'dummy-1',
-    name: 'Futsal Arena Jakarta',
-    category: 'FUTSAL',
-    address: 'Jl. Sudirman No. 123, Jakarta Selatan, DKI Jakarta',
-    location_url: 'https://maps.google.com',
-    contact: '+628121111111',
-    number_of_courts: 3,
-    price_per_hour: 150000,
-    images: [staticBase + 'img/no-image.png'],
-    avg_rating: 4.5,
-    rating_count: 10
-  },
-  {
-    id: 'dummy-2',
-    name: 'Shuttle Court Bandung',
-    category: 'BADMINTON',
-    address: 'Jl. Dago No. 67, Bandung, Jawa Barat',
-    location_url: 'https://maps.google.com',
-    contact: '+628122222222',
-    number_of_courts: 8,
-    price_per_hour: 80000,
-    images: [staticBase + 'img/no-image.png'],
-    avg_rating: 4.2,
-    rating_count: 8
-  },
-  {
-    id: 'dummy-3',
-    name: 'Surabaya Basketball Complex',
-    category: 'BASKET',
-    address: 'Jl. Ahmad Yani No. 234, Surabaya, Jawa Timur',
-    location_url: 'https://maps.google.com',
-    contact: '+628133333333',
-    number_of_courts: 2,
-    price_per_hour: 200000,
-    images: [staticBase + 'img/no-image.png'],
-    avg_rating: 4.2,
-    rating_count: 24
-  }
-];
-
 function renderVenueList(venues) {
   const container = document.getElementById('venue-list');
   const countEl = document.getElementById('venue-count-number');
@@ -87,25 +44,27 @@ function renderVenueList(venues) {
     const detailHref = `/lapangan/${detailId}/`;
 
   cardWrap.innerHTML = `
-      <div class="relative h-44 bg-neutral-50">
-        <img src="${imgSrc}" alt="${v.name}" class="w-full h-full object-cover" />
-        <div class="absolute top-3 left-3 bg-white/90 text-xs px-2 py-1 rounded-full font-medium">${v.category || ''}</div>
-      </div>
-      <div class="p-4">
-        <h3 class="text-lg font-display font-semibold mb-1">${v.name}</h3>
-        <div class="flex items-center gap-3 text-sm text-neutral-600 mb-2">
-          <div class="flex items-center gap-1">
-            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.046 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/></svg>
-            <span class="text-sm font-medium">${v.avg_rating || '-'} </span>
-            <span class="text-neutral-500">(${v.rating_count || 0} ulasan)</span>
+      <a href="${detailHref}">
+        <div class="relative h-44 bg-neutral-50">
+          <img src="${imgSrc}" alt="${v.name}" class="w-full h-full object-cover" />
+          <div class="absolute top-3 left-3 bg-white/90 text-xs px-2 py-1 rounded-full font-medium">${v.category || ''}</div>
+        </div>
+        <div class="p-4">
+          <h3 class="text-lg font-display font-semibold mb-1">${v.name}</h3>
+          <div class="flex items-center gap-3 text-sm text-neutral-600 mb-2">
+            <div class="flex items-center gap-1">
+              <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.046 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/></svg>
+              <span class="text-sm font-medium">${v.avg_rating || '-'} </span>
+              <span class="text-neutral-500">(${v.rating_count || 0} ulasan)</span>
+            </div>
+          </div>
+          <div class="text-sm text-neutral-600 mb-3"><svg class="inline w-4 h-4 mr-1 align-text-bottom text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10c0 5 4 9 9 9s9-4 9-9a9 9 0 10-18 0z"/></svg>${v.address || ''}</div>
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-medium">Rp${(v.price_per_hour||v.price||0).toLocaleString()} / jam</div>
+            <a href="${detailHref}" class="inline-block px-4 py-2 rounded-full text-white" style="background: linear-gradient(90deg,#3f07a3,#4E71FF);">Lihat Detail</a>
           </div>
         </div>
-        <div class="text-sm text-neutral-600 mb-3"><svg class="inline w-4 h-4 mr-1 align-text-bottom text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10c0 5 4 9 9 9s9-4 9-9a9 9 0 10-18 0z"/></svg>${v.address || ''}</div>
-        <div class="flex items-center justify-between">
-          <div class="text-sm font-medium">Rp${(v.price_per_hour||v.price||0).toLocaleString()} / jam</div>
-          <a href="${detailHref}" class="inline-block px-4 py-2 rounded-full text-white" style="background: linear-gradient(90deg,#3f07a3,#4E71FF);">Lihat Detail</a>
-        </div>
-      </div>
+      </a>
     `;
     container.appendChild(cardWrap);
   });

@@ -49,6 +49,8 @@ def venue_list_view(request):
 
 def venue_detail_view(request, venue_id):
     """Render venue detail page with complete information"""
+    from datetime import datetime, date
+    
     venue = get_object_or_404(Venue, id=venue_id)
     
     # Get all courts for this venue with their sessions
@@ -78,10 +80,57 @@ def venue_detail_view(request, venue_id):
             review__isnull=False  # Exclude bookings that already have reviews
         ).exists()
     
+    # Get today's date to check session availability
+    today = date.today()
+    
+    # For each court, get session availability for today
+    courts_with_availability = []
+    for court in courts:
+        court_data = {
+            'id': court.id,
+            'name': court.name,
+            'category': court.category,
+            'price_per_hour': court.price_per_hour,
+            'sessions': []
+        }
+        
+        # Get all sessions for this court
+        sessions = court.sessions.all()
+        for session in sessions:
+            # Check if this session is booked for today
+            is_booked = Booking.objects.filter(
+                court=court,
+                session=session,
+                booking_date=today,
+                booking_status__in=['pending', 'confirmed']
+            ).exists()
+            
+            # Calculate duration in minutes
+            start_datetime = datetime.combine(today, session.start_time)
+            end_datetime = datetime.combine(today, session.end_time)
+            duration_minutes = int((end_datetime - start_datetime).total_seconds() / 60)
+            
+            session_data = {
+                'id': str(session.id),
+                'session_name': session.session_name,
+                'start_time': session.start_time.strftime('%H:%M'),
+                'end_time': session.end_time.strftime('%H:%M'),
+                'duration': duration_minutes,
+                'is_available': not is_booked
+            }
+            court_data['sessions'].append(session_data)
+        
+        courts_with_availability.append(court_data)
+    
+    # Convert courts data to JSON for JavaScript
+    import json
+    courts_json = json.dumps(courts_with_availability, default=str)
+    
     context = {
         'title': venue.name,
         'venue': venue,
-        'courts': courts,
+        'courts': courts_with_availability,
+        'courts_json': courts_json,
         'facilities': facilities,
         'images': images,
         'operational_hours': operational_hours,
