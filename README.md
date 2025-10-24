@@ -17,59 +17,72 @@ Dengan **LapangIN**, mitra mendapatkan peluang untuk menambah pemasukan serta me
 Sementara itu, penyewa mendapatkan kemudahan dalam mencari, memilih, dan melakukan reservasi secara online.  
 **Admin** berperan penting dalam menjaga kualitas sistem dengan memverifikasi mitra serta memantau aktivitas transaksi dan data.  
 
----
-
-## ⚙️ Daftar Modul yang Akan Diimplementasikan
-
-### 1. Modul Autentikasi & Manajemen Pengguna
-Menangani seluruh proses login, register, dan manajemen peran pengguna (**Admin**, **Mitra**, **Penyewa**).  
-**Fitur Utama:**
-- Register & login dengan validasi email unik  
-- Role-based access control (Admin / Mitra / Penyewa)  
-- Manajemen profil pengguna (update nama, foto, kontak)  
-- Middleware untuk membedakan halaman per role  
-- Logout & session management  
 
 ---
 
-### 2. Modul Manajemen Lapangan (Mitra & Admin)
-Digunakan oleh Mitra untuk mengelola data lapangan serta oleh Admin untuk memverifikasi sebelum lapangan tampil di katalog.  
+## ⚙️ **Daftar Modul yang Akan Diimplementasikan**
+
+### 1. Modul Booking & Pembayaran (User) -> Muhammad Fauzan
+
+Menangani seluruh proses pemesanan lapangan oleh **Penyewa (User)**, mulai dari pemilihan jadwal hingga konfirmasi pembayaran.
 **Fitur Utama:**
-- CRUD data lapangan  
-- Upload foto (thumbnail utama)  
-- Input detail lapangan: nama, jenis olahraga, harga per jam, lokasi, fasilitas, aturan venue, kebijakan refund/reschedule  
-- Tambah tipe lapangan (misal: Court 1, Court 2)  
-- Jadwal ketersediaan (hari & jam buka)  
-- Admin dapat memverifikasi (ACC / tolak) lapangan sebelum tampil di katalog  
+
+* Pemesanan lapangan dengan memilih venue, jenis lapangan, dan jadwal tersedia
+* Melihat daftar & riwayat booking beserta detail waktu, harga, dan status pembayaran
+* Mengubah atau membatalkan booking selama belum melewati batas waktu yang ditentukan
+* Melakukan proses pembayaran agar lapangan berstatus *ter-booking* secara resmi
 
 ---
 
-### 3. Modul Katalog & Pencarian Lapangan (Penyewa)
-Menampilkan daftar semua lapangan yang telah diverifikasi dengan fitur pencarian dan filter.  
+### 2. Modul Manajemen Lapangan (Mitra) -> Rayyan Akbar Gumilang
+
+Digunakan oleh **Mitra** untuk mengelola lapangan yang berada di dalam venue miliknya serta memantau aktivitas penyewaan.
 **Fitur Utama:**
-- Menampilkan daftar lapangan (nama, foto, harga, lokasi)  
-- Filter berdasarkan lokasi, jenis olahraga, dan rentang harga  
-- Fitur pencarian lapangan  
-- Halaman detail lapangan menampilkan foto, fasilitas, deskripsi, jadwal, dan daftar court tersedia  
+
+* Tambah, edit, dan hapus data lapangan (court) di dalam venue
+* Mengatur detail lapangan: jenis olahraga, harga, jadwal ketersediaan, dan status aktif
+* Sistem otomatis mencatat pendapatan berdasarkan hasil booking yang dilakukan pengguna
+* Melihat riwayat dan catatan seluruh pesanan untuk setiap lapangan
 
 ---
 
-### 4. Modul Booking & Jadwal (Penyewa & Mitra)
-Mengatur seluruh proses pemesanan (booking) dan jadwal lapangan.  
+### 3. Modul Admin & Verifikasi Mitra -> Flora Cahaya Putri
+
+Digunakan oleh **Admin** untuk mengelola aktivitas sistem, khususnya terkait verifikasi Mitra, transaksi, dan refund.
 **Fitur Utama:**
-- **Penyewa:** Pilih lapangan & waktu yang tersedia  
-- **Mitra:** Melihat & memperbarui status booking (Pending, Diterima, Selesai)  
-- **Admin:** Memantau seluruh data booking  
+
+* Verifikasi Mitra & Venue (ACC atau tolak pendaftaran setelah meninjau detail deskripsi dan gambar)
+* Melihat total pendapatan Mitra berdasarkan hasil transaksi penyewaan lapangan
+* Membuat create manual refund untuk pengembalian dana booking
+* Membatalkan atau menghapus permintaan refund yang tidak disetujui
+* Meninjau seluruh data Mitra yang terdaftar beserta detail venue dan status verifikasi
 
 ---
 
-### 5. Modul Pembayaran & Laporan Keuangan (Penyewa, Mitra, Admin)
-Mengatur sistem pembayaran dan laporan keuangan.  
+### 4. Modul Manajemen Profil & Venue (User & Mitra) -> Marlond Leanderd Batara
+
+Digunakan oleh **User dan Mitra** untuk mengelola data profil serta mengatur informasi venue yang dimiliki oleh Mitra.
 **Fitur Utama:**
-- Simulasi pembayaran (dummy/virtual payment)  
-- Update status pembayaran (belum/sudah bayar)  
-- **Mitra:** Lihat riwayat transaksi & laporan pendapatan mingguan/bulanan  
-- **Admin:** Pantau total transaksi global dan filter laporan berdasarkan waktu/lapangan  
+
+* **Edit Profil:** Mengubah username, nama depan & belakang, serta foto profil
+* **Hapus Akun:** Menghapus akun secara permanen dari sistem
+* **Manajemen Venue (Mitra):**
+
+  * Tambah venue baru dengan data seperti nama, lokasi, jenis olahraga, harga, dan deskripsi
+  * Edit venue (nama, harga rata-rata, deskripsi, kategori olahraga, dan maintenance)
+  * Hapus venue (otomatis menghapus seluruh court yang terkait dengan venue tersebut)
+
+---
+
+### 5. Modul Katalog & Detail Venue -> Nadila Salsabila Fauziyyah
+
+Menampilkan daftar venue olahraga yang tersedia dan menyediakan fitur pencarian serta informasi detail setiap venue.
+**Fitur Utama:**
+
+* Menampilkan daftar venue lengkap (foto, nama, lokasi, rating, dan harga)
+* Pencarian & filter berdasarkan nama, lokasi, rating, dan rentang harga
+* Halaman detail menampilkan foto, deskripsi, fasilitas, harga, jadwal ketersediaan, dan review pengguna
+* **Review:** Pengguna yang sudah booking dapat membuat, mengubah, dan menghapus review secara langsung di halaman detail venue
 
 ---
 
@@ -112,3 +125,125 @@ Pengelola sistem yang bertugas menjaga kelancaran operasional dan keamanan data.
 ## Tautan Deployment & Desain
 - **Link Design (Figma):** [https://www.figma.com/team_invite/redeem/H4djMUeJW2NmihEoMSnvd2](https://www.figma.com/team_invite/redeem/H4djMUeJW2NmihEoMSnvd2)  
 - **Deployment (PWS):** [https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id/] (https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id/)
+
+---
+
+## 🚀 Cara Menjalankan Aplikasi di Lokal
+
+### 1️⃣ Prerequisites
+Pastikan sudah terinstall:
+- **Python 3.8+** ([Download Python](https://www.python.org/downloads/))
+- **Git** ([Download Git](https://git-scm.com/downloads))
+- **pip** (biasanya sudah include dengan Python)
+
+### 2️⃣ Clone Repository
+```bash
+git clone https://github.com/PBP-03/LapangIN-PBP.git
+cd LapangIN-PBP
+```
+
+### 3️⃣ Buat Virtual Environment
+**Windows (PowerShell):**
+```powershell
+python -m venv env
+.\env\Scripts\Activate.ps1
+```
+
+**Windows (Command Prompt):**
+```cmd
+python -m venv env
+env\Scripts\activate.bat
+```
+
+**macOS/Linux:**
+```bash
+python3 -m venv env
+source env/bin/activate
+```
+
+### 4️⃣ Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 5️⃣ Setup Database
+```bash
+# Jalankan migrations
+python manage.py migrate
+
+# (Optional) Buat superuser untuk admin
+python manage.py createsuperuser
+```
+
+### 6️⃣ Jalankan Development Server
+```bash
+python manage.py runserver
+```
+
+Server akan berjalan di: **http://localhost:8000**
+
+### 7️⃣ Akses Aplikasi
+- **Homepage**: [http://localhost:8000](http://localhost:8000)
+- **Admin Panel**: [http://localhost:8000/admin-django/](http://localhost:8000/admin-django/)
+- **API Documentation**: Lihat file `test_api.html` untuk testing API
+
+---
+
+## 👨‍💼 Login sebagai Admin
+
+Untuk login sebagai admin, ikuti 3 langkah berikut secara berurutan:
+
+### Langkah 1: Ubah Password Admin Melalui Terminal
+Jalankan command berikut di terminal:
+```bash
+python manage.py changepassword admin
+```
+- Masukkan password baru saat diminta
+- Konfirmasi password baru
+- **Penting**: Username yang digunakan adalah `admin` (sudah tersedia di database)
+
+### Langkah 2: Verifikasi Login di Django Administration
+1. Buka browser dan akses **http://localhost:8000/admin-django/**
+2. Login dengan:
+   - **Username**: `admin`
+   - **Password**: Password baru yang baru saja dibuat di Langkah 1
+3. Jika berhasil masuk, berarti password sudah ter-update dengan benar
+
+### Langkah 3: Login di Aplikasi Utama
+1. Buka **http://localhost:8000** di browser
+2. Klik tombol **"Login"** pada navbar
+3. Masukkan kredensial yang sama:
+   - **Username**: `admin`
+   - **Password**: Password yang sudah diubah di Langkah 1
+4. Klik **"Login"** dan Anda akan masuk sebagai **Admin**
+
+### 💡 Catatan Penting:
+- Username `admin` sudah tersedia di database (tidak perlu buat user baru)
+- Password **wajib diubah** melalui command `changepassword` sebelum bisa login
+- Password yang sama digunakan untuk Django Admin dan aplikasi utama
+- Pastikan menjalankan ketiga langkah secara berurutan
+
+---
+
+## 🧪 Menjalankan Unit Tests
+
+### Test Semua Modul
+```bash
+python manage.py test
+```
+
+### Test Modul Spesifik (contoh: reviews)
+```bash
+python manage.py test app.reviews.tests
+```
+
+### Test dengan Coverage
+```bash
+pip install coverage
+
+coverage run --source='.' manage.py test
+
+coverage report
+
+coverage html
+```
