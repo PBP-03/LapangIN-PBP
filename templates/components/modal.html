@@ -1,0 +1,222 @@
+<!-- Reusable Modal Component -->
+<div
+  id="modal"
+  class="fixed inset-0 z-50 hidden overflow-y-auto"
+  aria-labelledby="modal-title"
+  role="dialog"
+  aria-modal="true"
+>
+  <!-- Background overlay -->
+  <div
+    class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0"
+  >
+    <!-- Background overlay with opacity transition -->
+    <div
+      id="modalBackdrop"
+      class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+      aria-hidden="true"
+    ></div>
+
+    <!-- This element is to trick the browser into centering the modal contents. -->
+    <span
+      class="hidden sm:inline-block sm:align-middle sm:h-screen"
+      aria-hidden="true"
+      >&#8203;</span
+    >
+
+    <!-- Modal panel -->
+    <div
+      id="modalPanel"
+      class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+    >
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <!-- Icon -->
+          <div
+            id="modalIcon"
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+          >
+            <!-- Default: Exclamation Icon (Warning/Danger) -->
+            <svg
+              class="h-6 w-6 text-red-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
+            <!-- Modal Title -->
+            <h3
+              class="text-lg leading-6 font-medium text-gray-900"
+              id="modalTitle"
+            >
+              Modal Title
+            </h3>
+            <!-- Modal Description -->
+            <div class="mt-2">
+              <p class="text-sm text-gray-500" id="modalDescription">
+                Modal description text goes here.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Modal Actions -->
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button
+          type="button"
+          id="modalConfirmBtn"
+          class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
+        >
+          Confirm
+        </button>
+        <button
+          type="button"
+          id="modalCancelBtn"
+          class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Modal utilities
+  const modalUtils = {
+    show: function (options = {}) {
+      const modal = document.getElementById("modal");
+      const title = document.getElementById("modalTitle");
+      const description = document.getElementById("modalDescription");
+      const confirmBtn = document.getElementById("modalConfirmBtn");
+      const cancelBtn = document.getElementById("modalCancelBtn");
+      const icon = document.getElementById("modalIcon");
+
+      // Set content
+      title.textContent = options.title || "Confirm Action";
+      description.textContent =
+        options.description || "Are you sure you want to proceed?";
+      confirmBtn.textContent = options.confirmText || "Confirm";
+      cancelBtn.textContent = options.cancelText || "Cancel";
+
+      // Set icon type (danger, warning, info, success)
+      const iconType = options.iconType || "danger";
+      this.setIcon(icon, iconType);
+
+      // Set button styles based on type
+      confirmBtn.className = this.getButtonClass(iconType);
+
+      // Show modal
+      modal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+
+      // Add animation
+      setTimeout(() => {
+        document.getElementById("modalBackdrop").style.opacity = "1";
+        document.getElementById("modalPanel").style.transform = "scale(1)";
+      }, 10);
+
+      // Handle confirm
+      confirmBtn.onclick = () => {
+        if (options.onConfirm) {
+          options.onConfirm();
+        }
+        this.hide();
+      };
+
+      // Handle cancel
+      cancelBtn.onclick = () => {
+        if (options.onCancel) {
+          options.onCancel();
+        }
+        this.hide();
+      };
+
+      // Close on backdrop click
+      document.getElementById("modalBackdrop").onclick = () => {
+        if (options.onCancel) {
+          options.onCancel();
+        }
+        this.hide();
+      };
+    },
+
+    hide: function () {
+      const modal = document.getElementById("modal");
+      document.getElementById("modalBackdrop").style.opacity = "0";
+      document.getElementById("modalPanel").style.transform = "scale(0.95)";
+
+      setTimeout(() => {
+        modal.classList.add("hidden");
+        document.body.style.overflow = "auto";
+      }, 200);
+    },
+
+    setIcon: function (iconElement, type) {
+      const icons = {
+        danger: {
+          bg: "bg-red-100",
+          color: "text-red-600",
+          svg: '<svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>',
+        },
+        warning: {
+          bg: "bg-yellow-100",
+          color: "text-yellow-600",
+          svg: '<svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>',
+        },
+        info: {
+          bg: "bg-blue-100",
+          color: "text-blue-600",
+          svg: '<svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+        },
+        success: {
+          bg: "bg-green-100",
+          color: "text-green-600",
+          svg: '<svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+        },
+      };
+
+      const icon = icons[type] || icons.danger;
+      iconElement.className = `mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full ${icon.bg} sm:mx-0 sm:h-10 sm:w-10`;
+      iconElement.innerHTML = icon.svg;
+    },
+
+    getButtonClass: function (type) {
+      const classes = {
+        danger:
+          "w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors",
+        warning:
+          "w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-yellow-600 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors",
+        info: "w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors",
+        success:
+          "w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors",
+      };
+      return classes[type] || classes.danger;
+    },
+  };
+
+  // Make it globally accessible
+  window.modalUtils = modalUtils;
+</script>
+
+<style>
+  #modalBackdrop {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+  }
+
+  #modalPanel {
+    transform: scale(0.95);
+    transition: transform 0.3s ease-out;
+  }
+</style>
