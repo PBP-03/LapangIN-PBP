@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+<head>
+  {% extends 'base.html' %}
+  {% load static %}
+  {% block title %}Profil Saya{% endblock %}
+</head>
+{% block content %}
+<div class="max-w-3xl mx-auto py-12">
+  <h1 class="text-2xl font-semibold mb-4">Profil Saya</h1>
+
+  <div id="profileForm" class="bg-white rounded-2xl shadow-soft p-6">
+    <div class="grid grid-cols-2 gap-4">
+    <div class="col-span-2">
+        <label class="block text-sm font-medium mb-1">Username</label>
+        <input id="username" class="w-full px-4 py-3 rounded-xl border" />
+    </div>
+    <div>
+        <label class="block text-sm font-medium mb-1">Nama Depan</label>
+        <input id="first_name" class="w-full px-4 py-3 rounded-xl border" />
+    </div>
+    <div>
+        <label class="block text-sm font-medium mb-1">Nama Belakang</label>
+        <input id="last_name" class="w-full px-4 py-3 rounded-xl border" />
+    </div>
+    <div class="col-span-2">
+        <label class="block text-sm font-medium mb-1">Email</label>
+        <input id="email" class="w-full px-4 py-3 rounded-xl border" />
+    </div>
+    <div>
+        <label class="block text-sm font-medium mb-1">Telepon</label>
+        <input id="phone_number" class="w-full px-4 py-3 rounded-xl border" />
+    </div>
+    <div class="col-span-2">
+        <label class="block text-sm font-medium mb-1">Alamat</label>
+        <textarea id="address" rows="3" class="w-full px-4 py-3 rounded-xl border"></textarea>
+    </div>
+    
+    <!-- Profile Picture Selection -->
+    <div class="col-span-2 mb-4">
+      <label class="block text-sm font-medium mb-3">Foto Profil</label>
+      
+      <!-- Current Profile Picture Preview -->
+      <div class="flex items-center mb-4">
+        <img id="profilePicPreview" src="" alt="Foto Profil" class="w-24 h-24 rounded-full object-cover border-2 border-primary-500" />
+        <div class="ml-4">
+          <p class="text-sm text-neutral-600">Pilih salah satu foto di bawah sebagai foto profil Anda</p>
+        </div>
+      </div>
+
+      <!-- Predefined Picture Options -->
+      <div class="mb-4">
+        <p class="text-sm font-medium text-neutral-700 mb-2">Pilih foto profil:</p>
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          <button type="button" onclick="selectPredefinedPicture('{% static 'img/profile-options/profile-1.jpg' %}')" 
+                  class="profile-pic-option relative group">
+            <img src="{% static 'img/profile-options/profile-1.jpg' %}" 
+                 alt="Option 1" class="w-full h-full rounded-full object-cover border-2 border-neutral-200 hover:border-primary-500 transition-all cursor-pointer">
+          </button>
+          
+          <button type="button" onclick="selectPredefinedPicture('{% static 'img/profile-options/profile-2.jpg' %}')" 
+                  class="profile-pic-option relative group">
+            <img src="{% static 'img/profile-options/profile-2.jpg' %}" 
+                 alt="Option 2" class="w-full h-full rounded-full object-cover border-2 border-neutral-200 hover:border-primary-500 transition-all cursor-pointer">
+          </button>
+          
+          <button type="button" onclick="selectPredefinedPicture('{% static 'img/profile-options/profile-3.jpg' %}')" 
+                  class="profile-pic-option relative group">
+            <img src="{% static 'img/profile-options/profile-3.jpg' %}" 
+                 alt="Option 3" class="w-full h-full rounded-full object-cover border-2 border-neutral-200 hover:border-primary-500 transition-all cursor-pointer">
+          </button>
+          
+          <button type="button" onclick="selectPredefinedPicture('{% static 'img/profile-options/profile-4.jpg' %}')" 
+                  class="profile-pic-option relative group">
+            <img src="{% static 'img/profile-options/profile-4.jpg' %}" 
+                 alt="Option 4" class="w-full h-full rounded-full object-cover border-2 border-neutral-200 hover:border-primary-500 transition-all cursor-pointer">
+          </button>
+          
+          <button type="button" onclick="selectPredefinedPicture('{% static 'img/profile-options/profile-5.jpg' %}')" 
+                  class="profile-pic-option relative group">
+            <img src="{% static 'img/profile-options/profile-5.jpg' %}" 
+                 alt="Option 5" class="w-full h-full rounded-full object-cover border-2 border-neutral-200 hover:border-primary-500 transition-all cursor-pointer">
+          </button>
+          
+          <button type="button" onclick="selectPredefinedPicture('{% static 'img/profile-options/profile-6.jpg' %}')" 
+                  class="profile-pic-option relative group">
+            <img src="{% static 'img/profile-options/profile-6.jpg' %}" 
+                 alt="Option 6" class="w-full h-full rounded-full object-cover border-2 border-neutral-200 hover:border-primary-500 transition-all cursor-pointer">
+          </button>
+        </div>
+      </div>
+
+      <!-- Hidden input to store selected profile picture URL -->
+      <input type="hidden" id="profile_picture" />
+      
+      <!-- Reset Button -->
+      <div class="mt-3">
+        <button type="button" id="deleteProfilePicBtn" class="btn btn-secondary btn-sm">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          Reset ke Default
+        </button>
+      </div>
+    </div>
+    </div>
+
+    <div class="mt-6 flex space-x-2">
+      <button id="saveProfileBtn" class="btn btn-primary">Simpan</button>
+      <button id="deleteAccountBtn" class="btn btn-danger">Hapus Akun</button>
+      <a href="javascript:window.history.back()" class="btn btn-secondary">Batal</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function selectPredefinedPicture(url) {
+  // Convert relative URL to absolute URL for storage
+  const absoluteUrl = new URL(url, window.location.origin).href;
+  
+  document.getElementById('profile_picture').value = absoluteUrl;
+  document.getElementById('profilePicPreview').src = url;
+  
+  // Update border styling to show selection
+  document.querySelectorAll('.profile-pic-option img').forEach(img => {
+    img.classList.remove('border-primary-500', 'border-4');
+    img.classList.add('border-neutral-200', 'border-2');
+  });
+  
+  // Highlight selected image
+  event.currentTarget.querySelector('img').classList.remove('border-neutral-200', 'border-2');
+  event.currentTarget.querySelector('img').classList.add('border-primary-500', 'border-4');
+}
+
+async function loadProfile() {
+  try {
+    const res = await fetch('/api/profile/', { headers: { Accept: 'application/json' }});
+    const data = await res.json();
+    if (data.success && data.data && data.data.user) {
+      const u = data.data.user;
+      document.getElementById('username').value = u.username || '';
+      document.getElementById('first_name').value = u.first_name || '';
+      document.getElementById('last_name').value = u.last_name || '';
+      document.getElementById('email').value = u.email || '';
+      document.getElementById('phone_number').value = u.phone_number || '';
+      document.getElementById('address').value = u.address || '';
+      document.getElementById('profile_picture').value = u.profile_picture || '';
+      
+      // Set preview image
+      if (u.profile_picture) {
+        document.getElementById('profilePicPreview').src = u.profile_picture;
+        
+        // Highlight if it matches a predefined option
+        document.querySelectorAll('.profile-pic-option img').forEach(img => {
+          // Compare normalized URLs (handle both relative and absolute URLs)
+          const imgUrl = new URL(img.src, window.location.origin).href;
+          const profileUrl = u.profile_picture.startsWith('http') 
+            ? u.profile_picture 
+            : new URL(u.profile_picture, window.location.origin).href;
+          
+          if (imgUrl === profileUrl) {
+            img.classList.remove('border-neutral-200', 'border-2');
+            img.classList.add('border-primary-500', 'border-4');
+          }
+        });
+      } else {
+        // Show default avatar if no profile picture is set
+        document.getElementById('profilePicPreview').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.first_name + '+' + u.last_name);
+      }
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Kesalahan saat memuat profil');
+  }
+}
+
+document.getElementById('saveProfileBtn').addEventListener('click', async function() {
+  const payload = {
+    username: document.getElementById('username').value.trim(),
+    first_name: document.getElementById('first_name').value.trim(),
+    last_name: document.getElementById('last_name').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    phone_number: document.getElementById('phone_number').value.trim(),
+    address: document.getElementById('address').value.trim(),
+    profile_picture: document.getElementById('profile_picture').value.trim()
+  };
+  
+  try {
+    const res = await fetch('/api/profile/', {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken') 
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('Profil berhasil diperbarui');
+      loadProfile();
+    } else {
+      alert(data.message || 'Gagal memperbarui profil');
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Kesalahan saat memperbarui profil');
+  }
+});
+
+document.getElementById('deleteAccountBtn').addEventListener('click', async function() {
+  if (!confirm('Anda yakin ingin menghapus akun? Tindakan ini tidak dapat dibatalkan.')) return;
+  
+  try {
+    const res = await fetch('/api/profile/', {
+      method: 'DELETE',
+      headers: { 
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Accept': 'application/json'
+      }
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('Akun berhasil dihapus. Mengarahkan ke beranda...');
+      setTimeout(() => window.location.href = '/', 1500);
+    } else {
+      alert(data.message || 'Gagal menghapus akun');
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Kesalahan saat menghapus akun');
+  }
+});
+
+document.getElementById('deleteProfilePicBtn').addEventListener('click', async function() {
+  if (!confirm('Reset foto profil ke default?')) return;
+  
+  document.getElementById('profile_picture').value = '';
+  const firstName = document.getElementById('first_name').value || 'User';
+  const lastName = document.getElementById('last_name').value || '';
+  document.getElementById('profilePicPreview').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(firstName + '+' + lastName)}`;
+  
+  // Remove selection from all options
+  document.querySelectorAll('.profile-pic-option img').forEach(img => {
+    img.classList.remove('border-primary-500', 'border-4');
+    img.classList.add('border-neutral-200', 'border-2');
+  });
+});
+
+document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+
+<style>
+.profile-pic-option {
+  aspect-ratio: 1;
+  position: relative;
+}
+
+.profile-pic-option:hover img {
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.profile-pic-option img {
+  transition: all 0.2s ease-in-out;
+}
+</style>
+{% endblock %}
