@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.safestring import mark_safe
 from django.db.models import Avg
 import json
@@ -8,6 +9,12 @@ from app.venues.models import Venue, VenueImage, VenueFacility, Facility, Operat
 from app.courts.models import Court
 from app.reviews.models import Review
 from app.bookings.models import Booking
+
+
+@admin_required
+def admin_mitra_earnings_page(request):
+    """Render the admin mitra earnings dashboard page."""
+    return render(request, 'dashboard/admin_mitra_earnings.html')
 
 
 
@@ -191,3 +198,20 @@ def admin_mitra_page(request):
 @login_required
 def profile_view(request):
     return render(request, 'profile.html')
+
+
+@login_required
+def booking_checkout_view(request):
+    """Booking checkout page"""
+    from datetime import date
+    context = {
+        'today': date.today().isoformat()
+    }
+    return render(request, 'booking_checkout.html', context)
+
+
+@login_required
+@ensure_csrf_cookie
+def booking_history_view(request):
+    """User booking history page"""
+    return render(request, 'booking_history.html')

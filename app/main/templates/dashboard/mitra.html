@@ -206,6 +206,7 @@
                         <p class="text-sm text-neutral-500">
                           ${venue.total_courts} Lapangan
                           ${venue.avg_price_per_hour > 0 ? ` | Rata-rata Rp ${parseInt(venue.avg_price_per_hour).toLocaleString('id-ID')}/jam` : ''}
+                          ${venue.sport_categories && venue.sport_categories.length > 0 ? ` | ${venue.sport_categories.join(', ')}` : ''}
                         </p>
                       </div>
                     </div>
