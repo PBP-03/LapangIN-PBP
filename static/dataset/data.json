@@ -2741,5 +2741,577 @@
     ],
     "Price": 180000,
     "Image": ["AmbassadorTennis.jpg"]
+  },
+  {
+    "name": "Wins Arena",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/2FNErXHpArMuVpRL9",
+    "Contact": "085211801168",
+    "OperationalHours": [
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00"
+    ],
+    "Facilities": [
+      "Cafe & Resto",
+      "Hot Shower",
+      "Jual Minuman",
+      "Jual Makanan Ringan",
+      "Musholla",
+      "Ruang Ganti",
+      "Shower",
+      "Toilet",
+      "Wi-Fi",
+      "Tribun Penonton"
+    ],
+    "Price": 225000,
+    "Image": ["WinsArena.jpg"]
+  },
+  {
+    "name": "Urban Racquet Club",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Utara, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/TSKQhisopyRJcHyp8",
+    "Contact": "+6282233006532",
+    "OperationalHours": [
+      "06.00 - 00.00",
+      "06.00 - 00.00",
+      "06.00 - 00.00",
+      "06.00 - 00.00",
+      "06.00 - 00.00",
+      "06.00 - 00.00",
+      "06.00 - 00.00"
+    ],
+    "Facilities": [
+      "Parkir Motor",
+      "Parkir Mobil",
+      "Toilet",
+      "Ruang Ganti"
+    ],
+    "Price": 350000,
+    "Image": ["UrbanRacquetClub.jpg"]
+  },
+  {
+    "name": "Wins Arena PG",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/wsEvLZyxpcaoZ5xv9",
+    "Contact": "081398881829",
+    "OperationalHours": [
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00"
+    ],
+    "Facilities": [
+      "Jual Makanan Ringan",
+      "Jual Minuman",
+      "Musholla",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Toilet",
+      "Tribun Penonton"
+    ],
+    "Price": 180000,
+    "Image": ["WinsArenaPG.jpg"]
+  },
+  {
+    "name": "Metro Puri Tennis Indoor",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Barat, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/sbu8XhzpvHeN4grt8",
+    "Contact": "+628161110656",
+    "OperationalHours": [
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00"
+    ],
+    "Facilities": [
+      "Hot Shower",
+      "Jual Minuman",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower",
+      "Toilet",
+      "Jual Makanan Ringan"
+    ],
+    "Price": 225000,
+    "Image": ["MetroPuriTennisIndoor.jpg"]
+  },
+  {
+    "name": "Homeground Signature Pluit",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Utara, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/fPoqYCWETBNc8wh68",
+    "Contact": "+6281911111362",
+    "OperationalHours": [
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00"
+    ],
+    "Facilities": [
+      "Toko Olahraga",
+      "Toilet",
+      "Shower",
+      "Ruang Ganti",
+      "Parkir Motor",
+      "Parkir Mobil",
+      "Jual Minuman",
+      "Jual Makanan Ringan",
+      "Hot Shower",
+      "Cafe & Resto"
+    ],
+    "Price": 250000,
+    "Image": ["HomegroundSignaturePluit.jpg"]
+  },
+  {
+    "name": "Bukit Pratama Tennis Court",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/ZX5nh4ryigDZtj326",
+    "Contact": "087923887554",
+    "OperationalHours": [
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00"
+    ],
+    "Facilities": [
+      "Toilet",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower"
+    ],
+    "Price": 110000,
+    "Image": ["BukitPratamaTennisCourt.jpg"]
+  },
+  {
+    "name": "Lucky Tennis Indoor",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Barat, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/SpWAsbRQ28H8HyZF7",
+    "Contact": "6283567885431",
+    "OperationalHours": [
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00"
+    ],
+    "Facilities": [
+      "Jual Minuman",
+      "Parkir Mobil",
+      "Musholla",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower"
+    ],
+    "Price": 190000,
+    "Image": ["LuckyTennisIndoor.jpg"]
+  },
+  {
+    "name": "La Niny Tennis Court",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/FQScHvtLpnJJznfr8",
+    "Contact": null,
+    "OperationalHours": [
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00"
+    ],
+    "Facilities": [
+      "Jual Minuman",
+      "Musholla",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower",
+      "Toilet",
+      "Tribun Penonton"
+    ],
+    "Price": 280000,
+    "Image": ["LaNinyTennisCourt.jpg"]
+  },
+  {
+    "name": "Ancol Tennis Warehouse",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Utara, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/noMwyMXLP6hhi4iz9",
+    "Contact": "087651997880",
+    "OperationalHours": [
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00"
+    ],
+    "Facilities": [
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Shower",
+      "Toilet",
+      "Musholla",
+      "Wi-fi"
+    ],
+    "Price": 285000,
+    "Image": ["AncolTennisWarehouse.jpg"]
+  },
+  {
+    "name": "Patraland Tennis Court",
+    "Category": "TENNIS",
+    "address": "Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta",
+    "location": "https://maps.app.goo.gl/ABMu8X3smaU7SzWU7",
+    "Contact": "087845662330",
+    "OperationalHours": [
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00",
+      "07.00 - 00.00"
+    ],
+    "Facilities": [
+      "Jual Minuman",
+      "Musholla",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower"
+    ],
+    "Price": 195000,
+    "Image": ["PatralandTennisCourt .jpg"]
+  },
+  {
+    "name": "Maison Tennis Playcourt ",
+    "Category": "TENNIS",
+    "address": "Kota Tangerang Selatan, Banten",
+    "location": "https://maps.app.goo.gl/ZUsH2HaCuNGiGmeL7",
+    "Contact": "+6281390009230",
+    "OperationalHours": [
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00"
+    ],
+    "Facilities": [
+      "Cafe & Resto",
+      "Hot Shower",
+      "Jual Makanan Ringan",
+      "Jual Minuman",
+      "Musholla",
+      "Parkir Mobil"
+    ],
+    "Price": 290000,
+    "Image": ["MaisonTennisPlaycourt.jpg"]
+  },
+  {
+    "name": "GOAT Tennis Arena",
+    "Category": "TENNIS",
+    "address": "Kota Tangerang Selatan, Banten",
+    "location": "https://maps.app.goo.gl/2Y6GXGcpA2KEUMDt7",
+    "Contact": "6285922890001",
+    "OperationalHours": [
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00"
+    ],
+    "Facilities": [
+      "Cafe & Resto",
+      "Parkir Mobil",
+      "Musholla",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower"
+    ],
+    "Price": 100000,
+    "Image": ["GoatTennisArena.jpg"]
+  },
+  {
+    "name": "Wiyata Zeni Tennis Court",
+    "Category": "TENNIS",
+    "address": " Kota Bogor, Jawa Barat",
+    "location": "https://maps.app.goo.gl/3xNqDfBPLNe5NF4A7",
+    "Contact": "089910107880",
+    "OperationalHours": [
+      "07.00 - 23.00",
+      "07.00 - 23.00",
+      "07.00 - 23.00",
+      "07.00 - 23.00",
+      "07.00 - 23.00",
+      "07.00 - 23.00",
+      "07.00 - 23.00"
+    ],
+    "Facilities": [
+      "Jual Makanan Ringan",
+      "Jual Minuman",
+      "Musholla",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti"
+    ],
+    "Price": 100000,
+    "Image": ["WiyataZeniTennisCourt.jpg"]
+  },
+  {
+    "name": "ATB Tennis",
+    "Category": "TENNIS",
+    "address": "Kota Bogor, Jawa Barat",
+    "location": "https://maps.app.goo.gl/nkqiHMxEQEZ6W13Q8",
+    "Contact": "085545245080",
+    "OperationalHours": [
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00"
+    ],
+    "Facilities": [
+      "Cafe & Resto",
+      "Hot Shower",
+      "Jual Makanan Ringan",
+      "Jual Minuman",
+      "Musholla",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower",
+      "Toilet",
+      "Toko Olahraga",
+      "Tribun Penonton",
+      "Wi-fi",
+      "Lounge",
+      "VIP Room",
+      "Ruang Tunggu ber AC",
+      "Mushola",
+      "Parkir Luas"
+    ],
+    "Price": 170000,
+    "Image": ["ATBTennis.jpg"]
+  },
+  {
+    "name": "Bumi Pancasona Sports Club",
+    "Category": "TENNIS",
+    "address": "Kabupaten Bandung Barat, Jawa Barat",
+    "location": "https://maps.app.goo.gl/BenkUzHr5ZpeCzDf7",
+    "Contact": "085009005520",
+    "OperationalHours": [
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00"
+    ],
+    "Facilities": [
+      "Cafe & Resto",
+      "Hot Shower",
+      "Musholla",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower",
+      "Toilet",
+      "Wi-fi",
+      "Jual Makanan Ringan",
+      "Jual Minuman",
+      "Toko Olahraga",
+      "Gym",
+      "Studio"
+    ],
+    "Price": 250000,
+    "Image": ["BumiPancasonaSportsClub.jpg"]
+  },
+  {
+    "name": "Tatabumi Tennis Court",
+    "Category": "TENNIS",
+    "address": " Kota Yogyakarta, Di Yogyakarta",
+    "location": "https://maps.app.goo.gl/rP1q2wnEg12C6pJ77",
+    "Contact": "087839031051",
+    "OperationalHours": [
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00"
+    ],
+    "Facilities": [
+      "Toilet",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Ruang Tunggu"
+    ],
+    "Price": 70000,
+    "Image": ["TatabumiTennisCourt.jpg"]
+  },
+  {
+    "name": "Hulahoop Wellness Yogyakarta",
+    "Category": "TENNIS",
+    "address": "Kota Yogyakarta, Di Yogyakarta",
+    "location": "https://maps.app.goo.gl/U7uQMNzpLPrLaVb4A",
+    "Contact": "",
+    "OperationalHours": [
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00",
+      "06.00 - 23.00"
+    ],
+    "Facilities": [
+      "Cafe & Resto",
+      "Hot Shower",
+      "Jual Makanan Ringan",
+      "Jual Minuman",
+      "Musholla",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower",
+      "Toilet"
+    ],
+    "Price": 250000,
+    "Image": ["HulahoopWellnessYogyakarta.jpg"]
+  },
+  {
+    "name": "Metro Margomulyo Tennis Indoor",
+    "Category": "TENNIS",
+    "address": "Kota Surabaya, Jawa Timur",
+    "location": "https://maps.app.goo.gl/CxxRuem6YxTomHCG9",
+    "Contact": null,
+    "OperationalHours": [
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00"
+    ],
+    "Facilities": [
+      "Hot Shower",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Toilet",
+      "Shower",
+      "Ruang Ganti",
+      "Tribun Penonton",
+      "Musholla",
+      "Wi-fi",
+      "Jual Minuman"
+    ],
+    "Price": 180000,
+    "Image": ["MetroMargomulyoTennisIndoor.jpg"]
+  },
+  {
+    "name": "Pakuwon Golf & Family Club",
+    "Category": "TENNIS",
+    "address": " Kota Surabaya, Jawa Timur",
+    "location": "https://maps.app.goo.gl/ZxiZeFu2qH9TvxNfA",
+    "Contact": "082229017711",
+    "OperationalHours": [
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00"
+    ],
+    "Facilities": [
+      "Cafe & Resto",
+      "Hot Shower",
+      "Jual Makanan Ringan",
+      "Jual Minuman",
+      "Musholla",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower",
+      "Toilet",
+      "Toko Olahraga",
+      "Tribun Penonton"
+    ],
+    "Price": 200000,
+    "Image": ["PakuwonGolf&FamilyClub.jpg"]
+  },
+  {
+    "name": "Ambassador Tennis",
+    "Category": "TENNIS",
+    "address": "Kota Malang, Jawa Timur",
+    "location": "https://maps.app.goo.gl/P22pioVMrRp7zzeD7",
+    "Contact": "08113137090",
+    "OperationalHours": [
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00",
+      "06.00 - 22.00"
+    ],
+    "Facilities": [
+      "Cafe & Resto",
+      "Hot Shower",
+      "Jual Makanan Ringan",
+      "Jual Minuman",
+      "Musholla",
+      "Parkir Mobil",
+      "Parkir Motor",
+      "Ruang Ganti",
+      "Shower",
+      "Toilet",
+      "Toko Olahraga",
+      "Tribun Penonton",
+      "Wi-fi",
+      "Jasa Senar Raket"
+    ],
+    "Price": 180000,
+    "Image": ["AmbassadorTennis.jpg"]
   }
 ]
