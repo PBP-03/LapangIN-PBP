@@ -31,7 +31,7 @@ urlpatterns = [
     # Venues & Sports Categories (from venues app)
     path('api/venues/', venues_views.api_venues, name='api_venues'),
     path('api/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_venue_detail'),
-    path('api/public/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_public_venue_detail'),
+    path('api/public/venues/<uuid:venue_id>/', venues_views.api_venue_detail_public, name='api_public_venue_detail'),
     path('api/sports-categories/', venues_views.api_sports_categories, name='api_sports_categories'),
     path('api/venue-images/<int:image_id>/delete/', venues_views.api_delete_venue_image, name='api_delete_venue_image'),
     
@@ -42,6 +42,7 @@ urlpatterns = [
     path('api/court-images/<int:image_id>/delete/', courts_views.api_delete_court_image, name='api_delete_court_image'),
     
     # Bookings & Payments (from bookings app)
+    path('bookings/', include('app.bookings.urls')),
     path('api/bookings/', bookings_views.api_bookings, name='api_bookings'),
     path('api/bookings/<uuid:booking_id>/', bookings_views.api_booking_detail, name='api_booking_detail'),
     

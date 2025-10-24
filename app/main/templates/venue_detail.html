@@ -257,7 +257,8 @@
           >
         </p>
         <p class="text-sm text-neutral-600 mt-2">
-          {{ court.sessions|length }} session{{ court.sessions|length|pluralize}} available
+          {{ court.sessions|length }} session{{
+          court.sessions|length|pluralize}} available
         </p>
 
         <!-- Hidden data for JavaScript -->
@@ -1192,20 +1193,10 @@
         return;
       }
 
-      // For now, just show an alert with the selection
-      const sessionTimes = selectedSessions.map(s => `${s.start_time} - ${s.end_time}`).join(', ');
-      showNotification(
-        `Selected: ${selectedCourt.name} - Sessions: ${sessionTimes}`,
-        'success'
-      );
-
-      // TODO: Navigate to booking confirmation page
-      // window.location.href = `/booking/confirm?court=${selectedCourt.id}&sessions=${selectedSessions.map(s => s.id).join(',')}`;
-
-      console.log('Booking data:', {
-        court: selectedCourt,
-        sessions: selectedSessions
-      });
+      // Navigate to booking checkout page with query params
+      const sessionIds = selectedSessions.map(s => s.id).join(',');
+      const venueId = "{{ venue.id }}";
+      window.location.href = `/booking/checkout/?venue=${venueId}&court=${selectedCourt.id}&sessions=${sessionIds}`;
     }
   </script>
 

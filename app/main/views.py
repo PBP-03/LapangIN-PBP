@@ -175,3 +175,19 @@ def admin_mitra_page(request):
 @login_required
 def profile_view(request):
     return render(request, 'profile.html')
+
+
+@login_required
+def booking_checkout_view(request):
+    """Booking checkout page"""
+    from datetime import date
+    context = {
+        'today': date.today().isoformat()
+    }
+    return render(request, 'booking_checkout.html', context)
+
+
+@login_required
+def booking_history_view(request):
+    """User booking history page"""
+    return render(request, 'booking_history.html')
