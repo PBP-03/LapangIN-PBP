@@ -10,6 +10,12 @@ from app.reviews.models import Review
 from app.bookings.models import Booking
 
 
+@admin_required
+def admin_mitra_earnings_page(request):
+    """Render the admin mitra earnings dashboard page."""
+    return render(request, 'dashboard/admin_mitra_earnings.html')
+
+
 
 def venue_list_view(request):
     """Render halaman daftar venue"""
