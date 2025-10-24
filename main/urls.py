@@ -4,6 +4,7 @@ from . import views
 app_name = 'main'
 
 urlpatterns = [
+    
     path('', views.index, name='home'),
     
     # Authentication URLs - now handled by main app views (HTML only)
@@ -21,7 +22,7 @@ urlpatterns = [
 
     # Venue list & detail
     path('lapangan/', views.venue_list_view, name='venue_list'),
-    path('lapangan/<str:venue_id>/', views.venue_detail_view, name='venue_detail')
+    path('lapangan/<str:venue_id>/', views.venue_detail_view, name='venue_detail'),
     
     path('profile/', views.profile_view, name='profile'),
 ]
