@@ -1,3 +1,4 @@
+{% load static %}
 <!-- Footer Component -->
 <footer class="bg-neutral-900 text-neutral-100">
   <!-- Main footer content -->
@@ -6,23 +7,7 @@
       <!-- Brand section -->
       <div class="lg:col-span-1">
         <div class="flex items-center space-x-3 mb-4">
-          <div
-            class="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center"
-          >
-            <svg
-              class="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              ></path>
-            </svg>
-          </div>
+          <img src="{% static 'img/logo/Lapangan Logo.png' %}" alt="LapangIN Logo" class="h-10 w-auto">
           <div>
             <h2 class="text-xl font-display font-bold text-gradient">
               LapangIN

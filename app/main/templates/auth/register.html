@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}Daftar - LapangIN{% endblock %} {%block content %}
+{% extends 'base.html' %} {% load static %} {% block title %}Daftar - LapangIN{% endblock %} {%block content %}
 <div
   class="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-12 px-4 sm:px-6 lg:px-8"
 >
@@ -15,26 +15,7 @@
   <div class="relative max-w-lg w-full space-y-8">
     <!-- Header -->
     <div class="text-center">
-      <div
-        class="mx-auto w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mb-6"
-      >
-        <svg
-          class="w-8 h-8 text-white"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-          ></path>
-        </svg>
-      </div>
-      <h2 class="text-3xl font-display font-bold text-neutral-900 mb-2">
-        Bergabung dengan <span class="text-gradient">LapangIN</span>
-      </h2>
+      <img src="{% static 'img/logo/Lapangan Logo.png' %}" alt="LapangIN Logo" class="mx-auto h-16 w-auto mb-4">
       <p class="text-neutral-600">
         Buat akun Anda untuk mulai menikmati layanan kami
       </p>
