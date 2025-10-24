@@ -725,6 +725,13 @@ def api_mitra_dashboard(request):
         total_price = sum(court.price_per_hour for court in courts)
         avg_price = total_price / len(courts) if courts else 0
         
+        # Get unique sport categories from courts
+        categories = set()
+        for court in courts:
+            if court.category:
+                categories.add(court.category.get_name_display())
+        categories_list = sorted(list(categories))
+        
         # Get primary image
         primary_image = venue.images.filter(is_primary=True).first()
         if not primary_image and venue.images.exists():
@@ -739,7 +746,8 @@ def api_mitra_dashboard(request):
             'is_verified': venue.is_verified,
             'avg_price_per_hour': float(avg_price),
             'total_courts': courts.count(),
-            'image_url': primary_image.image_url if primary_image else None
+            'image_url': primary_image.image_url if primary_image else None,
+            'sport_categories': categories_list
         })
     
     return JsonResponse({

@@ -23,6 +23,15 @@ from app.users.forms import CustomLoginForm, CustomUserCreationForm, CustomUserU
 from app.users.decorators import login_required, role_required, anonymous_required
 
 
+# Helper function to update venue court count
+def update_venue_court_count(venue):
+    """Update the number_of_courts field based on actual courts count"""
+    court_count = venue.courts.count()
+    if venue.number_of_courts != court_count:
+        venue.number_of_courts = court_count  # Allow 0 for venues without courts yet
+        venue.save(update_fields=['number_of_courts'])
+
+
 # Venue List & Search API
 @require_http_methods(["GET"])
 def api_venue_list(request):
@@ -869,6 +878,8 @@ def api_venues(request):
             if form.is_valid():
                 venue = form.save(commit=False)
                 venue.owner = request.user
+                # Set initial number_of_courts to 0 (will be updated when courts are added)
+                venue.number_of_courts = 0
                 venue.save()
                 
                 # Handle image URLs (JSON array of URLs)
@@ -1160,6 +1171,9 @@ def api_courts(request):
                     # If session parsing fails, continue without sessions
                     pass
                 
+                # Update venue's court count
+                update_venue_court_count(court.venue)
+                
                 # Log the activity
                 ActivityLog.objects.create(
                     user=request.user,
@@ -1384,7 +1398,11 @@ def api_court_detail(request, court_id):
         try:
             court_name = court.name
             venue_name = court.venue.name
+            venue = court.venue  # Store venue reference before deleting court
             court.delete()
+            
+            # Update venue's court count after deletion
+            update_venue_court_count(venue)
             
             # Log the activity
             ActivityLog.objects.create(

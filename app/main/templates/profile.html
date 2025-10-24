@@ -238,7 +238,11 @@
         }
       } catch (e) {
         console.error(e);
-        alert("Kesalahan saat memuat profil");
+        if (typeof toasterUtils !== 'undefined') {
+          toasterUtils.error("Kesalahan saat memuat profil");
+        } else {
+          console.error("Kesalahan saat memuat profil");
+        }
       }
     }
 
