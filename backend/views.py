@@ -12,6 +12,7 @@ import json
 from .models import User, ActivityLog
 from .forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm
 from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, CourtSession
+from django.views.decorators.csrf import csrf_exempt
 from .forms import CustomLoginForm, CustomUserCreationForm, VenueForm, CourtForm
 from .decorators import login_required, role_required, anonymous_required
 from datetime import date
@@ -460,6 +461,186 @@ def api_booking_detail(request, booking_id):
         return JsonResponse({'success': True, 'message': 'Booking cancelled'})
     except Exception:
         return JsonResponse({'success': False, 'message': 'Failed to cancel booking'}, status=500)
+
+# ============================================
+# MITRA MANAGEMENT (Admin-facing) API
+# ============================================
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def api_mitra_list(request):
+    """Return list of mitra users as JSON. Uses existing User model (role='mitra')."""
+    try:
+        from .models import Venue, Court
+        mitras = User.objects.filter(role='mitra')
+        data = []
+        for m in mitras:
+            # derive status
+            if m.is_verified:
+                status = 'approved'
+            else:
+                status = 'pending' if m.is_active else 'rejected'
+
+            # Get venue descriptions for this mitra
+            venues = Venue.objects.filter(owner=m)
+            venue_descriptions = []
+            for venue in venues:
+                if venue.description:
+                    venue_descriptions.append(f"{venue.name}: {venue.description}")
+            
+            # Join all venue descriptions, or empty string if none
+            deskripsi = ' | '.join(venue_descriptions) if venue_descriptions else ''
+
+            # Get all courts from all venues owned by this mitra
+            courts = []
+            for venue in venues:
+                venue_courts = Court.objects.filter(venue=venue)
+                for court in venue_courts:
+                    courts.append({
+                        'id': str(court.id),
+                        'name': court.name,
+                        'description': court.description or 'Tidak ada deskripsi',
+                        'venue_name': venue.name
+                    })
+
+            data.append({
+                'id': str(m.id),
+                'nama': m.get_full_name() or m.first_name or m.username,
+                'email': m.email,
+                'deskripsi': deskripsi,
+                'gambar': m.profile_picture or '',
+                'courts': courts,
+                'tanggal_daftar': m.created_at.isoformat() if hasattr(m, 'created_at') else None,
+                'status': status,
+            })
+
+        return JsonResponse({'status': 'ok', 'data': data})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["PATCH"])
+def api_mitra_update_status(request, mitra_id):
+    """Patch endpoint to update mitra status. Body: {"status": "approved"|"rejected", "rejection_reason": "..."} """
+    try:
+        try:
+            mitra = User.objects.get(id=mitra_id, role='mitra')
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Mitra not found'}, status=404)
+
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
+        new_status = data.get('status')
+        rejection_reason = data.get('rejection_reason', '')  # Accept rejection reason (not stored due to model constraints)
+        
+        if new_status not in ['approved', 'rejected']:
+            return JsonResponse({'status': 'error', 'message': 'Invalid status'}, status=400)
+
+        if new_status == 'approved':
+            mitra.is_verified = True
+            mitra.is_active = True
+        else:  # rejected
+            mitra.is_verified = False
+            # mark as inactive to reflect rejection without changing models
+            mitra.is_active = False
+            # Note: rejection_reason is received but not stored (no field in model)
+
+        mitra.save()
+
+        return JsonResponse({
+            'status': 'ok',
+            'message': f'Mitra {new_status} successfully',
+            'data': {
+                'id': str(mitra.id),
+                'status': new_status
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def api_mitra_venue_details(request, mitra_id):
+    """Get detailed venue information for a specific mitra"""
+    try:
+        try:
+            mitra = User.objects.get(id=mitra_id, role='mitra')
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Mitra not found'}, status=404)
+
+        # Get all venues for this mitra
+        venues = Venue.objects.filter(owner=mitra).prefetch_related('images', 'courts', 'courts__images')
+        
+        venues_data = []
+        for venue in venues:
+            # Get venue images
+            venue_images = []
+            for img in venue.images.all():
+                venue_images.append({
+                    'id': img.id,
+                    'url': img.image_url,
+                    'is_primary': img.is_primary,
+                    'caption': img.caption or ''
+                })
+            
+            # Get courts for this venue
+            courts_data = []
+            for court in venue.courts.all():
+                court_images = []
+                for img in court.images.all():
+                    court_images.append({
+                        'id': img.id,
+                        'url': img.image_url,
+                        'is_primary': img.is_primary,
+                        'caption': img.caption or ''
+                    })
+                
+                courts_data.append({
+                    'id': court.id,
+                    'name': court.name,
+                    'category': court.category.get_name_display() if court.category else 'N/A',
+                    'price_per_hour': str(court.price_per_hour),
+                    'is_active': court.is_active,
+                    'description': court.description or 'Tidak ada deskripsi',
+                    'images': court_images
+                })
+            
+            venues_data.append({
+                'id': str(venue.id),
+                'name': venue.name,
+                'address': venue.address,
+                'contact': venue.contact or '-',
+                'description': venue.description or 'Tidak ada deskripsi',
+                'number_of_courts': venue.number_of_courts,
+                'verification_status': venue.verification_status,
+                'is_verified': venue.is_verified,
+                'created_at': venue.created_at.isoformat() if hasattr(venue, 'created_at') else None,
+                'images': venue_images,
+                'courts': courts_data
+            })
+
+        return JsonResponse({
+            'status': 'ok',
+            'data': {
+                'mitra': {
+                    'id': str(mitra.id),
+                    'name': mitra.get_full_name() or mitra.first_name or mitra.username,
+                    'email': mitra.email,
+                    'profile_picture': mitra.profile_picture or '',
+                    'phone_number': mitra.phone_number or '-'
+                },
+                'venues': venues_data
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
 
 # ============================================
 # MITRA API ENDPOINTS
