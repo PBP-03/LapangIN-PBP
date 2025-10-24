@@ -8,6 +8,7 @@ from django.forms.models import model_to_dict
 from django.db.models import Sum, Count, Q, Avg
 from decimal import Decimal
 import json
+import re
 from datetime import date
 
 # Import models from new apps
@@ -24,24 +25,32 @@ from django.views.decorators.http import require_http_methods
 @require_http_methods(["GET"])
 @csrf_exempt
 def api_mitra_earnings(request):
-    """Return each mitra's total earnings based on completed transactions (paid)."""
+    """Return each mitra's total earnings based on completed transactions, EXCLUDING refunded ones."""
     if not request.user.is_authenticated or request.user.role != 'admin':
         return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
 
     mitras = User.objects.filter(role='mitra')
     data = []
     for mitra in mitras:
-        # Sum net_amount for Pendapatan where payment_status is 'paid' and booking_status is 'completed'
+        # Sum net_amount for PAID transactions (completed bookings)
+        # EXCLUDE refunded transactions to get actual current earnings
         total_earnings = Pendapatan.objects.filter(
             mitra=mitra,
             payment_status='paid',
             booking__booking_status='completed'
         ).aggregate(total=Sum('net_amount'))['total'] or 0
         
-        # Count completed transactions
+        # Count completed and paid transactions (not refunded)
         completed_transactions = Pendapatan.objects.filter(
             mitra=mitra,
             payment_status='paid',
+            booking__booking_status='completed'
+        ).count()
+        
+        # Count refunded transactions for reference
+        refunded_transactions = Pendapatan.objects.filter(
+            mitra=mitra,
+            payment_status='refunded',
             booking__booking_status='completed'
         ).count()
         
@@ -51,7 +60,8 @@ def api_mitra_earnings(request):
             'mitra_email': mitra.email,
             'mitra_phone': mitra.phone_number or '-',
             'total_earnings': float(total_earnings),
-            'completed_transactions': completed_transactions
+            'completed_transactions': completed_transactions,
+            'refunded_transactions': refunded_transactions
         })
     return JsonResponse({'status': 'ok', 'data': data})
 
@@ -135,12 +145,9 @@ def api_refunds(request):
         
         data = []
         for p in refunds:
-            # Parse refund info from notes
-            refund_reason = ''
-            if p.notes and 'REFUND:' in p.notes:
-                parts = p.notes.split('|')
-                if len(parts) > 0:
-                    refund_reason = parts[0].replace('REFUND:', '').strip()
+            # Parse refund info from notes (format: [REFUND:type] reason | metadata)
+            refund_reason = p.notes or ''
+            # Extract just the reason part (everything in notes field is the reason for backward compatibility)
             
             data.append({
                 'id': str(p.id),
@@ -157,51 +164,96 @@ def api_refunds(request):
         return JsonResponse({'status': 'ok', 'data': data})
     
     elif request.method == 'POST':
-        # Create refund
+        # Create refund - DEDUCTS from mitra earnings
         try:
             data = json.loads(request.body)
             pendapatan_id = data.get('pendapatan_id')
-            reason = data.get('reason', '')
+            reason = data.get('reason', '').strip()
+            refund_type = data.get('refund_type', 'mitra_fault')
             
+            # Validation
             if not pendapatan_id:
                 return JsonResponse({'status': 'error', 'message': 'pendapatan_id is required'}, status=400)
             
-            pendapatan = Pendapatan.objects.get(id=pendapatan_id)
+            if not reason:
+                return JsonResponse({'status': 'error', 'message': 'Refund reason is required'}, status=400)
+            
+            # Validate refund_type
+            valid_types = ['mitra_fault', 'customer_fault', 'platform_fault', 'force_majeure']
+            if refund_type not in valid_types:
+                return JsonResponse({'status': 'error', 'message': f'Invalid refund_type. Must be one of: {", ".join(valid_types)}'}, status=400)
+            
+            pendapatan = Pendapatan.objects.select_related('mitra', 'booking').get(id=pendapatan_id)
             
             # Check if already refunded
             if pendapatan.payment_status == 'refunded':
-                return JsonResponse({'status': 'error', 'message': 'Already refunded'}, status=400)
+                return JsonResponse({'status': 'error', 'message': 'Transaction already refunded'}, status=400)
             
-            # Mark as refunded and add note
+            # Check if payment is completed (only paid transactions can be refunded)
+            if pendapatan.payment_status != 'paid':
+                return JsonResponse({
+                    'status': 'error', 
+                    'message': f'Only paid transactions can be refunded. Current status: {pendapatan.payment_status}'
+                }, status=400)
+            
+            # Check booking status
+            if pendapatan.booking.booking_status != 'completed':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Can only refund completed bookings. Current status: {pendapatan.booking.booking_status}'
+                }, status=400)
+            
+            # Store original amount for response
+            refund_amount = float(pendapatan.net_amount)
+            mitra_name = pendapatan.mitra.get_full_name() or pendapatan.mitra.username
+            
+            # Mark as refunded - THIS REMOVES FROM MITRA EARNINGS
             pendapatan.payment_status = 'refunded'
-            pendapatan.notes = f"REFUND: {reason} | Processed by: {request.user.username} | Original notes: {pendapatan.notes or ''}"
+            
+            # Format: [REFUND:type] reason | metadata
+            refund_note = f"[REFUND:{refund_type}] {reason} | Processed by: {request.user.username} on {date.today().isoformat()}"
+            if pendapatan.notes:
+                pendapatan.notes = f"{refund_note} | Original: {pendapatan.notes}"
+            else:
+                pendapatan.notes = refund_note
+                
             pendapatan.save()
             
             return JsonResponse({
                 'status': 'ok',
-                'message': 'Refund processed successfully',
+                'message': f'Refund processed successfully. Rp {int(refund_amount):,} deducted from {mitra_name} earnings.',
                 'data': {
                     'pendapatan_id': str(pendapatan.id),
-                    'amount': float(pendapatan.net_amount),
-                    'status': 'refunded'
+                    'amount': refund_amount,
+                    'status': 'refunded',
+                    'refund_type': refund_type,
+                    'mitra_name': mitra_name,
+                    'refunded_at': pendapatan.updated_at.isoformat()
                 }
             })
         except Pendapatan.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Transaction not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+            return JsonResponse({'status': 'error', 'message': f'Server error: {str(e)}'}, status=500)
 
 
 @require_http_methods(["POST"])
 @csrf_exempt
 def api_create_refund(request, pendapatan_id):
-    """Create a refund request by marking pendapatan as refunded"""
+    """
+    DEPRECATED: Use api_refunds POST instead.
+    Legacy endpoint kept for backward compatibility.
+    Create a refund request by marking pendapatan as refunded.
+    """
     if not request.user.is_authenticated or request.user.role != 'admin':
         return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
     
     try:
         data = json.loads(request.body)
         reason = data.get('reason', '')
+        refund_type = data.get('refund_type', 'mitra_fault')
         
         pendapatan = Pendapatan.objects.get(id=pendapatan_id)
         
@@ -209,9 +261,13 @@ def api_create_refund(request, pendapatan_id):
         if pendapatan.payment_status == 'refunded':
             return JsonResponse({'status': 'error', 'message': 'Already refunded'}, status=400)
         
-        # Mark as refunded and add note
+        # Check if payment is completed (only paid transactions can be refunded)
+        if pendapatan.payment_status != 'paid':
+            return JsonResponse({'status': 'error', 'message': 'Only paid transactions can be refunded'}, status=400)
+        
+        # Mark as refunded and add note with refund type
         pendapatan.payment_status = 'refunded'
-        pendapatan.notes = f"REFUND: {reason} | Processed by: {request.user.username} | Original notes: {pendapatan.notes or ''}"
+        pendapatan.notes = f"[REFUND:{refund_type}] {reason} | Processed by: {request.user.username} | Original notes: {pendapatan.notes or ''}"
         pendapatan.save()
         
         return JsonResponse({
@@ -220,7 +276,8 @@ def api_create_refund(request, pendapatan_id):
             'data': {
                 'pendapatan_id': str(pendapatan.id),
                 'amount': float(pendapatan.net_amount),
-                'status': 'refunded'
+                'status': 'refunded',
+                'refund_type': refund_type
             }
         })
     except Pendapatan.DoesNotExist:
@@ -232,7 +289,11 @@ def api_create_refund(request, pendapatan_id):
 @require_http_methods(["GET"])
 @csrf_exempt
 def api_list_refunds(request):
-    """List all refunded transactions"""
+    """
+    DEPRECATED: Use api_refunds GET instead.
+    Legacy endpoint kept for backward compatibility.
+    List all refunded transactions.
+    """
     if not request.user.is_authenticated or request.user.role != 'admin':
         return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
     
@@ -242,13 +303,7 @@ def api_list_refunds(request):
     
     data = []
     for p in refunds:
-        # Parse refund info from notes
-        refund_reason = ''
-        if p.notes and 'REFUND:' in p.notes:
-            parts = p.notes.split('|')
-            if len(parts) > 0:
-                refund_reason = parts[0].replace('REFUND:', '').strip()
-        
+        # Return raw notes - let frontend parse it
         data.append({
             'id': str(p.id),
             'mitra_name': p.mitra.get_full_name() or p.mitra.username,
@@ -256,7 +311,7 @@ def api_list_refunds(request):
             'venue_name': p.booking.court.venue.name,
             'court_name': p.booking.court.name,
             'amount': float(p.net_amount),
-            'reason': refund_reason,
+            'reason': p.notes or '',
             'refunded_at': p.updated_at.isoformat(),
             'booking_date': p.booking.booking_date.isoformat()
         })
@@ -267,22 +322,41 @@ def api_list_refunds(request):
 @require_http_methods(["DELETE"])
 @csrf_exempt
 def api_cancel_refund(request, pendapatan_id):
-    """Cancel a refund by reverting status back to paid"""
+    """Cancel a refund by reverting status back to paid - restores earnings"""
     if not request.user.is_authenticated or request.user.role != 'admin':
         return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
     
     try:
         pendapatan = Pendapatan.objects.get(id=pendapatan_id, payment_status='refunded')
         
-        # Revert status
+        # Extract refund type from notes for audit trail
+        refund_type = 'unknown'
+        if pendapatan.notes and '[REFUND:' in pendapatan.notes:
+            match = re.search(r'\[REFUND:(\w+)\]', pendapatan.notes)
+            if match:
+                refund_type = match.group(1)
+        
+        # Revert status to paid - this RESTORES earnings to mitra
         pendapatan.payment_status = 'paid'
-        # Keep the refund note for history but mark as cancelled
-        pendapatan.notes = f"[CANCELLED] {pendapatan.notes}"
+        
+        # Update notes to preserve history
+        cancelled_note = f"[REFUND_CANCELLED:{refund_type}] Cancelled by: {request.user.username} on {date.today().isoformat()}"
+        if pendapatan.notes:
+            pendapatan.notes = f"{cancelled_note} | Previous: {pendapatan.notes}"
+        else:
+            pendapatan.notes = cancelled_note
+            
         pendapatan.save()
         
         return JsonResponse({
             'status': 'ok',
-            'message': 'Refund cancelled successfully'
+            'message': 'Refund cancelled successfully - earnings restored',
+            'data': {
+                'pendapatan_id': str(pendapatan.id),
+                'amount': float(pendapatan.net_amount),
+                'status': 'paid',
+                'refund_type_cancelled': refund_type
+            }
         })
     except Pendapatan.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Refunded transaction not found'}, status=404)
