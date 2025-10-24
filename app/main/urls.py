@@ -16,6 +16,8 @@ urlpatterns = [
     path('admin/', include(( 'app.admin.urls', 'app.admin'), 'app.admin'), name='admin'),
     # Direct route to admin mitra page (convenience name 'admin')
     path('admin/mitra/', views.admin_mitra_page, name='admin'),
+    # Route for admin mitra earnings view
+    path('admin/mitra/earnings/', views.admin_mitra_earnings_page, name='admin_mitra_earnings'),
 
     # Additional dashboard URLs for better UX
     path('dashboard/', views.user_dashboard, name='user_dashboard'),

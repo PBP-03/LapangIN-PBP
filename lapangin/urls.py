@@ -54,8 +54,10 @@ urlpatterns = [
     path('api/mitra-dashboard/', revenue_views.api_mitra_dashboard, name='api_mitra_dashboard'),
     path('api/admin-dashboard/', revenue_views.api_admin_dashboard, name='api_admin_dashboard'),
     path('api/mitra/', revenue_views.api_mitra_list, name='api_mitra_list'),
+    path('api/mitra/earnings/', revenue_views.api_mitra_earnings, name='api_mitra_earnings'),
     path('api/mitra/<uuid:mitra_id>/', revenue_views.api_mitra_update_status, name='api_mitra_update_status'),
     path('api/mitra/<uuid:mitra_id>/venues/', revenue_views.api_mitra_venue_details, name='api_mitra_venue_details'),
+    path('api/mitra/<uuid:mitra_id>/earnings/', revenue_views.api_mitra_earnings_detail, name='api_mitra_earnings_detail'),
 ]
 
 # Serve static and media files during development

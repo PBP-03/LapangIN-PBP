@@ -17,6 +17,106 @@ from app.courts.models import Court, CourtSession
 from app.bookings.models import Booking, Payment
 from app.reviews.models import Review
 from app.revenue.models import Pendapatan, ActivityLog
+# API: Mitra Earnings Summary
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+
+@require_http_methods(["GET"])
+@csrf_exempt
+def api_mitra_earnings(request):
+    """Return each mitra's total earnings based on completed transactions (paid)."""
+    if not request.user.is_authenticated or request.user.role != 'admin':
+        return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+
+    mitras = User.objects.filter(role='mitra')
+    data = []
+    for mitra in mitras:
+        # Sum net_amount for Pendapatan where payment_status is 'paid' and booking_status is 'completed'
+        total_earnings = Pendapatan.objects.filter(
+            mitra=mitra,
+            payment_status='paid',
+            booking__booking_status='completed'
+        ).aggregate(total=Sum('net_amount'))['total'] or 0
+        
+        # Count completed transactions
+        completed_transactions = Pendapatan.objects.filter(
+            mitra=mitra,
+            payment_status='paid',
+            booking__booking_status='completed'
+        ).count()
+        
+        data.append({
+            'mitra_id': str(mitra.id),
+            'mitra_name': mitra.get_full_name() or mitra.username,
+            'mitra_email': mitra.email,
+            'mitra_phone': mitra.phone_number or '-',
+            'total_earnings': float(total_earnings),
+            'completed_transactions': completed_transactions
+        })
+    return JsonResponse({'status': 'ok', 'data': data})
+
+
+@require_http_methods(["GET"])
+@csrf_exempt
+def api_mitra_earnings_detail(request, mitra_id):
+    """Get detailed earnings and transaction information for a specific mitra"""
+    if not request.user.is_authenticated or request.user.role != 'admin':
+        return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+    
+    try:
+        mitra = User.objects.get(id=mitra_id, role='mitra')
+    except User.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Mitra not found'}, status=404)
+    
+    # Get all completed and paid transactions for this mitra
+    pendapatans = Pendapatan.objects.filter(
+        mitra=mitra,
+        payment_status='paid',
+        booking__booking_status='completed'
+    ).select_related('booking', 'booking__user', 'booking__court', 'booking__court__venue').order_by('-created_at')
+    
+    transactions = []
+    total_earnings = 0
+    total_commission = 0
+    
+    for p in pendapatans:
+        total_earnings += float(p.net_amount)
+        total_commission += float(p.commission_amount)
+        
+        transactions.append({
+            'id': str(p.id),
+            'booking_id': str(p.booking.id),
+            'customer_name': p.booking.user.get_full_name() or p.booking.user.username,
+            'venue_name': p.booking.court.venue.name,
+            'court_name': p.booking.court.name,
+            'booking_date': p.booking.booking_date.isoformat(),
+            'time_slot': f"{p.booking.start_time.strftime('%H:%M')} - {p.booking.end_time.strftime('%H:%M')}",
+            'amount': float(p.amount),
+            'commission_rate': float(p.commission_rate),
+            'commission_amount': float(p.commission_amount),
+            'net_amount': float(p.net_amount),
+            'paid_at': p.paid_at.isoformat() if p.paid_at else None,
+            'created_at': p.created_at.isoformat()
+        })
+    
+    return JsonResponse({
+        'status': 'ok',
+        'data': {
+            'mitra': {
+                'id': str(mitra.id),
+                'name': mitra.get_full_name() or mitra.username,
+                'email': mitra.email,
+                'phone_number': mitra.phone_number or '-',
+                'is_verified': mitra.is_verified
+            },
+            'summary': {
+                'total_earnings': total_earnings,
+                'total_commission': total_commission,
+                'total_transactions': len(transactions)
+            },
+            'transactions': transactions
+        }
+    })
 
 # Import forms and decorators from users app
 from app.users.forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm, VenueForm, CourtForm
