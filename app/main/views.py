@@ -3,11 +3,12 @@ from django.utils.safestring import mark_safe
 from django.db.models import Avg
 import json
 
-from app.backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
-from app.backend.models import (
-    Venue, VenueImage, VenueFacility, Facility, 
-    Court, Review, OperationalHour, Booking
-)
+from app.users.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
+from app.venues.models import Venue, VenueImage, VenueFacility, Facility, OperationalHour
+from app.courts.models import Court
+from app.reviews.models import Review
+from app.bookings.models import Booking
+
 
 
 def venue_list_view(request):

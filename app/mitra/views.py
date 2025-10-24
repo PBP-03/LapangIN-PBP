@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from app.backend.decorators import mitra_required
+from app.users.decorators import mitra_required
 
 @mitra_required
 def mitra_dashboard(request):

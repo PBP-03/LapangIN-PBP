@@ -48,7 +48,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'app.backend',
+    # New separated apps
+    'app.users',
+    'app.venues',
+    'app.courts',
+    'app.bookings',
+    'app.reviews',
+    'app.revenue',
+    # Existing apps
     'app.main',
     'app.mitra',
     'app.admin',
@@ -164,4 +171,4 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'  # merujuk ke /staticfiles untuk collects
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
-AUTH_USER_MODEL = 'backend.User'
+AUTH_USER_MODEL = 'users.User'

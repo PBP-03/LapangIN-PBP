@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from app.backend.decorators import admin_required
+from app.users.decorators import admin_required
 
 @admin_required
 def admin_dashboard(request):

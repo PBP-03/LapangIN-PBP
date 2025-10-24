@@ -1,24 +1,26 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.forms.models import model_to_dict
 from django.db.models import Sum, Count, Q, Avg
-from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, Review, VenueFacility
 from decimal import Decimal
 import json
-from .models import User, ActivityLog
-from .forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm
-from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, CourtSession
-from django.views.decorators.csrf import csrf_exempt
-from .forms import CustomLoginForm, CustomUserCreationForm, VenueForm, CourtForm
-from .decorators import login_required, role_required, anonymous_required
 from datetime import date
-from django.shortcuts import get_object_or_404
-from .models import User, ActivityLog, Booking
+
+# Import models from new apps
+from app.users.models import User
+from app.venues.models import Venue, SportsCategory, VenueFacility
+from app.courts.models import Court, CourtSession
+from app.bookings.models import Booking, Payment
+from app.reviews.models import Review
+from app.revenue.models import Pendapatan, ActivityLog
+
+# Import forms and decorators from users app
+from app.users.forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm, VenueForm, CourtForm
+from app.users.decorators import login_required, role_required, anonymous_required
 
 
 # Venue List & Search API
@@ -691,7 +693,6 @@ def api_booking_detail(request, booking_id):
 def api_mitra_list(request):
     """Return list of mitra users as JSON. Uses existing User model (role='mitra')."""
     try:
-        from .models import Venue, Court
         mitras = User.objects.filter(role='mitra')
         data = []
         for m in mitras:
@@ -931,7 +932,7 @@ def api_venues(request):
                 image_urls_str = request.POST.get('image_urls', '[]')
                 try:
                     image_urls = json.loads(image_urls_str)
-                    from .models import VenueImage
+                    from app.venues.models import VenueImage
                     for idx, url in enumerate(image_urls):
                         if url and url.strip():
                             VenueImage.objects.create(
@@ -1042,7 +1043,7 @@ def api_venue_detail(request, venue_id):
                 if image_urls_str:
                     try:
                         image_urls = json.loads(image_urls_str)
-                        from .models import VenueImage
+                        from app.venues.models import VenueImage
                         
                         # Clean and normalize submitted URLs
                         submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
@@ -1188,7 +1189,7 @@ def api_courts(request):
                 image_urls_str = request.POST.get('image_urls', '[]')
                 try:
                     image_urls = json.loads(image_urls_str)
-                    from .models import CourtImage
+                    from app.courts.models import CourtImage
                     for idx, url in enumerate(image_urls):
                         if url and url.strip():
                             CourtImage.objects.create(
@@ -1203,7 +1204,7 @@ def api_courts(request):
                 sessions_json = request.POST.get('sessions', '[]')
                 try:
                     sessions = json.loads(sessions_json)
-                    from .models import CourtSession
+                    from app.courts.models import CourtSession
                     for session_data in sessions:
                         CourtSession.objects.create(
                             court=court,
@@ -1286,7 +1287,7 @@ def api_court_detail(request, court_id):
             })
         
         # Get court sessions
-        from .models import CourtSession
+        from app.courts.models import CourtSession
         sessions = []
         for session in court.sessions.all():
             # Count total bookings for this session (pending or confirmed)
@@ -1340,7 +1341,7 @@ def api_court_detail(request, court_id):
                 if image_urls_str:
                     try:
                         image_urls = json.loads(image_urls_str)
-                        from .models import CourtImage
+                        from app.courts.models import CourtImage
                         
                         # Clean and normalize submitted URLs
                         submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
@@ -1367,7 +1368,7 @@ def api_court_detail(request, court_id):
                 sessions_json = request.POST.get('sessions', '[]')
                 try:
                     sessions = json.loads(sessions_json)
-                    from .models import CourtSession
+                    from app.courts.models import CourtSession
                     
                     # Get existing session IDs from the form data
                     existing_session_ids = [s.get('id') for s in sessions if s.get('id')]
@@ -1796,7 +1797,7 @@ def api_delete_venue_image(request, image_id):
         }, status=403)
     
     try:
-        from .models import VenueImage
+        from app.venues.models import VenueImage
         image = VenueImage.objects.get(id=image_id, venue__owner=request.user)
         image.delete()
         
@@ -1833,7 +1834,7 @@ def api_delete_court_image(request, image_id):
         }, status=403)
     
     try:
-        from .models import CourtImage
+        from app.courts.models import CourtImage
         image = CourtImage.objects.get(id=image_id, court__venue__owner=request.user)
         image.delete()
         
