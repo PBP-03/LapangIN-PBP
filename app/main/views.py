@@ -23,8 +23,10 @@ def venue_list_view(request):
     # Don't send initial data, let JavaScript fetch from API with pagination
     venues = []
     try:
-        # Only send first page for initial load
-        qs = Venue.objects.all()[:9]
+        # Only send first page for initial load - filter for approved venues only
+        qs = Venue.objects.filter(verification_status='approved').order_by('-created_at', 'name')[:9]
+        print(f"[Initial Load] Found {Venue.objects.filter(verification_status='approved').count()} approved venues")
+        print(f"[Initial Load] Showing first {qs.count()} venues")
         for v in qs:
             # pick a safe first image if available
             first_img = ''
@@ -58,13 +60,15 @@ def venue_list_view(request):
                 'avg_rating': round(avg_rating, 1),
                 'rating_count': rating_count,
             })
+            print(f"[Initial Load] Added venue: {v.name} (ID: {v.id})")
     except Exception as e:
         print(f"Error in venue_list_view: {e}")
         import traceback
         traceback.print_exc()
         venues = []
-    print(f"Total venues loaded: {len(venues)}")
-    print(venues)
+    print(f"[Initial Load] Total venues loaded: {len(venues)}")
+    venue_names = [v['name'] for v in venues]
+    print(f"[Initial Load] Venue names: {venue_names}")
     context = {
         'venues_json': mark_safe(json.dumps(venues, default=str)),
     }

@@ -89,7 +89,7 @@
 <div id="rejectionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
   <div class="bg-white rounded-2xl max-w-md w-full">
     <div class="p-6 border-b border-neutral-200">
-      <h2 class="text-xl font-display font-bold text-neutral-900">Alasan Penolakan</h2>
+      <h2 id="rejectionModalTitle" class="text-xl font-display font-bold text-neutral-900">Alasan Penolakan</h2>
     </div>
     <div class="p-6">
       <textarea 
@@ -324,9 +324,16 @@ async function openVenueDetailsModal(mitraId) {
     
     venues.forEach((venue, idx) => {
       const primaryImage = venue.images.find(img => img.is_primary) || venue.images[0];
-      const verificationBadge = venue.is_verified 
-        ? '<span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Verified</span>'
-        : '<span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>';
+      
+      // Get status badge based on verification_status field
+      let verificationBadge = '';
+      if (venue.verification_status === 'approved') {
+        verificationBadge = '<span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Approved</span>';
+      } else if (venue.verification_status === 'rejected') {
+        verificationBadge = '<span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">Rejected</span>';
+      } else {
+        verificationBadge = '<span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>';
+      }
       
       html += `
         <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-soft card-hover">
@@ -337,7 +344,7 @@ async function openVenueDetailsModal(mitraId) {
               </svg>
               ${escapeHtml(venue.name)}
             </h4>
-            ${verificationBadge}
+            <div id="venue-status-${venue.id}">${verificationBadge}</div>
           </div>
           <div class="p-6">
             ${primaryImage ? `
@@ -408,6 +415,28 @@ async function openVenueDetailsModal(mitraId) {
                 </div>
               </div>
             ` : '<p class="text-sm text-neutral-500 italic mt-3">Belum ada lapangan</p>'}
+            
+            <!-- Venue Approval Actions -->
+            <div class="mt-4 pt-4 border-t border-neutral-200 flex gap-2" id="venue-actions-${venue.id}">
+              ${venue.verification_status !== 'approved' ? `
+              <button onclick="updateVenueStatus('${venue.id}', 'approved')" 
+                      class="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-xl transition-colors">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Approve Venue
+              </button>
+              ` : ''}
+              ${venue.verification_status !== 'rejected' ? `
+              <button onclick="openVenueRejectionModal('${venue.id}')" 
+                      class="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-colors">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                Reject Venue
+              </button>
+              ` : ''}
+            </div>
           </div>
         </div>
       `;
@@ -437,14 +466,85 @@ function toggleCourts(venueId) {
   }
 }
 
+// Variables for venue rejection
+let currentVenueId = null;
+
+// Venue-specific status update
+async function updateVenueStatus(venueId, status) {
+  try {
+    const res = await fetch(`/api/venues/${venueId}/status/`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+      credentials: 'same-origin'
+    });
+
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message || 'Update failed');
+
+    showNotification(`Venue ${status === 'approved' ? 'disetujui' : 'ditolak'}!`, 'success');
+    
+    // Update the badge
+    const statusBadge = document.getElementById(`venue-status-${venueId}`);
+    if (statusBadge) {
+      if (status === 'approved') {
+        statusBadge.innerHTML = '<span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Approved</span>';
+      } else if (status === 'rejected') {
+        statusBadge.innerHTML = '<span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">Rejected</span>';
+      }
+    }
+    
+    // Update the action buttons
+    const actionsDiv = document.getElementById(`venue-actions-${venueId}`);
+    if (actionsDiv) {
+      actionsDiv.innerHTML = `
+        ${status !== 'approved' ? `
+        <button onclick="updateVenueStatus('${venueId}', 'approved')" 
+                class="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-xl transition-colors">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Approve Venue
+        </button>
+        ` : ''}
+        ${status !== 'rejected' ? `
+        <button onclick="openVenueRejectionModal('${venueId}')" 
+                class="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-colors">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          Reject Venue
+        </button>
+        ` : ''}
+      `;
+    }
+
+  } catch (err) {
+    showNotification('Gagal mengubah status venue: ' + (err.message || err), 'error');
+    console.error(err);
+  }
+}
+
+// Open rejection modal for venue
+function openVenueRejectionModal(venueId) {
+  currentVenueId = venueId;
+  currentMitraId = null; // Clear mitra ID
+  document.getElementById('rejectionModalTitle').textContent = 'Alasan Penolakan Venue';
+  document.getElementById('rejectionReason').value = '';
+  document.getElementById('rejectionModal').classList.remove('hidden');
+}
+
 function openRejectionModal(id) {
   currentMitraId = id;
+  currentVenueId = null; // Clear venue ID
+  document.getElementById('rejectionModalTitle').textContent = 'Alasan Penolakan Mitra';
   document.getElementById('rejectionReason').value = '';
   document.getElementById('rejectionModal').classList.remove('hidden');
 }
 
 function closeRejectionModal() {
   currentMitraId = null;
+  currentVenueId = null;
   document.getElementById('rejectionReason').value = '';
   document.getElementById('rejectionModal').classList.add('hidden');
 }
@@ -457,36 +557,80 @@ async function submitRejection() {
     return;
   }
 
-  if (!currentMitraId) {
-    showNotification('ID Mitra tidak valid!', 'error');
-    return;
-  }
+  // Check if this is a venue or mitra rejection
+  if (currentVenueId) {
+    // Venue rejection
+    try {
+      const res = await fetch(`/api/venues/${currentVenueId}/status/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          status: 'rejected',
+          rejection_reason: reason 
+        }),
+        credentials: 'same-origin'
+      });
 
-  try {
-    const res = await fetch(`/api/mitra/${currentMitraId}/`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        status: 'rejected',
-        rejection_reason: reason 
-      }),
-      credentials: 'same-origin'
-    });
+      const json = await res.json();
+      if (json.status !== 'ok') throw new Error(json.message || 'Update failed');
 
-    const json = await res.json();
-    if (json.status !== 'ok') throw new Error(json.message || 'Update failed');
+      showNotification('Venue berhasil ditolak!', 'success');
+      closeRejectionModal();
+      
+      // Update the badge
+      const statusBadge = document.getElementById(`venue-status-${currentVenueId}`);
+      if (statusBadge) {
+        statusBadge.innerHTML = '<span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">Rejected</span>';
+      }
+      
+      // Update the action buttons
+      const actionsDiv = document.getElementById(`venue-actions-${currentVenueId}`);
+      if (actionsDiv) {
+        actionsDiv.innerHTML = `
+          <button onclick="updateVenueStatus('${currentVenueId}', 'approved')" 
+                  class="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-xl transition-colors">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Approve Venue
+          </button>
+        `;
+      }
 
-    showNotification('Mitra berhasil ditolak!', 'success');
-    closeRejectionModal();
-    
-    // Reload the mitra list to refresh the UI
-    document.getElementById('mitraContent').classList.add('hidden');
-    document.getElementById('mitraLoading').classList.remove('hidden');
-    await fetchMitras();
+    } catch (err) {
+      showNotification('Gagal menolak venue: ' + (err.message || err), 'error');
+      console.error(err);
+    }
+  } else if (currentMitraId) {
+    // Mitra rejection
+    try {
+      const res = await fetch(`/api/mitra/${currentMitraId}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          status: 'rejected',
+          rejection_reason: reason 
+        }),
+        credentials: 'same-origin'
+      });
 
-  } catch (err) {
-    showNotification('Gagal mengubah status: ' + (err.message || err), 'error');
-    console.error(err);
+      const json = await res.json();
+      if (json.status !== 'ok') throw new Error(json.message || 'Update failed');
+
+      showNotification('Mitra berhasil ditolak!', 'success');
+      closeRejectionModal();
+      
+      // Reload the mitra list to refresh the UI
+      document.getElementById('mitraContent').classList.add('hidden');
+      document.getElementById('mitraLoading').classList.remove('hidden');
+      await fetchMitras();
+
+    } catch (err) {
+      showNotification('Gagal mengubah status: ' + (err.message || err), 'error');
+      console.error(err);
+    }
+  } else {
+    showNotification('ID tidak valid!', 'error');
   }
 }
 
@@ -512,6 +656,45 @@ async function updateStatus(id, status) {
     showNotification('Gagal mengubah status: ' + (err.message || err), 'error');
     console.error(err);
   }
+}
+
+// Notification function
+function showNotification(message, type = 'info') {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg border ${
+    type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
+    type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
+    'bg-blue-50 border-blue-200 text-blue-800'
+  } transition-all transform translate-x-0`;
+  notification.style.minWidth = '300px';
+  notification.innerHTML = `
+    <div class="flex items-center">
+      ${type === 'success' ? `
+        <svg class="w-5 h-5 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      ` : type === 'error' ? `
+        <svg class="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      ` : `
+        <svg class="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      `}
+      <p class="font-medium">${message}</p>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    notification.style.transform = 'translateX(400px)';
+    notification.style.opacity = '0';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
 }
 
 // Initialize on page load
