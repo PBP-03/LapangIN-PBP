@@ -11,8 +11,10 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     
     # Role-specific dashboard URLs
-    path('mitra/', include('main.mitra.urls',"mitra"),name='mitra'),
-    path('admin/', include('main.admin.urls',"admin"),name='admin'),
+    path('mitra/', include(( 'main.mitra.urls', 'main.mitra'), 'main.mitra'), name='mitra'),
+    path('admin/', include(( 'main.admin.urls', 'main.admin'), 'main.admin'), name='admin'),
+    # Direct route to admin mitra page (convenience name 'admin')
+    path('admin/mitra/', views.admin_mitra_page, name='admin'),
 
     # Additional dashboard URLs for better UX
     path('dashboard/', views.user_dashboard, name='user_dashboard'),
@@ -20,4 +22,6 @@ urlpatterns = [
     # Venue list & detail
     path('lapangan/', views.venue_list_view, name='venue_list'),
     path('lapangan/<str:venue_id>/', views.venue_detail_view, name='venue_detail')
+    
+    path('profile/', views.profile_view, name='profile'),
 ]

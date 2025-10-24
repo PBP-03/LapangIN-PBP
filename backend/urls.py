@@ -16,6 +16,9 @@ urlpatterns = [
     path('user-dashboard/', views.api_user_dashboard, name='api_user_dashboard'),
     path('mitra-dashboard/', views.api_mitra_dashboard, name='api_mitra_dashboard'),
     path('admin-dashboard/', views.api_admin_dashboard, name='api_admin_dashboard'),
+
+    # Profile management (read / update / delete)
+    path('profile/', views.api_profile, name='api_profile'),
     
     # API Venues URLs
     path('venues/', views.api_venues, name='api_venues'),
@@ -44,4 +47,9 @@ urlpatterns = [
     # API Image Management URLs
     path('venue-images/<int:image_id>/delete/', views.api_delete_venue_image, name='api_delete_venue_image'),
     path('court-images/<int:image_id>/delete/', views.api_delete_court_image, name='api_delete_court_image'),
+
+    # Admin Mitra management
+    path('mitra/', views.api_mitra_list, name='api_mitra_list'),
+    path('mitra/<uuid:mitra_id>/', views.api_mitra_update_status, name='api_mitra_update_status'),
+    path('mitra/<uuid:mitra_id>/venues/', views.api_mitra_venue_details, name='api_mitra_venue_details'),
 ]
