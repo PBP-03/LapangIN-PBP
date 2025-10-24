@@ -50,18 +50,27 @@ def api_venue_list(request):
     for v in venues:
         images = [img.image.url for img in v.images.all()]
         avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0
+        
+        # Get all unique categories from courts in this venue
+        courts = Court.objects.filter(venue=v).select_related('category')
+        categories = set()
+        for court in courts:
+            if court.category:
+                categories.add(court.category.get_name_display())
+        categories_display = ', '.join(sorted(categories)) if categories else ''
+        
         data.append({
             'id': str(v.id),
             'name': v.name,
-            'category': v.category.get_name_display(),
-            'category_icon': v.category.icon.url if v.category.icon else None,
+            'category': categories_display,
+            'category_icon': v.category.icon.url if v.category and v.category.icon else None,
             'address': v.address,
             'location_url': v.location_url,
             'contact': v.contact,
             'price_per_hour': float(v.price_per_hour),
             'number_of_courts': v.number_of_courts,
             'images': images,
-            'avg_rating': avg_rating,
+            'avg_rating': round(avg_rating, 1),
             'rating_count': Review.objects.filter(booking__court__venue=v).count(),
         })
     return JsonResponse({'status': 'ok', 'data': data})

@@ -26,21 +26,38 @@ def venue_list_view(request):
                 img = VenueImage.objects.filter(venue=v).order_by('-is_primary', 'id').first()
                 if img and img.image_url:
                     first_img = img.image_url
-            except Exception:
+            except Exception as e:
+                print(f"Error getting image for venue {v.name}: {e}")
                 first_img = ''
 
+            # Calculate average rating
+            avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0.0
+            rating_count = Review.objects.filter(booking__court__venue=v).count()
+            
+            # Get all unique categories from courts in this venue
+            courts = Court.objects.filter(venue=v).select_related('category')
+            categories = set()
+            for court in courts:
+                if court.category:
+                    categories.add(court.category.get_name_display())
+            categories_display = ', '.join(sorted(categories)) if categories else ''
+            
             venues.append({
                 'id': str(v.id),
                 'name': v.name,
-                'category': v.category.name if getattr(v, 'category', None) else '',
+                'category': categories_display,
                 'address': getattr(v, 'address', '') or '',
                 'price_per_hour': float(Court.objects.filter(venue=v).aggregate(Avg('price_per_hour'))['price_per_hour__avg'] or 0),
                 'images': [first_img] if first_img else [],
-                'avg_rating': 0.0,
-                'rating_count': Review.objects.filter(booking__court__venue=v).count(),
+                'avg_rating': round(avg_rating, 1),
+                'rating_count': rating_count,
             })
-    except Exception:
+    except Exception as e:
+        print(f"Error in venue_list_view: {e}")
+        import traceback
+        traceback.print_exc()
         venues = []
+    print(f"Total venues loaded: {len(venues)}")
     print(venues)
     context = {
         'venues_json': mark_safe(json.dumps(venues, default=str)),
