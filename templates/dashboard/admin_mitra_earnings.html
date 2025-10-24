@@ -4,6 +4,9 @@
 {% block title %}Total Earnings Mitra - LapangIN{% endblock %}
 
 {% block content %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 <div class="min-h-screen bg-neutral-50">
   <!-- Header -->
   <div class="bg-white border-b border-neutral-200">
@@ -474,6 +477,29 @@ async function openTransactionDetailsModal(mitraId) {
         </div>
       </div>
       
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 gap-6 mb-6">
+        <!-- Earnings Timeline Chart -->
+        <div class="bg-white rounded-xl p-6 border border-neutral-200">
+          <h3 class="text-lg font-semibold text-neutral-900 mb-4">Earnings Timeline</h3>
+          <canvas id="earningsTimelineChart" style="max-height: 300px;"></canvas>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Revenue by Venue Chart -->
+          <div class="bg-white rounded-xl p-6 border border-neutral-200">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">Revenue by Venue</h3>
+            <canvas id="revenueByVenueChart" style="max-height: 300px;"></canvas>
+          </div>
+          
+          <!-- Earnings Breakdown Chart -->
+          <div class="bg-white rounded-xl p-6 border border-neutral-200">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">Earnings Breakdown</h3>
+            <canvas id="earningsBreakdownChart" style="max-height: 300px;"></canvas>
+          </div>
+        </div>
+      </div>
+      
       <!-- Transactions List -->
       <div class="mb-4">
         <h3 class="text-lg font-semibold text-neutral-900 mb-3">Daftar Transaksi</h3>
@@ -546,6 +572,11 @@ async function openTransactionDetailsModal(mitraId) {
     }
     
     content.innerHTML = html;
+    
+    // Render charts after content is loaded
+    if (transactions && transactions.length > 0) {
+      renderCharts(transactions, summary);
+    }
   } catch (err) {
     console.error(err);
     content.innerHTML = `
@@ -562,8 +593,203 @@ async function openTransactionDetailsModal(mitraId) {
   }
 }
 
+// Chart rendering
+let revenueChart = null;
+let breakdownChart = null;
+let timelineChart = null;
+
+function renderCharts(transactions, summary) {
+  // Destroy existing charts
+  if (revenueChart) revenueChart.destroy();
+  if (breakdownChart) breakdownChart.destroy();
+  if (timelineChart) timelineChart.destroy();
+  
+  // Group transactions by date
+  const dateData = {};
+  transactions.forEach(txn => {
+    const date = new Date(txn.booking_date).toLocaleDateString('id-ID');
+    if (!dateData[date]) {
+      dateData[date] = 0;
+    }
+    dateData[date] += parseFloat(txn.net_amount);
+  });
+  
+  // Sort dates
+  const sortedDates = Object.keys(dateData).sort((a, b) => {
+    return new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-'));
+  });
+  const dateRevenues = sortedDates.map(date => dateData[date]);
+  
+  // Group transactions by venue
+  const venueData = {};
+  transactions.forEach(txn => {
+    if (!venueData[txn.venue_name]) {
+      venueData[txn.venue_name] = 0;
+    }
+    venueData[txn.venue_name] += parseFloat(txn.net_amount);
+  });
+  
+  const venueNames = Object.keys(venueData);
+  const venueRevenues = Object.values(venueData);
+  
+  // Chart 1: Earnings Timeline (Line Chart)
+  const ctxTimeline = document.getElementById('earningsTimelineChart');
+  if (ctxTimeline) {
+    timelineChart = new Chart(ctxTimeline, {
+      type: 'line',
+      data: {
+        labels: sortedDates,
+        datasets: [{
+          label: 'Daily Earnings (Rp)',
+          data: dateRevenues,
+          borderColor: 'rgba(59, 130, 246, 1)',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return 'Rp ' + (value / 1000).toFixed(0) + 'k';
+              }
+            }
+          },
+          x: {
+            ticks: {
+              maxRotation: 45,
+              minRotation: 45
+            }
+          }
+        }
+      }
+    });
+  }
+  
+  // Chart 2: Revenue by Venue (Bar Chart)
+  const ctx1 = document.getElementById('revenueByVenueChart');
+  if (ctx1) {
+    revenueChart = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: venueNames,
+        datasets: [{
+          label: 'Revenue (Rp)',
+          data: venueRevenues,
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1,
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return 'Rp ' + (value / 1000).toFixed(0) + 'k';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+  
+  // Chart 3: Earnings Breakdown (Doughnut Chart)
+  const ctx2 = document.getElementById('earningsBreakdownChart');
+  if (ctx2) {
+    breakdownChart = new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Net Earnings', 'Commission'],
+        datasets: [{
+          data: [
+            parseFloat(summary.total_earnings),
+            parseFloat(summary.total_commission)
+          ],
+          backgroundColor: [
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderColor: [
+            'rgba(34, 197, 94, 1)',
+            'rgba(239, 68, 68, 1)'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                return label + ': Rp ' + value.toLocaleString('id-ID');
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
 function closeTransactionDetailsModal() {
   document.getElementById('transactionDetailsModal').classList.add('hidden');
+  // Destroy charts when closing
+  if (timelineChart) {
+    timelineChart.destroy();
+    timelineChart = null;
+  }
+  if (revenueChart) {
+    revenueChart.destroy();
+    revenueChart = null;
+  }
+  if (breakdownChart) {
+    breakdownChart.destroy();
+    breakdownChart = null;
+  }
 }
 
 // Refund modal functions
