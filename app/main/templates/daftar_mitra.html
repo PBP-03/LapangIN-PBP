@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Daftar Mitra - LapangIN{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50">
+  
+  <!-- Hero Section -->
+  <div class="relative h-[600px] overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-900/90 via-secondary-900/85 to-teal-900/90"></div>
+    <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=1600&h=600&fit=crop" 
+         alt="Mitra Partnership" 
+         class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-40">
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center text-white">
+      <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-6 animate-fade-in-down">
+        <div class="w-2 h-2 bg-teal-300 rounded-full mr-2 animate-pulse"></div>
+        <span class="text-sm font-semibold">Peluang Bisnis Terbaik</span>
+      </div>
+      
+      <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+        <span class="block">Jadilah</span>
+        <span class="block text-teal-300">Mitra LapangIN</span>
+      </h1>
+      
+      <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto opacity-95 leading-relaxed">
+        Tingkatkan pendapatan venue Anda dengan bergabung bersama platform booking lapangan #1 di Indonesia
+      </p>
+      
+      <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <a href="/register" class="inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-neutral-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+          </svg>
+          Daftar Sebagai Mitra
+        </a>
+        <a href="#benefits" class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-primary-600 transition-all">
+          Pelajari Keuntungan
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="bg-white rounded-2xl shadow-xl border border-neutral-200 p-6 text-center scroll-animate">
+        <div class="text-4xl font-bold text-primary-600 mb-2">10K+</div>
+        <div class="text-sm text-neutral-600">Pengguna Aktif</div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-xl border border-neutral-200 p-6 text-center scroll-animate">
+        <div class="text-4xl font-bold text-green-600 mb-2">100+</div>
+        <div class="text-sm text-neutral-600">Mitra Terpercaya</div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-xl border border-neutral-200 p-6 text-center scroll-animate">
+        <div class="text-4xl font-bold text-blue-600 mb-2">50K+</div>
+        <div class="text-sm text-neutral-600">Booking/Bulan</div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-xl border border-neutral-200 p-6 text-center scroll-animate">
+        <div class="text-4xl font-bold text-yellow-600 mb-2">4.9★</div>
+        <div class="text-sm text-neutral-600">Rating Pengguna</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Benefits Section -->
+  <div id="benefits" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center mb-16 scroll-animate">
+      <p class="text-sm text-primary-600 font-semibold uppercase tracking-wider mb-2">KEUNTUNGAN</p>
+      <h2 class="text-4xl md:text-5xl font-bold text-neutral-900 mb-6">
+        Mengapa Bergabung dengan <span class="text-gradient bg-gradient-to-r from-primary-600 to-teal-600 bg-clip-text text-transparent">LapangIN</span>?
+      </h2>
+      <p class="text-lg text-neutral-600 max-w-2xl mx-auto">
+        Dapatkan berbagai keuntungan eksklusif untuk mengembangkan bisnis venue Anda
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Benefit 1 -->
+      <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft hover:shadow-lg transition-all scroll-animate">
+        <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-neutral-900 mb-3">Tingkatkan Pendapatan</h3>
+        <p class="text-neutral-600 leading-relaxed">
+          Rata-rata mitra kami mengalami peningkatan pendapatan hingga 200% dalam 3 bulan pertama
+        </p>
+      </div>
+
+      <!-- Benefit 2 -->
+      <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft hover:shadow-lg transition-all scroll-animate">
+        <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-neutral-900 mb-3">Komisi Kompetitif</h3>
+        <p class="text-neutral-600 leading-relaxed">
+          Dapatkan komisi menarik dari setiap transaksi dengan sistem pembayaran yang transparan
+        </p>
+      </div>
+
+      <!-- Benefit 3 -->
+      <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft hover:shadow-lg transition-all scroll-animate">
+        <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-neutral-900 mb-3">Dashboard Lengkap</h3>
+        <p class="text-neutral-600 leading-relaxed">
+          Kelola venue, monitor booking, dan analisa performa bisnis dalam satu platform
+        </p>
+      </div>
+
+      <!-- Benefit 4 -->
+      <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft hover:shadow-lg transition-all scroll-animate">
+        <div class="w-14 h-14 bg-teal-100 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-neutral-900 mb-3">Jangkauan Lebih Luas</h3>
+        <p class="text-neutral-600 leading-relaxed">
+          Akses ke ribuan pengguna aktif yang mencari lapangan di seluruh Indonesia
+        </p>
+      </div>
+
+      <!-- Benefit 5 -->
+      <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft hover:shadow-lg transition-all scroll-animate">
+        <div class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-neutral-900 mb-3">Support 24/7</h3>
+        <p class="text-neutral-600 leading-relaxed">
+          Tim support kami siap membantu Anda kapan saja untuk memaksimalkan bisnis Anda
+        </p>
+      </div>
+
+      <!-- Benefit 6 -->
+      <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft hover:shadow-lg transition-all scroll-animate">
+        <div class="w-14 h-14 bg-pink-100 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-7 h-7 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-neutral-900 mb-3">Pembayaran Aman</h3>
+        <p class="text-neutral-600 leading-relaxed">
+          Sistem pembayaran otomatis dan aman, pencairan dana tepat waktu setiap periode
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Section -->
+  <div class="bg-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 scroll-animate">
+        <p class="text-sm text-primary-600 font-semibold uppercase tracking-wider mb-2">CARA KERJA</p>
+        <h2 class="text-4xl md:text-5xl font-bold text-neutral-900 mb-6">
+          Mudah Menjadi <span class="text-gradient bg-gradient-to-r from-primary-600 to-teal-600 bg-clip-text text-transparent">Mitra</span>
+        </h2>
+        <p class="text-lg text-neutral-600 max-w-2xl mx-auto">
+          Proses pendaftaran yang mudah dan cepat, mulai terima booking dalam hitungan hari
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Step 1 -->
+        <div class="text-center scroll-animate">
+          <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <span class="text-3xl font-bold text-white">1</span>
+          </div>
+          <h3 class="text-xl font-bold text-neutral-900 mb-3">Daftar Akun</h3>
+          <p class="text-neutral-600 leading-relaxed">
+            Daftar sebagai Mitra melalui form registrasi dengan data venue Anda
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="text-center scroll-animate">
+          <div class="w-20 h-20 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <span class="text-3xl font-bold text-white">2</span>
+          </div>
+          <h3 class="text-xl font-bold text-neutral-900 mb-3">Verifikasi</h3>
+          <p class="text-neutral-600 leading-relaxed">
+            Tim kami akan melakukan verifikasi venue Anda dalam 1-2 hari kerja
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="text-center scroll-animate">
+          <div class="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <span class="text-3xl font-bold text-white">3</span>
+          </div>
+          <h3 class="text-xl font-bold text-neutral-900 mb-3">Setup Lapangan</h3>
+          <p class="text-neutral-600 leading-relaxed">
+            Tambahkan detail lapangan, foto, harga, dan jadwal ketersediaan
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="text-center scroll-animate">
+          <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <span class="text-3xl font-bold text-white">4</span>
+          </div>
+          <h3 class="text-xl font-bold text-neutral-900 mb-3">Mulai Terima Booking</h3>
+          <p class="text-neutral-600 leading-relaxed">
+            Venue Anda siap menerima booking dari ribuan pengguna LapangIN
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center mb-16 scroll-animate">
+      <p class="text-sm text-primary-600 font-semibold uppercase tracking-wider mb-2">TESTIMONI</p>
+      <h2 class="text-4xl md:text-5xl font-bold text-neutral-900 mb-6">
+        Kata Mereka tentang <span class="text-gradient bg-gradient-to-r from-primary-600 to-teal-600 bg-clip-text text-transparent">LapangIN</span>
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Testimonial 1 -->
+      <div class="bg-white rounded-2xl p-8 border border-neutral-200 shadow-soft scroll-animate">
+        <div class="flex items-center mb-4">
+          <div class="flex text-yellow-400">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+          </div>
+        </div>
+        <p class="text-neutral-600 leading-relaxed mb-6 italic">
+          "Sejak bergabung dengan LapangIN, booking lapangan futsal kami meningkat 3x lipat! Platform yang sangat membantu untuk mengelola bisnis."
+        </p>
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
+            AB
+          </div>
+          <div>
+            <div class="font-bold text-neutral-900">Andi Budiman</div>
+            <div class="text-sm text-neutral-600">Owner Futsal Arena BSD</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="bg-white rounded-2xl p-8 border border-neutral-200 shadow-soft scroll-animate">
+        <div class="flex items-center mb-4">
+          <div class="flex text-yellow-400">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+          </div>
+        </div>
+        <p class="text-neutral-600 leading-relaxed mb-6 italic">
+          "Dashboard-nya mudah digunakan, pembayaran selalu tepat waktu. Sangat membantu dalam mengelola 5 lapangan badminton kami."
+        </p>
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
+            SW
+          </div>
+          <div>
+            <div class="font-bold text-neutral-900">Siti Wijaya</div>
+            <div class="text-sm text-neutral-600">Owner Wijaya Sports Center</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="bg-white rounded-2xl p-8 border border-neutral-200 shadow-soft scroll-animate">
+        <div class="flex items-center mb-4">
+          <div class="flex text-yellow-400">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+          </div>
+        </div>
+        <p class="text-neutral-600 leading-relaxed mb-6 italic">
+          "Support team-nya responsif banget! Ada kendala langsung dibantu. Highly recommended untuk semua pemilik venue olahraga."
+        </p>
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
+            RP
+          </div>
+          <div>
+            <div class="font-bold text-neutral-900">Rudi Prasetyo</div>
+            <div class="text-sm text-neutral-600">Owner Grand Sport Complex</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final CTA Section -->
+  <div class="bg-gradient-to-br from-primary-600 via-secondary-600 to-teal-600 relative overflow-hidden py-20">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-32 -translate-y-32"></div>
+      <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-48 translate-y-48"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+      <h2 class="text-4xl md:text-5xl font-bold mb-6">
+        Siap Bergabung Bersama Kami?
+      </h2>
+      <p class="text-xl mb-10 max-w-2xl mx-auto opacity-95">
+        Daftar sekarang dan mulai tingkatkan bisnis venue Anda bersama LapangIN
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <a href="/register" class="inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-neutral-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+          </svg>
+          Daftar Sebagai Mitra
+        </a>
+        <a href="/kontak" class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-primary-600 transition-all">
+          Hubungi Kami
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+        </a>
+      </div>
+
+      <div class="mt-12 text-sm opacity-90">
+        <p>Punya pertanyaan? Tim kami siap membantu Anda</p>
+        <p class="mt-2">Email: <a href="mailto:mitra@lapangin.com" class="underline hover:text-teal-200">mitra@lapangin.com</a> | WhatsApp: <a href="https://wa.me/6281234567890" class="underline hover:text-teal-200">+62 812-3456-7890</a></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-animate.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #5409da 0%, #14b8a6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+
+<script>
+  // Scroll animation
+  document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const animateElements = document.querySelectorAll('.scroll-animate');
+    animateElements.forEach(element => {
+      observer.observe(element);
+    });
+  });
+</script>
+
+{% endblock %}

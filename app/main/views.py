@@ -183,3 +183,7 @@ def about_view(request):
 def contact_view(request):
     """Contact page"""
     return render(request, 'contact.html')
+
+def daftar_mitra_view(request):
+    """Daftar Mitra page"""
+    return render(request, 'daftar_mitra.html')

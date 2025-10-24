@@ -33,6 +33,7 @@
           <a href="{% url 'main:venue_list' %}" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if current == 'lapangan_list' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600{% endif %}">Cari Lapangan</a>
           <a href="{% url 'main:about' %}" class="nav-link">Tentang</a>
           <a href="{% url 'main:contact' %}" class="nav-link">Kontak</a>
+          <a href="{% url 'main:daftar_mitra' %}" class="nav-link">Mitra</a>
         </div>    
       </div>
 
@@ -221,6 +222,15 @@
       <a href="" class="nav-link-mobile block px-3 py-2 rounded-lg text-base font-medium transition-colors {% if current == 'lapangan_list' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600 hover:bg-neutral-100{% endif %}">Cari Lapangan</a>
       <a href="" class="nav-link-mobile block px-3 py-2 rounded-lg text-base font-medium transition-colors {% if current == 'about' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600 hover:bg-neutral-100{% endif %}">Tentang</a>
       <a href="" class="nav-link-mobile block px-3 py-2 rounded-lg text-base font-medium transition-colors {% if current == 'contact' %}active text-primary-700 bg-primary-50{% else %}text-neutral-700 hover:text-primary-600 hover:bg-neutral-100{% endif %}">Kontak</a>
+      
+      <div class="px-3 pt-3">
+        <a href="{% url 'main:daftar_mitra' %}" class="flex items-center justify-center px-4 py-3 rounded-lg text-base font-semibold bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700 transition-all {% if current == 'daftar_mitra' %}ring-2 ring-teal-300{% endif %}">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+          Daftar Mitra
+        </a>
+      </div>
 
       <div class="pt-4 pb-3 border-t border-neutral-200">
         {% if user.is_authenticated %}
