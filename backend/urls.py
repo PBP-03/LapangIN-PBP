@@ -16,6 +16,9 @@ urlpatterns = [
     path('user-dashboard/', views.api_user_dashboard, name='api_user_dashboard'),
     path('mitra-dashboard/', views.api_mitra_dashboard, name='api_mitra_dashboard'),
     path('admin-dashboard/', views.api_admin_dashboard, name='api_admin_dashboard'),
+
+    # Profile management (read / update / delete)
+    path('profile/', views.api_profile, name='api_profile'),
     
     # API Mitra URLs - Venues
     path('venues/', views.api_venues, name='api_venues'),

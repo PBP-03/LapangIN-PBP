@@ -9,10 +9,15 @@ from django.forms.models import model_to_dict
 from django.db.models import Sum, Count, Q
 from decimal import Decimal
 import json
+from .models import User, ActivityLog
+from .forms import CustomLoginForm, CustomUserCreationForm, CustomUserUpdateForm
 from .models import User, ActivityLog, Venue, Court, Pendapatan, SportsCategory, Booking, Payment, CourtSession
 from django.views.decorators.csrf import csrf_exempt
 from .forms import CustomLoginForm, CustomUserCreationForm, VenueForm, CourtForm
 from .decorators import login_required, role_required, anonymous_required
+from datetime import date
+from django.shortcuts import get_object_or_404
+from .models import User, ActivityLog, Booking
 
 # Create your views here.
 
@@ -343,6 +348,119 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+@require_http_methods(["GET", "PUT", "DELETE"])
+def api_profile(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
+
+    user = request.user
+
+    # Read
+    if request.method == 'GET':
+        user_data = {
+            'id': str(user.id),
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'role': user.role,
+            'phone_number': user.phone_number,
+            'address': user.address,
+            'profile_picture': user.profile_picture,  # Return URL directly
+            'created_at': user.created_at.isoformat() if getattr(user, 'created_at', None) else None,
+        }
+        return JsonResponse({'success': True, 'data': {'user': user_data}})
+
+    # Update
+    if request.method == 'PUT':
+        try:
+            # Always expect JSON since profile_picture is a URL field
+            data = json.loads(request.body or '{}')
+            password = data.pop('password', None)
+
+            # Username uniqueness validation
+            new_username = data.get('username', user.username)
+            if new_username != user.username and User.objects.filter(username=new_username).exclude(id=user.id).exists():
+                return JsonResponse({'success': False, 'message': 'Username sudah digunakan'}, status=400)
+
+            form = CustomUserUpdateForm(data, instance=user)
+            if form.is_valid():
+                form.save()
+                if password:
+                    user.set_password(password)
+                    user.save()
+
+                ActivityLog.objects.create(
+                    user=user,
+                    action_type='update',
+                    description=f'User {user.username} updated profile via API',
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+
+                updated = {
+                    'id': str(user.id),
+                    'username': user.username,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'email': user.email,
+                    'phone_number': user.phone_number,
+                    'address': user.address,
+                    'profile_picture': user.profile_picture,  # Return URL directly
+                }
+                return JsonResponse({'success': True, 'message': 'Profile updated', 'data': {'user': updated}})
+            else:
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    errors[field] = [str(e) for e in field_errors]
+                return JsonResponse({'success': False, 'message': 'Validation failed', 'errors': errors}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Server error: {str(e)}'}, status=500)
+        
+    # Delete
+    if request.method == 'DELETE':
+        try:
+            ActivityLog.objects.create(
+                user=user,
+                action_type='delete',
+                description=f'User {user.username} requested account deletion via API',
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+
+            username = user.username
+            logout(request)
+            user.delete()
+
+            return JsonResponse({'success': True, 'message': f'Account {username} deleted'})
+        except Exception:
+            return JsonResponse({'success': False, 'message': 'Server error'}, status=500)
+
+@require_http_methods(["DELETE"])
+def api_booking_detail(request, booking_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
+
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    if booking.user_id != request.user.id:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+
+    if booking.booking_date <= date.today():
+        return JsonResponse({'success': False, 'message': 'Cannot cancel booking on or after booking day'}, status=400)
+
+    try:
+        booking.booking_status = 'cancelled'
+        try:
+            booking.payment_status = 'refunded'
+        except Exception:
+            pass
+        booking.save()
+        return JsonResponse({'success': True, 'message': 'Booking cancelled'})
+    except Exception:
+        return JsonResponse({'success': False, 'message': 'Failed to cancel booking'}, status=500)
 
 # ============================================
 # MITRA MANAGEMENT (Admin-facing) API
@@ -699,19 +817,30 @@ def api_venue_detail(request, venue_id):
             if form.is_valid():
                 venue = form.save()
                 
-                # Handle new image URLs (JSON array of URLs)
+                # Handle image URLs update
+                # Delete images not in the submitted list, add new ones
                 image_urls_str = request.POST.get('image_urls', '')
                 if image_urls_str:
                     try:
                         image_urls = json.loads(image_urls_str)
                         from .models import VenueImage
-                        for idx, url in enumerate(image_urls):
-                            if url and url.strip():
-                                # If this is the first image and venue has no primary image, make it primary
+                        
+                        # Clean and normalize submitted URLs
+                        submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
+                        
+                        # Delete images that are not in the submitted list
+                        venue.images.exclude(image_url__in=submitted_urls).delete()
+                        
+                        # Get current image URLs after deletion
+                        existing_urls = set(venue.images.values_list('image_url', flat=True))
+                        
+                        # Add new images that don't exist yet
+                        for idx, url in enumerate(submitted_urls):
+                            if url not in existing_urls:
                                 is_primary = (idx == 0 and not venue.images.filter(is_primary=True).exists())
                                 VenueImage.objects.create(
                                     venue=venue,
-                                    image_url=url.strip(),
+                                    image_url=url,
                                     is_primary=is_primary
                                 )
                     except (json.JSONDecodeError, ValueError):
@@ -852,7 +981,6 @@ def api_courts(request):
                     pass  # Continue without images if parsing fails
                 
                 # Handle session slots
-                import json
                 sessions_json = request.POST.get('sessions', '[]')
                 try:
                     sessions = json.loads(sessions_json)
@@ -987,26 +1115,36 @@ def api_court_detail(request, court_id):
             if form.is_valid():
                 court = form.save()
                 
-                # Handle new image URLs (JSON array of URLs)
+                # Handle image URLs update
+                # Delete images not in the submitted list, add new ones
                 image_urls_str = request.POST.get('image_urls', '')
                 if image_urls_str:
                     try:
                         image_urls = json.loads(image_urls_str)
                         from .models import CourtImage
-                        for idx, url in enumerate(image_urls):
-                            if url and url.strip():
-                                # If this is the first image and court has no primary image, make it primary
+                        
+                        # Clean and normalize submitted URLs
+                        submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
+                        
+                        # Delete images that are not in the submitted list
+                        court.images.exclude(image_url__in=submitted_urls).delete()
+                        
+                        # Get current image URLs after deletion
+                        existing_urls = set(court.images.values_list('image_url', flat=True))
+                        
+                        # Add new images that don't exist yet
+                        for idx, url in enumerate(submitted_urls):
+                            if url not in existing_urls:
                                 is_primary = (idx == 0 and not court.images.filter(is_primary=True).exists())
                                 CourtImage.objects.create(
                                     court=court,
-                                    image_url=url.strip(),
+                                    image_url=url,
                                     is_primary=is_primary
                                 )
                     except (json.JSONDecodeError, ValueError):
                         pass  # Continue without images if parsing fails
                 
                 # Handle session slots update
-                import json
                 sessions_json = request.POST.get('sessions', '[]')
                 try:
                     sessions = json.loads(sessions_json)

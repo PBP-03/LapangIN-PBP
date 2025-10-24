@@ -275,3 +275,17 @@ class CourtForm(forms.ModelForm):
         self.fields['is_active'].label = 'Aktif'
         self.fields['maintenance_notes'].label = 'Catatan Maintenance'
         self.fields['description'].label = 'Deskripsi Lapangan'
+
+class CustomUserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'address', 'profile_picture']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Username'}),
+            'first_name': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Nama depan'}),
+            'last_name': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Nama belakang'}),
+            'email': forms.EmailInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Email'}),
+            'phone_number': forms.TextInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Nomor telepon'}),
+            'address': forms.Textarea(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'Alamat', 'rows':3}),
+            'profile_picture': forms.URLInput(attrs={'class': 'w-full px-4 py-3 rounded-xl border', 'placeholder': 'URL Foto Profil'}),  # Changed from ClearableFileInput
+        }

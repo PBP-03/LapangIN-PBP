@@ -18,4 +18,5 @@ urlpatterns = [
 
     # Additional dashboard URLs for better UX
     path('dashboard/', views.user_dashboard, name='user_dashboard'),
+    path('profile/', views.profile_view, name='profile'),
 ]

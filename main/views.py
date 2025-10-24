@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
+from backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required, role_required
 
 def index(request):
     return render(request, 'index.html')
@@ -26,3 +26,7 @@ def admin_mitra_page(request):
     """Convenience route to the admin mitra management page."""
     # reuse the admin sub-app view
     return render(request, 'dashboard/admin_mitra.html')
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html')
