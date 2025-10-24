@@ -18,5 +18,10 @@ urlpatterns = [
 
     # Additional dashboard URLs for better UX
     path('dashboard/', views.user_dashboard, name='user_dashboard'),
+
+    # Venue list & detail
+    path('lapangan/', views.venue_list_view, name='venue_list'),
+    path('lapangan/<str:venue_id>/', views.venue_detail_view, name='venue_detail')
+    
     path('profile/', views.profile_view, name='profile'),
 ]

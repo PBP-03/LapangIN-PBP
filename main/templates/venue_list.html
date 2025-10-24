@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Hero Section with Gradient Background -->
+<section class="relative bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-16">
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -right-40 w-80 h-80 rounded-full gradient-accent opacity-20 blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full gradient-primary opacity-20 blur-3xl"></div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-display font-bold text-neutral-900 mb-4">
+                Find Your Perfect <span class="text-gradient">Sports Venue</span>
+            </h1>
+            <p class="text-lg text-neutral-600 max-w-2xl mx-auto">
+                Discover and book the best sports facilities in your area
+            </p>
+        </div>
+    </div>
+</section>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-20">
+  <!-- Search Form -->
+  <form id="venue-search-form" class="bg-white rounded-2xl shadow-soft p-6 mb-8 card-hover">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <input type="text" name="name" placeholder="Cari nama venue" 
+             class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+      <input type="text" name="location" placeholder="Pilih Kota" 
+             class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+      <select name="category" 
+              class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+        <option value="">Pilih Cabang Olahraga</option>
+        <option value="FUTSAL">Futsal</option>
+        <option value="BADMINTON">Badminton</option>
+        <option value="BASKET">Basket</option>
+        <option value="TENIS">Tenis</option>
+        <option value="PADEL">Padel</option>
+      </select>
+      <select name="min_rating" 
+              class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+        <option value="">Min. Rating</option>
+        <option value="4.5">4.5+</option>
+        <option value="4">4.0+</option>
+        <option value="3">3.0+</option>
+      </select>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <input type="number" name="min_price" placeholder="Harga min (Rp)" 
+             class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+      <input type="number" name="max_price" placeholder="Harga max (Rp)" 
+             class="px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+      <button type="submit" 
+              class="gradient-primary text-white px-6 py-3 rounded-xl font-medium hover:shadow-medium transition-all transform hover:scale-105 flex items-center justify-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        Cari Venue
+      </button>
+    </div>
+  </form>
+
+  <div class="flex items-center justify-between mt-6 mb-4">
+    <div class="text-neutral-600">Menampilkan <span id="venue-count-number" class="font-semibold text-neutral-900">0</span> venue tersedia</div>
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-neutral-600">Urutkan :</label>
+      <select id="venue-sort" class="px-3 py-2 rounded-xl border border-neutral-200">
+        <option value="price_low">Harga Terendah</option>
+        <option value="price_high">Harga Tertinggi</option>
+        <option value="rating">Rating</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="venue-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Venue cards will be rendered here by JS -->
+  </div>
+</div>
+
+
+
+{% block script %}
+  <script>window.staticUrl = '{% static "" %}';</script>
+  <script>
+    // server-provided snapshot of venues (if any). Use escapejs -> JSON.parse in JS.
+    window.venuesData = JSON.parse('{{ venues_json|default:"[]"|escapejs }}');
+  </script>
+  <script src="{% static 'js/venue.js' %}"></script>
+{% endblock %}
+{% endblock %}

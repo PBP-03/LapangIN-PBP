@@ -20,9 +20,10 @@ urlpatterns = [
     # Profile management (read / update / delete)
     path('profile/', views.api_profile, name='api_profile'),
     
-    # API Mitra URLs - Venues
+    # API Venues URLs
     path('venues/', views.api_venues, name='api_venues'),
     path('venues/<uuid:venue_id>/', views.api_venue_detail, name='api_venue_detail'),
+    path('public/venues/<uuid:venue_id>/', views.api_venue_detail, name='api_public_venue_detail'),
     
     # API Mitra URLs - Courts
     path('courts/', views.api_courts, name='api_courts'),
@@ -38,6 +39,10 @@ urlpatterns = [
     
     # API Utility URLs
     path('sports-categories/', views.api_sports_categories, name='api_sports_categories'),
+    
+    # API Review URLs
+    path('venues/<uuid:venue_id>/reviews/', views.api_venue_reviews, name='api_venue_reviews'),
+    path('reviews/<uuid:review_id>/', views.api_manage_review, name='api_manage_review'),
     
     # API Image Management URLs
     path('venue-images/<int:image_id>/delete/', views.api_delete_venue_image, name='api_delete_venue_image'),
