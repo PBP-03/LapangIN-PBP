@@ -64,6 +64,15 @@
     <button onclick="window.location.reload()" class="btn btn-primary">Coba Lagi</button>
   </div>
 </div>
+
+<!-- Venue Details Modal -->
+<div id="venueDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div id="venueDetailsContent">
+      <!-- Content will be dynamically loaded -->
+    </div>
+  </div>
+</div>
 {% endblock %} {% block script %}
 <script>
   // Load dashboard content on page load
@@ -105,10 +114,206 @@
     }
   });
 
+  // Store venues data globally for modal access
+  let venuesData = [];
+
+  function showVenueDetails(venueId) {
+    const venue = venuesData.find(v => v.id === venueId);
+    if (!venue) return;
+
+    const modal = document.getElementById('venueDetailsModal');
+    const content = document.getElementById('venueDetailsContent');
+
+    content.innerHTML = `
+      <!-- Modal Header -->
+      <div class="sticky top-0 bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-neutral-900">${venue.name}</h2>
+        <button onclick="closeVenueModal()" class="w-8 h-8 rounded-lg hover:bg-neutral-100 flex items-center justify-center transition-colors">
+          <svg class="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-6">
+        <!-- Image Gallery -->
+        ${venue.images && venue.images.length > 0 ? `
+          <div>
+            <h3 class="text-lg font-semibold text-neutral-900 mb-3">Galeri Foto</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              ${venue.images.map(img => `
+                <img src="${img.image_url}" alt="${venue.name}" class="w-full h-32 object-cover rounded-xl shadow-sm ${img.is_primary ? 'ring-2 ring-primary-500' : ''}">
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Basic Information -->
+        <div>
+          <h3 class="text-lg font-semibold text-neutral-900 mb-3">Informasi Venue</h3>
+          <div class="space-y-3 bg-neutral-50 rounded-xl p-4">
+            ${venue.description ? `
+              <div>
+                <label class="text-sm font-medium text-neutral-600">Deskripsi</label>
+                <p class="text-neutral-800 mt-1">${venue.description}</p>
+              </div>
+            ` : ''}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="text-sm font-medium text-neutral-600">Alamat</label>
+                <p class="text-neutral-800 mt-1">${venue.address}</p>
+                ${venue.location_url ? `<a href="${venue.location_url}" target="_blank" class="text-primary-600 text-sm hover:underline mt-1 inline-block">Lihat di Maps →</a>` : ''}
+              </div>
+              ${venue.contact ? `
+                <div>
+                  <label class="text-sm font-medium text-neutral-600">Kontak</label>
+                  <p class="text-neutral-800 mt-1">${venue.contact}</p>
+                </div>
+              ` : ''}
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label class="text-sm font-medium text-neutral-600">Status</label>
+                <p class="mt-1">
+                  <span class="px-3 py-1 text-xs font-medium rounded-full ${venue.verification_status === 'approved' ? 'bg-green-100 text-green-800' : venue.verification_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                    ${venue.verification_status === 'approved' ? 'Disetujui' : venue.verification_status === 'pending' ? 'Menunggu Verifikasi' : 'Ditolak'}
+                  </span>
+                </p>
+              </div>
+              <div>
+                <label class="text-sm font-medium text-neutral-600">Rating</label>
+                <p class="text-neutral-800 mt-1">⭐ ${venue.avg_rating} (${venue.rating_count} ulasan)</p>
+              </div>
+              <div>
+                <label class="text-sm font-medium text-neutral-600">Total Lapangan</label>
+                <p class="text-neutral-800 mt-1">${venue.total_courts} lapangan</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Operational Hours -->
+        ${venue.operational_hours && venue.operational_hours.length > 0 ? `
+          <div>
+            <h3 class="text-lg font-semibold text-neutral-900 mb-3">Jam Operasional</h3>
+            <div class="bg-neutral-50 rounded-xl p-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                ${venue.operational_hours.map(oh => `
+                  <div class="flex justify-between items-center py-2 border-b border-neutral-200 last:border-0">
+                    <span class="text-neutral-700 font-medium">${oh.day_name}</span>
+                    <span class="${oh.is_open ? 'text-green-600' : 'text-red-600'} font-medium">
+                      ${oh.is_open ? `${oh.open_time} - ${oh.close_time}` : 'Tutup'}
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Facilities -->
+        ${venue.facilities && venue.facilities.length > 0 ? `
+          <div>
+            <h3 class="text-lg font-semibold text-neutral-900 mb-3">Fasilitas</h3>
+            <div class="flex flex-wrap gap-2">
+              ${venue.facilities.map(f => `
+                <div class="flex items-center gap-2 px-3 py-2 bg-primary-50 rounded-lg border border-primary-200">
+                  ${f.icon ? `<img src="${f.icon}" alt="${f.name}" class="w-5 h-5" onerror="this.style.display='none'" />` : ''}
+                  <span class="text-sm text-primary-700 font-medium">${f.name}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Courts Details -->
+        ${venue.courts && venue.courts.length > 0 ? `
+          <div>
+            <h3 class="text-lg font-semibold text-neutral-900 mb-3">Detail Lapangan</h3>
+            <div class="space-y-3">
+              ${venue.courts.map(court => `
+                <div class="bg-neutral-50 border border-neutral-200 rounded-xl p-4">
+                  <div class="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 class="font-semibold text-neutral-900">${court.name}</h4>
+                      ${court.category ? `<span class="text-sm text-primary-600">${court.category.display_name}</span>` : ''}
+                    </div>
+                    <div class="text-right">
+                      <p class="text-lg font-bold text-primary-600">Rp ${parseInt(court.price_per_hour).toLocaleString('id-ID')}</p>
+                      <p class="text-xs text-neutral-600">per jam</p>
+                    </div>
+                  </div>
+                  ${court.sessions && court.sessions.length > 0 ? `
+                    <div>
+                      <p class="text-sm font-medium text-neutral-700 mb-2">Sesi Tersedia (${court.available_sessions}/${court.total_sessions})</p>
+                      <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+                        ${court.sessions.map(session => `
+                          <div class="px-2 py-1 rounded text-xs text-center ${session.is_available ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300'}">
+                            ${session.start_time}-${session.end_time}
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  ` : '<p class="text-sm text-neutral-500">Belum ada sesi tersedia</p>'}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Reviews -->
+        ${venue.reviews && venue.reviews.length > 0 ? `
+          <div>
+            <h3 class="text-lg font-semibold text-neutral-900 mb-3">Ulasan Terbaru</h3>
+            <div class="space-y-3">
+              ${venue.reviews.map(review => `
+                <div class="bg-neutral-50 border border-neutral-200 rounded-xl p-4">
+                  <div class="flex items-start justify-between mb-2">
+                    <div>
+                      <p class="font-medium text-neutral-900">${review.user.first_name} ${review.user.last_name}</p>
+                      <p class="text-sm text-neutral-600">@${review.user.username}</p>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="text-yellow-500">★</span>
+                      <span class="ml-1 font-semibold text-neutral-900">${review.rating}</span>
+                    </div>
+                  </div>
+                  <p class="text-neutral-700">${review.review_text}</p>
+                  <p class="text-xs text-neutral-500 mt-2">${new Date(review.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 pt-4 border-t border-neutral-200">
+          <a href="/mitra/venues/?edit=${venue.id}" class="btn btn-primary flex-1">Edit Venue</a>
+          <a href="/mitra/lapangan/?venue=${venue.id}" class="btn btn-secondary flex-1">Kelola Lapangan</a>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+  }
+
+  function closeVenueModal() {
+    document.getElementById('venueDetailsModal').classList.add('hidden');
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('venueDetailsModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeVenueModal();
+    }
+  });
+
   function renderMitraDashboard(data) {
     const content = document.getElementById("dashboardContent");
     const user = data.user;
     const venues = data.venues || [];
+    venuesData = venues; // Store for modal access
     const approvedVenues = venues.filter(v => v.verification_status === 'approved').length;
     const totalCourts = venues.reduce((sum, v) => sum + v.total_courts, 0);
 
@@ -183,36 +388,99 @@
             ${venues.length > 0 ? `
               <div class="space-y-4">
                 ${venues.map(venue => `
-                  <div class="flex items-center justify-between p-4 border border-neutral-200 rounded-xl hover:border-primary-300 transition-colors cursor-pointer" onclick="window.location.href='/mitra/lapangan/?venue=${venue.id}'">
-                    <div class="flex items-center flex-1">
-                      ${venue.image_url ? `
-                        <img src="${venue.image_url}" alt="${venue.name}" class="w-16 h-16 rounded-xl object-cover mr-4">
-                      ` : `
-                        <div class="w-16 h-16 gradient-primary rounded-xl flex items-center justify-center mr-4">
-                          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
-                          </svg>
+                  <div class="border border-neutral-200 rounded-xl hover:border-primary-300 transition-colors overflow-hidden">
+                    <div class="flex items-center p-4">
+                      <div class="flex items-center flex-1">
+                        ${venue.image_url ? `
+                          <img src="${venue.image_url}" alt="${venue.name}" class="w-20 h-20 rounded-xl object-cover mr-4 flex-shrink-0">
+                        ` : `
+                          <div class="w-20 h-20 gradient-primary rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
+                            </svg>
+                          </div>
+                        `}
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-start justify-between mb-2">
+                            <div class="flex-1 min-w-0">
+                              <h3 class="font-semibold text-neutral-900 mb-1 text-lg">${venue.name}</h3>
+                              <div class="flex items-center gap-2 mb-1">
+                                <span class="px-3 py-1 text-xs font-medium rounded-full ${venue.verification_status === 'approved' ? 'bg-green-100 text-green-800' : venue.verification_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                                  ${venue.verification_status === 'approved' ? '✓ Disetujui' : venue.verification_status === 'pending' ? '⏱ Menunggu' : '✗ Ditolak'}
+                                </span>
+                                ${venue.avg_rating > 0 ? `
+                                  <span class="text-sm font-medium text-neutral-700">
+                                    <span class="text-yellow-500">★</span> ${venue.avg_rating} <span class="text-neutral-500">(${venue.rating_count})</span>
+                                  </span>
+                                ` : ''}
+                              </div>
+                            </div>
+                          </div>
+                          <p class="text-sm text-neutral-600 mb-2 flex items-start">
+                            <svg class="w-4 h-4 mr-1 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span class="line-clamp-1">${venue.address}</span>
+                          </p>
+                          <div class="flex flex-wrap gap-2 text-sm text-neutral-600 mb-2">
+                            <span class="flex items-center">
+                              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                              </svg>
+                              ${venue.total_courts} Lapangan
+                            </span>
+                            ${venue.avg_price_per_hour > 0 ? `
+                              <span class="flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                Rp ${parseInt(venue.avg_price_per_hour).toLocaleString('id-ID')}/jam
+                              </span>
+                            ` : ''}
+                            ${venue.sport_categories && venue.sport_categories.length > 0 ? `
+                              <span class="flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                </svg>
+                                ${venue.sport_categories.join(', ')}
+                              </span>
+                            ` : ''}
+                          </div>
+                          ${venue.facilities && Array.isArray(venue.facilities) && venue.facilities.length > 0 ? `
+                            <div class="flex flex-wrap gap-1.5">
+                              ${venue.facilities.slice(0, 5).map(f => `
+                                <div class="flex items-center gap-1 px-2 py-1 bg-primary-50 rounded text-xs text-primary-700 font-medium">
+                                  ${f.icon ? `<img src="${f.icon}" alt="${f.name}" class="w-3 h-3" onerror="this.style.display='none'" />` : ''}
+                                  <span>${f.name}</span>
+                                </div>
+                              `).join('')}
+                              ${venue.facilities.length > 5 ? `<span class="text-xs text-neutral-500 px-2 py-1">+${venue.facilities.length - 5}</span>` : ''}
+                            </div>
+                          ` : ''}
                         </div>
-                      `}
-                      <div class="flex-1">
-                        <h3 class="font-medium text-neutral-900 mb-1">${venue.name}</h3>
-                        <p class="text-sm text-neutral-600 mb-1">
-                          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                          </svg>
-                          ${venue.address}
-                        </p>
-                        <p class="text-sm text-neutral-500">
-                          ${venue.total_courts} Lapangan
-                          ${venue.avg_price_per_hour > 0 ? ` | Rata-rata Rp ${parseInt(venue.avg_price_per_hour).toLocaleString('id-ID')}/jam` : ''}
-                        </p>
                       </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                      <span class="px-3 py-1 text-xs font-medium rounded-full ${venue.verification_status === 'approved' ? 'bg-green-100 text-green-800' : venue.verification_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
-                        ${venue.verification_status === 'approved' ? 'Disetujui' : venue.verification_status === 'pending' ? 'Menunggu' : 'Ditolak'}
-                      </span>
+                    <div class="bg-neutral-50 px-4 py-3 flex gap-2 border-t border-neutral-200">
+                      <button onclick="showVenueDetails('${venue.id}')" class="flex-1 px-4 py-2 bg-white border border-primary-500 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium text-sm flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        Lihat Detail
+                      </button>
+                      <button onclick="window.location.href='/mitra/venues/?edit=${venue.id}'" class="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit
+                      </button>
+                      <button onclick="window.location.href='/mitra/lapangan/?venue=${venue.id}'" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Lapangan
+                      </button>
                     </div>
                   </div>
                 `).join('')}

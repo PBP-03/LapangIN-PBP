@@ -25,7 +25,7 @@ from django.views.decorators.http import require_http_methods
 @require_http_methods(["GET"])
 @csrf_exempt
 def api_mitra_earnings(request):
-    """Return each mitra's total earnings based on completed transactions, EXCLUDING refunded ones."""
+    """Return each mitra's total earnings based on completed transactions (paid, excluding refunded)."""
     if not request.user.is_authenticated or request.user.role != 'admin':
         return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
 
@@ -38,6 +38,8 @@ def api_mitra_earnings(request):
             mitra=mitra,
             payment_status='paid',
             booking__booking_status='completed'
+        ).exclude(
+            payment_status='refunded'
         ).aggregate(total=Sum('net_amount'))['total'] or 0
         
         # Count completed and paid transactions (not refunded)
@@ -45,6 +47,8 @@ def api_mitra_earnings(request):
             mitra=mitra,
             payment_status='paid',
             booking__booking_status='completed'
+        ).exclude(
+            payment_status='refunded'
         ).count()
         
         # Count refunded transactions for reference
@@ -78,12 +82,20 @@ def api_mitra_earnings_detail(request, mitra_id):
     except User.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Mitra not found'}, status=404)
     
-    # Get all completed and paid transactions for this mitra
+    # Get all completed and paid transactions for this mitra (EXCLUDING refunded)
     pendapatans = Pendapatan.objects.filter(
         mitra=mitra,
         payment_status='paid',
         booking__booking_status='completed'
+    ).exclude(
+        payment_status='refunded'
     ).select_related('booking', 'booking__user', 'booking__court', 'booking__court__venue').order_by('-created_at')
+    
+    # Get refunded transactions separately
+    refunded_pendapatans = Pendapatan.objects.filter(
+        mitra=mitra,
+        payment_status='refunded'
+    ).select_related('booking', 'booking__user', 'booking__court', 'booking__court__venue').order_by('-updated_at')
     
     transactions = []
     total_earnings = 0
@@ -105,7 +117,41 @@ def api_mitra_earnings_detail(request, mitra_id):
             'commission_rate': float(p.commission_rate),
             'commission_amount': float(p.commission_amount),
             'net_amount': float(p.net_amount),
+            'payment_status': p.payment_status,
             'paid_at': p.paid_at.isoformat() if p.paid_at else None,
+            'created_at': p.created_at.isoformat()
+        })
+    
+    # Add refunded transactions to a separate list
+    refunded_transactions = []
+    total_refunded = 0
+    total_refunded_commission = 0
+    
+    for p in refunded_pendapatans:
+        total_refunded += float(p.net_amount)
+        total_refunded_commission += float(p.commission_amount)
+        
+        # Parse refund reason from notes
+        refund_reason = ''
+        if p.notes and 'REFUND:' in p.notes:
+            parts = p.notes.split('|')
+            if len(parts) > 0:
+                refund_reason = parts[0].replace('REFUND:', '').strip()
+        
+        refunded_transactions.append({
+            'id': str(p.id),
+            'booking_id': str(p.booking.id),
+            'customer_name': p.booking.user.get_full_name() or p.booking.user.username,
+            'venue_name': p.booking.court.venue.name,
+            'court_name': p.booking.court.name,
+            'booking_date': p.booking.booking_date.isoformat(),
+            'time_slot': f"{p.booking.start_time.strftime('%H:%M')} - {p.booking.end_time.strftime('%H:%M')}",
+            'amount': float(p.amount),
+            'commission_amount': float(p.commission_amount),
+            'net_amount': float(p.net_amount),
+            'payment_status': p.payment_status,
+            'refund_reason': refund_reason,
+            'refunded_at': p.updated_at.isoformat(),
             'created_at': p.created_at.isoformat()
         })
     
@@ -122,9 +168,13 @@ def api_mitra_earnings_detail(request, mitra_id):
             'summary': {
                 'total_earnings': total_earnings,
                 'total_commission': total_commission,
-                'total_transactions': len(transactions)
+                'total_transactions': len(transactions),
+                'total_refunded': total_refunded,
+                'total_refunded_commission': total_refunded_commission,
+                'refunded_transactions_count': len(refunded_transactions)
             },
-            'transactions': transactions
+            'transactions': transactions,
+            'refunded_transactions': refunded_transactions
         }
     })
 
@@ -777,7 +827,7 @@ def api_user_dashboard(request):
 
 @require_http_methods(["GET"])
 def api_mitra_dashboard(request):
-    """API endpoint for mitra dashboard data"""
+    """API endpoint for mitra dashboard data with complete venue and court information"""
     if not request.user.is_authenticated:
         return JsonResponse({
             'success': False,
@@ -790,30 +840,159 @@ def api_mitra_dashboard(request):
             'message': 'Access denied'
         }, status=403)
     
+    from datetime import date, datetime
+    from app.venues.models import VenueFacility, OperationalHour
+    from app.reviews.models import Review
+    from app.bookings.models import Booking
+    from django.db.models import Avg
+    
     # Get mitra's venues
     venues = request.user.venue_set.all()
     venues_data = []
+    
+    today = date.today()
+    
     for venue in venues:
-        # Get courts for this venue to calculate average price
+        # Get all courts for this venue
         courts = venue.courts.all()
         total_price = sum(court.price_per_hour for court in courts)
         avg_price = total_price / len(courts) if courts else 0
+        
+        # Get unique sport categories from courts
+        categories = set()
+        for court in courts:
+            if court.category:
+                categories.add(court.category.get_name_display())
+        categories_list = sorted(list(categories))
+        
+        # Get ALL venue images (not just primary)
+        all_images = []
+        for img in venue.images.all().order_by('-is_primary', 'id'):
+            all_images.append({
+                'id': str(img.id),
+                'image_url': img.image_url,
+                'is_primary': img.is_primary
+            })
         
         # Get primary image
         primary_image = venue.images.filter(is_primary=True).first()
         if not primary_image and venue.images.exists():
             primary_image = venue.images.first()
         
+        # Get facilities with full details
+        facilities = []
+        for vf in VenueFacility.objects.filter(venue=venue).select_related('facility'):
+            facilities.append({
+                'id': str(vf.facility.id),
+                'name': vf.facility.name,
+                'icon': vf.facility.icon
+            })
+        
+        # Get operational hours
+        operational_hours = []
+        for oh in OperationalHour.objects.filter(venue=venue).order_by('day_of_week'):
+            operational_hours.append({
+                'id': str(oh.id),
+                'day_of_week': oh.day_of_week,
+                'day_name': oh.get_day_of_week_display(),
+                'open_time': oh.open_time.strftime('%H:%M') if oh.open_time else None,
+                'close_time': oh.close_time.strftime('%H:%M') if oh.close_time else None,
+                'is_open': oh.is_open
+            })
+        
+        # Get reviews and calculate average rating
+        reviews = Review.objects.filter(booking__court__venue=venue).select_related('booking__user')
+        avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0.0
+        rating_count = reviews.count()
+        
+        reviews_data = []
+        for review in reviews.order_by('-created_at')[:10]:  # Latest 10 reviews
+            reviews_data.append({
+                'id': str(review.id),
+                'rating': review.rating,
+                'review_text': review.review_text,
+                'created_at': review.created_at.isoformat() if review.created_at else None,
+                'user': {
+                    'username': review.booking.user.username,
+                    'first_name': review.booking.user.first_name,
+                    'last_name': review.booking.user.last_name
+                }
+            })
+        
+        # Get detailed court information with sessions and availability
+        courts_data = []
+        for court in courts:
+            # Get all sessions for this court
+            sessions = court.sessions.all()
+            sessions_data = []
+            
+            for session in sessions:
+                # Check if this session is booked for today
+                is_booked = Booking.objects.filter(
+                    court=court,
+                    session=session,
+                    booking_date=today,
+                    booking_status__in=['pending', 'confirmed']
+                ).exists()
+                
+                # Calculate duration in minutes
+                start_datetime = datetime.combine(today, session.start_time)
+                end_datetime = datetime.combine(today, session.end_time)
+                duration_minutes = int((end_datetime - start_datetime).total_seconds() / 60)
+                
+                sessions_data.append({
+                    'id': str(session.id),
+                    'session_name': session.session_name,
+                    'start_time': session.start_time.strftime('%H:%M'),
+                    'end_time': session.end_time.strftime('%H:%M'),
+                    'duration': duration_minutes,
+                    'is_available': not is_booked
+                })
+            
+            courts_data.append({
+                'id': str(court.id),
+                'name': court.name,
+                'price_per_hour': float(court.price_per_hour),
+                'category': {
+                    'code': court.category.name if court.category else None,
+                    'display_name': court.category.get_name_display() if court.category else None
+                } if court.category else None,
+                'sessions': sessions_data,
+                'total_sessions': len(sessions_data),
+                'available_sessions': sum(1 for s in sessions_data if s['is_available'])
+            })
+        
         venues_data.append({
             'id': str(venue.id),
             'name': venue.name,
+            'description': venue.description or '',
             'address': venue.address,
+            'contact': venue.contact or '',
+            'location_url': venue.location_url or '',
             'number_of_courts': venue.number_of_courts,
             'verification_status': venue.verification_status,
             'is_verified': venue.is_verified,
             'avg_price_per_hour': float(avg_price),
             'total_courts': courts.count(),
-            'image_url': primary_image.image_url if primary_image else None
+            
+            # Images
+            'image_url': primary_image.image_url if primary_image else None,
+            'images': all_images,
+            
+            # Categories and facilities
+            'sport_categories': categories_list,
+            'facilities': facilities,
+            
+            # Operational hours
+            'operational_hours': operational_hours,
+            
+            # Reviews and ratings
+            'avg_rating': round(avg_rating, 1),
+            'rating_count': rating_count,
+            'reviews': reviews_data,
+            
+            # Detailed courts with sessions
+            'courts': courts_data
         })
     
     return JsonResponse({
@@ -1110,20 +1289,66 @@ def api_mitra_update_status(request, mitra_id):
         if new_status == 'approved':
             mitra.is_verified = True
             mitra.is_active = True
+            # Also approve all venues owned by this mitra
+            Venue.objects.filter(owner=mitra).update(verification_status='approved')
         else:  # rejected
             mitra.is_verified = False
             # mark as inactive to reflect rejection without changing models
             mitra.is_active = False
+            # Also reject all venues owned by this mitra
+            Venue.objects.filter(owner=mitra).update(verification_status='rejected')
             # Note: rejection_reason is received but not stored (no field in model)
 
         mitra.save()
 
+        # Get count of venues affected
+        venues_count = Venue.objects.filter(owner=mitra).count()
+
         return JsonResponse({
             'status': 'ok',
-            'message': f'Mitra {new_status} successfully',
+            'message': f'Mitra {new_status} successfully. {venues_count} venue(s) also {new_status}.',
             'data': {
                 'id': str(mitra.id),
-                'status': new_status
+                'status': new_status,
+                'venues_affected': venues_count
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["PATCH"])
+def api_venue_update_status(request, venue_id):
+    """Patch endpoint to update individual venue status. Body: {"status": "approved"|"rejected", "rejection_reason": "..."} """
+    try:
+        try:
+            venue = Venue.objects.get(id=venue_id)
+        except Venue.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Venue not found'}, status=404)
+
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
+        new_status = data.get('status')
+        rejection_reason = data.get('rejection_reason', '')  # Accept rejection reason (not stored due to model constraints)
+        
+        if new_status not in ['approved', 'rejected', 'pending']:
+            return JsonResponse({'status': 'error', 'message': 'Invalid status'}, status=400)
+
+        # Update venue verification status
+        venue.verification_status = new_status
+        venue.save()
+
+        return JsonResponse({
+            'status': 'ok',
+            'message': f'Venue {new_status} successfully.',
+            'data': {
+                'id': str(venue.id),
+                'status': new_status,
+                'name': venue.name
             }
         })
     except Exception as e:

@@ -120,17 +120,27 @@
       </div>
 
       <div>
-        <label for="number_of_courts" class="block text-sm font-medium text-neutral-700 mb-2">Jumlah Lapangan</label>
-        <input type="number" id="number_of_courts" name="number_of_courts" min="1" required
-          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
-          placeholder="1">
-      </div>
-
-      <div>
         <label for="description" class="block text-sm font-medium text-neutral-700 mb-2">Deskripsi - Opsional</label>
         <textarea id="description" name="description" rows="4"
           class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
           placeholder="Deskripsi venue dan fasilitas yang tersedia"></textarea>
+      </div>
+
+      <!-- Facilities Section -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-2">Fasilitas</label>
+        <div class="space-y-2">
+          <div id="facilitiesInputs" class="space-y-2">
+            <!-- Facility inputs will be added here -->
+          </div>
+          <button type="button" onclick="addFacilityInput()" 
+            class="w-full px-4 py-2 border-2 border-dashed border-neutral-300 rounded-xl text-neutral-600 hover:border-primary-500 hover:text-primary-600 transition-colors">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Fasilitas
+          </button>
+        </div>
       </div>
 
       <!-- Image URL Section -->
@@ -181,6 +191,42 @@ let currentVenueImages = [];
 document.addEventListener('DOMContentLoaded', async function() {
   await loadVenues();
 });
+
+let facilityCounter = 0;
+
+// Add new facility input field
+function addFacilityInput(name = '', icon = '') {
+  const container = document.getElementById('facilitiesInputs');
+  const index = facilityCounter++;
+  
+  const div = document.createElement('div');
+  div.className = 'flex gap-2';
+  div.id = `facilityInput-${index}`;
+  div.innerHTML = `
+    <input type="text" name="facility_name_${index}" placeholder="Nama Fasilitas (e.g., Parking, WiFi, Canteen)"
+      value="${name}"
+      class="flex-1 px-4 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none">
+    <input type="url" name="facility_icon_${index}" placeholder="Icon URL (optional)"
+      value="${icon}"
+      class="flex-1 px-4 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none">
+    <button type="button" onclick="removeFacilityInput(${index})"
+      class="px-3 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  `;
+  
+  container.appendChild(div);
+}
+
+// Remove facility input field
+function removeFacilityInput(index) {
+  const element = document.getElementById(`facilityInput-${index}`);
+  if (element) {
+    element.remove();
+  }
+}
 
 // Add new image URL input field
 function addImageUrlInput() {
@@ -378,7 +424,7 @@ function renderVenues() {
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
             </svg>
-            <span>${venue.number_of_courts} Lapangan</span>
+            <span>${venue.number_of_courts || 0} Lapangan</span>
           </div>
         </div>
         
@@ -422,6 +468,7 @@ function openAddVenueModal() {
   editingVenueId = null;
   currentVenueImages = [];
   imageUrlCounter = 0;
+  facilityCounter = 0;
   document.getElementById('modalTitle').textContent = 'Tambah Venue';
   document.getElementById('venueForm').reset();
   document.getElementById('venueId').value = '';
@@ -430,10 +477,14 @@ function openAddVenueModal() {
   document.getElementById('imagePreview').innerHTML = '';
   document.getElementById('existingImages').classList.add('hidden');
   document.getElementById('existingImages').innerHTML = '';
+  document.getElementById('facilitiesInputs').innerHTML = '';
   document.getElementById('venueModal').classList.remove('hidden');
   
   // Add one initial image URL input
   addImageUrlInput();
+  
+  // Add one initial facility input
+  addFacilityInput();
 }
 
 async function editVenue(venueId) {
@@ -450,7 +501,6 @@ async function editVenue(venueId) {
       document.getElementById('address').value = venue.address;
       document.getElementById('location_url').value = venue.location_url || '';
       document.getElementById('contact').value = venue.contact || '';
-      document.getElementById('number_of_courts').value = venue.number_of_courts;
       document.getElementById('description').value = venue.description || '';
       
       // Display existing images
@@ -464,6 +514,18 @@ async function editVenue(venueId) {
       
       // Add one initial image URL input
       addImageUrlInput();
+      
+      // Clear and populate facilities
+      facilityCounter = 0;
+      document.getElementById('facilitiesInputs').innerHTML = '';
+      if (venue.facilities && venue.facilities.length > 0) {
+        venue.facilities.forEach(facility => {
+          addFacilityInput(facility.name, facility.icon || '');
+        });
+      } else {
+        // Add one empty facility input
+        addFacilityInput();
+      }
       
       document.getElementById('venueModal').classList.remove('hidden');
     }
@@ -480,8 +542,10 @@ function closeVenueModal() {
   document.getElementById('imagePreview').innerHTML = '';
   document.getElementById('existingImages').classList.add('hidden');
   document.getElementById('existingImages').innerHTML = '';
+  document.getElementById('facilitiesInputs').innerHTML = '';
   editingVenueId = null;
   imageUrlCounter = 0;
+  facilityCounter = 0;
   currentVenueImages = [];
 }
 
@@ -507,6 +571,25 @@ document.getElementById('venueForm').addEventListener('submit', async function(e
   // Add image URLs as JSON string
   if (imageUrls.length > 0) {
     formData.append('image_urls', JSON.stringify(imageUrls));
+  }
+  
+  // Collect facilities from all inputs
+  const facilities = [];
+  const facilityNameInputs = document.querySelectorAll('[name^="facility_name_"]');
+  facilityNameInputs.forEach((nameInput, idx) => {
+    const name = nameInput.value.trim();
+    if (name) {
+      const iconInput = document.querySelector(`[name="facility_icon_${nameInput.name.split('_')[2]}"]`);
+      facilities.push({
+        name: name,
+        icon: iconInput ? iconInput.value.trim() : ''
+      });
+    }
+  });
+  
+  // Add facilities as JSON string
+  if (facilities.length > 0) {
+    formData.append('facilities', JSON.stringify(facilities));
   }
   
   try {

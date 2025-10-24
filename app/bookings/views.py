@@ -1,11 +1,12 @@
 from django.shortcuts import redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from django.core.serializers import serialize
 from django.forms.models import model_to_dict
 from django.db.models import Sum, Count, Q, Avg
+from django.utils import timezone
 from decimal import Decimal
 import json
 from datetime import date
@@ -659,29 +660,125 @@ def api_profile(request):
         except Exception:
             return JsonResponse({'success': False, 'message': 'Server error'}, status=500)
 
-@require_http_methods(["DELETE"])
+@csrf_exempt
+@csrf_exempt
+@require_http_methods(["GET", "DELETE", "POST"])
 def api_booking_detail(request, booking_id):
+    """
+    Handle booking operations:
+    - GET: Get booking details
+    - DELETE/POST: Cancel booking
+    """
+    # Check authentication
     if not request.user.is_authenticated:
-        return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
-
-    booking = get_object_or_404(Booking, id=booking_id)
-
-    if booking.user_id != request.user.id:
-        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
-
-    if booking.booking_date <= date.today():
-        return JsonResponse({'success': False, 'message': 'Cannot cancel booking on or after booking day'}, status=400)
-
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication required'
+        }, status=401)
+    
     try:
-        booking.booking_status = 'cancelled'
-        try:
-            booking.payment_status = 'refunded'
-        except Exception:
-            pass
-        booking.save()
-        return JsonResponse({'success': True, 'message': 'Booking cancelled'})
-    except Exception:
-        return JsonResponse({'success': False, 'message': 'Failed to cancel booking'}, status=500)
+        booking = get_object_or_404(Booking, id=booking_id)
+        
+        # Check if user owns this booking
+        if booking.user_id != request.user.id:
+            return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+        
+        # GET: Return booking details
+        if request.method == 'GET':
+            payment_info = None
+            if hasattr(booking, 'payment'):
+                payment_info = {
+                    'method': booking.payment.payment_method,
+                    'status': booking.payment_status,
+                    'paid_at': booking.payment.paid_at.isoformat() if booking.payment.paid_at else None
+                }
+            
+            return JsonResponse({
+                'success': True,
+                'data': {
+                    'id': str(booking.id),
+                    'venue_name': booking.court.venue.name,
+                    'court_name': booking.court.name,
+                    'booking_date': booking.booking_date.isoformat(),
+                    'start_time': booking.start_time.strftime('%H:%M'),
+                    'end_time': booking.end_time.strftime('%H:%M'),
+                    'duration_hours': str(booking.duration_hours),
+                    'total_price': str(booking.total_price),
+                    'booking_status': booking.booking_status,
+                    'payment_status': booking.payment_status,
+                    'notes': booking.notes,
+                    'created_at': booking.created_at.isoformat(),
+                    'payment': payment_info,
+                    'is_cancellable': booking.booking_date > date.today() and booking.booking_status != 'cancelled'
+                }
+            })
+        
+        # DELETE or POST: Cancel booking
+        if request.method in ['DELETE', 'POST']:
+            # Check if booking is already cancelled
+            if booking.booking_status == 'cancelled':
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Pemesanan sudah dibatalkan sebelumnya'
+                }, status=400)
+            
+            # Check if booking can be cancelled (must be before booking date)
+            if booking.booking_date <= date.today():
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Tidak dapat membatalkan pemesanan pada atau setelah hari pemesanan'
+                }, status=400)
+            
+            # Update booking status
+            booking.booking_status = 'cancelled'
+            
+            # Update payment status to refunded if payment is marked as paid
+            if booking.payment_status == 'paid':
+                booking.payment_status = 'refunded'
+                
+                # Update corresponding Pendapatan record
+                try:
+                    pendapatan = Pendapatan.objects.get(booking=booking)
+                    pendapatan.payment_status = 'refunded'
+                    pendapatan.save()
+                except Pendapatan.DoesNotExist:
+                    print(f'Warning: No Pendapatan record found for booking {booking.id}')
+            
+            booking.save()
+            
+            # Log the cancellation
+            try:
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action_type='cancel',
+                    description=f'Booking cancelled: {booking.court.venue.name} - {booking.court.name} on {booking.booking_date}',
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+            except Exception as e:
+                print(f'Failed to log activity: {e}')
+            
+            return JsonResponse({
+                'success': True, 
+                'message': 'Pemesanan berhasil dibatalkan',
+                'data': {
+                    'id': str(booking.id),
+                    'booking_status': booking.booking_status,
+                    'payment_status': booking.payment_status
+                }
+            })
+    
+    except Booking.DoesNotExist:
+        return JsonResponse({
+            'success': False, 
+            'message': 'Pemesanan tidak ditemukan'
+        }, status=404)
+    except Exception as e:
+        print(f'Error in api_booking_detail: {e}')
+        return JsonResponse({
+            'success': False, 
+            'message': f'Gagal membatalkan pemesanan: {str(e)}'
+        }, status=500)
 
 # ============================================
 # MITRA MANAGEMENT (Admin-facing) API
@@ -2082,3 +2179,497 @@ def api_booking_detail(request, booking_id):
         'success': False,
         'message': 'Invalid request method'
     }, status=405)
+
+
+# Create Booking Endpoint
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_booking(request):
+    """Create a new booking with payment"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
+    
+    # Only users can create bookings, not mitra or admin
+    if request.user.role != 'user':
+        return JsonResponse({
+            'success': False,
+            'message': 'Only regular users can create bookings. Mitra and admin accounts cannot book venues.'
+        }, status=403)
+    
+    try:
+        data = json.loads(request.body)
+        court_id = data.get('court_id')
+        session_ids = data.get('session_ids', [])
+        booking_date = data.get('booking_date')
+        payment_method = data.get('payment_method')
+        notes = data.get('notes', '')
+        auto_confirm = data.get('auto_confirm', False)  # For testing
+        
+        # Validate required fields
+        if not court_id or not session_ids or not booking_date or not payment_method:
+            return JsonResponse({
+                'success': False,
+                'message': 'Missing required fields'
+            }, status=400)
+        
+        # Get court
+        try:
+            court = Court.objects.get(pk=court_id)
+        except Court.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Court not found'
+            }, status=404)
+        
+        # Get sessions
+        sessions = CourtSession.objects.filter(id__in=session_ids, court=court)
+        if sessions.count() != len(session_ids):
+            return JsonResponse({
+                'success': False,
+                'message': 'One or more sessions not found'
+            }, status=404)
+        
+        # Parse booking date
+        from datetime import datetime, timedelta
+        try:
+            booking_date_obj = datetime.strptime(booking_date, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid date format'
+            }, status=400)
+        
+        # Check if booking date is in the past
+        if booking_date_obj < date.today():
+            return JsonResponse({
+                'success': False,
+                'message': 'Cannot book for past dates'
+            }, status=400)
+        
+        # Create bookings for each session
+        created_bookings = []
+        total_price = 0
+        
+        for session in sessions:
+            # Check if session is already booked
+            existing_booking = Booking.objects.filter(
+                court=court,
+                booking_date=booking_date_obj,
+                session=session,
+                booking_status__in=['pending', 'confirmed']
+            ).exists()
+            
+            if existing_booking:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Session {session.session_name} is already booked for this date'
+                }, status=400)
+            
+            # Calculate duration and price
+            start_time = session.start_time
+            end_time = session.end_time
+            
+            # Calculate duration in hours
+            start_datetime = datetime.combine(booking_date_obj, start_time)
+            end_datetime = datetime.combine(booking_date_obj, end_time)
+            duration = (end_datetime - start_datetime).total_seconds() / 3600
+            
+            price = Decimal(str(court.price_per_hour)) * Decimal(str(duration))
+            total_price += price
+            
+            # Create booking
+            booking = Booking.objects.create(
+                user=request.user,
+                court=court,
+                session=session,
+                booking_date=booking_date_obj,
+                start_time=start_time,
+                end_time=end_time,
+                duration_hours=Decimal(str(duration)),
+                total_price=price,
+                booking_status='confirmed' if auto_confirm else 'pending',
+                payment_status='paid' if auto_confirm else 'unpaid',
+                notes=notes
+            )
+            
+            # Create payment record
+            payment = Payment.objects.create(
+                booking=booking,
+                amount=price,
+                payment_method=payment_method,
+                transaction_id=f'TRX-{booking.id}-{datetime.now().strftime("%Y%m%d%H%M%S")}',
+                paid_at=datetime.now() if auto_confirm else None
+            )
+            
+            # Create Pendapatan record for mitra
+            mitra = court.venue.owner  # The venue owner (mitra)
+            Pendapatan.objects.create(
+                mitra=mitra,
+                booking=booking,
+                amount=price,
+                commission_rate=Decimal('10.00'),  # 10% platform commission
+                payment_status='paid' if auto_confirm else 'pending',
+                paid_at=datetime.now() if auto_confirm else None
+            )
+            
+            created_bookings.append({
+                'id': str(booking.id),
+                'session': session.session_name,
+                'start_time': str(start_time),
+                'end_time': str(end_time),
+                'price': float(price)
+            })
+        
+        # Log the activity
+        ActivityLog.objects.create(
+            user=request.user,
+            action_type='create',
+            description=f'Created {len(created_bookings)} booking(s) for {court.venue.name} - {court.name}',
+            ip_address=get_client_ip(request),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Booking created successfully',
+            'data': {
+                'bookings': created_bookings,
+                'total_price': float(total_price),
+                'status': 'confirmed' if auto_confirm else 'pending'
+            }
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'message': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+# Get Client IP helper function
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+# User Booking History API
+@require_http_methods(["GET"])
+def api_user_booking_history(request):
+    """API endpoint for getting user's booking history"""
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication required'
+        }, status=401)
+    
+    if request.user.role != 'user':
+        return JsonResponse({
+            'success': False,
+            'message': 'This endpoint is for users only'
+        }, status=403)
+    
+    try:
+        # Get filter parameters
+        status_filter = request.GET.get('status', 'all')  # all, pending, confirmed, completed, cancelled
+        sort_by = request.GET.get('sort', '-created_at')  # -created_at, booking_date, -booking_date
+        limit = request.GET.get('limit', None)  # Limit number of results
+        
+        # Get all bookings for the user
+        bookings_qs = Booking.objects.filter(user=request.user).select_related(
+            'court', 'court__venue', 'session', 'payment'
+        ).prefetch_related('court__images', 'court__venue__images')
+        
+        # Apply status filter
+        if status_filter != 'all':
+            bookings_qs = bookings_qs.filter(booking_status=status_filter)
+        
+        # Apply sorting
+        valid_sorts = ['-created_at', 'created_at', 'booking_date', '-booking_date', '-updated_at', 'updated_at']
+        if sort_by in valid_sorts:
+            bookings_qs = bookings_qs.order_by(sort_by)
+        else:
+            bookings_qs = bookings_qs.order_by('-created_at')
+        
+        # Apply limit if provided
+        if limit:
+            try:
+                limit = int(limit)
+                bookings_qs = bookings_qs[:limit]
+            except (ValueError, TypeError):
+                pass
+        
+        # Prepare booking list
+        bookings_data = []
+        for booking in bookings_qs:
+            # Get payment info if exists
+            payment_info = None
+            if hasattr(booking, 'payment'):
+                payment_info = {
+                    'method': booking.payment.payment_method,
+                    'status': booking.payment_status,
+                    'paid_at': booking.payment.paid_at.isoformat() if booking.payment.paid_at else None
+                }
+            
+            # Get court/venue image
+            court_image = None
+            venue_image = None
+            
+            # Try to get primary court image first
+            if booking.court.images.exists():
+                primary_court_image = booking.court.images.filter(is_primary=True).first()
+                if primary_court_image:
+                    court_image = primary_court_image.image_url
+                else:
+                    # Get first image if no primary image
+                    court_image = booking.court.images.first().image_url
+            
+            # Try to get primary venue image as fallback
+            if not court_image and booking.court.venue.images.exists():
+                primary_venue_image = booking.court.venue.images.filter(is_primary=True).first()
+                if primary_venue_image:
+                    venue_image = primary_venue_image.image_url
+                else:
+                    # Get first image if no primary image
+                    venue_image = booking.court.venue.images.first().image_url
+            
+            bookings_data.append({
+                'id': str(booking.id),
+                'venue_name': booking.court.venue.name,
+                'venue_id': str(booking.court.venue.id),
+                'court_name': booking.court.name,
+                'court_id': booking.court.id,
+                'session_name': booking.session.session_name if booking.session else 'N/A',
+                'session_id': booking.session.id if booking.session else None,
+                'booking_date': booking.booking_date.isoformat(),
+                'start_time': booking.start_time.strftime('%H:%M'),
+                'end_time': booking.end_time.strftime('%H:%M'),
+                'duration_hours': str(booking.duration_hours),
+                'total_price': str(booking.total_price),
+                'booking_status': booking.booking_status,
+                'payment_status': booking.payment_status,
+                'notes': booking.notes,
+                'created_at': booking.created_at.isoformat(),
+                'updated_at': booking.updated_at.isoformat(),
+                'payment': payment_info,
+                'is_cancellable': booking.booking_date > date.today() and booking.booking_status != 'cancelled',
+                'court_image': court_image,
+                'venue_image': venue_image
+            })
+        
+        # Get statistics
+        total_bookings = Booking.objects.filter(user=request.user).count()
+        pending_count = Booking.objects.filter(user=request.user, booking_status='pending').count()
+        confirmed_count = Booking.objects.filter(user=request.user, booking_status='confirmed').count()
+        completed_count = Booking.objects.filter(user=request.user, booking_status='completed').count()
+        cancelled_count = Booking.objects.filter(user=request.user, booking_status='cancelled').count()
+        
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'bookings': bookings_data,
+                'statistics': {
+                    'total': total_bookings,
+                    'pending': pending_count,
+                    'confirmed': confirmed_count,
+                    'completed': completed_count,
+                    'cancelled': cancelled_count
+                },
+                'filter': status_filter,
+                'sort': sort_by
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        }, status=500)
+
+
+# ========================
+# BOOKING CANCELLATION
+# ========================
+
+def get_client_ip(request):
+    """Helper function to get client IP address"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+@csrf_exempt
+@require_http_methods(["DELETE", "POST"])
+def cancel_booking(request, booking_id):
+    """
+    Cancel a booking - clean implementation
+    Accepts both DELETE and POST methods for better compatibility
+    """
+    # Check authentication
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication required'
+        }, status=401)
+    
+    try:
+        # Get the booking
+        booking = get_object_or_404(Booking, id=booking_id)
+        
+        # Check if user owns this booking
+        if booking.user != request.user:
+            return JsonResponse({
+                'success': False,
+                'message': 'You are not authorized to cancel this booking'
+            }, status=403)
+        
+        # Check if booking is already cancelled
+        if booking.booking_status == 'cancelled':
+            return JsonResponse({
+                'success': False,
+                'message': 'Booking is already cancelled'
+            }, status=400)
+        
+        # Check if booking can be cancelled (must be before booking date)
+        if booking.booking_date <= date.today():
+            return JsonResponse({
+                'success': False,
+                'message': 'Cannot cancel booking on or after the booking date'
+            }, status=400)
+        
+        # Get cancellation reason if provided
+        cancellation_reason = ''
+        if request.method == 'POST':
+            try:
+                data = json.loads(request.body.decode('utf-8'))
+                cancellation_reason = data.get('reason', '')
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                # If JSON parsing fails, continue without reason
+                pass
+        
+        # Update booking status
+        booking.booking_status = 'cancelled'
+        booking.cancellation_reason = cancellation_reason
+        booking.updated_at = timezone.now()
+        
+        # If payment was made, mark for refund
+        if booking.payment_status == 'paid':
+            booking.payment_status = 'refunded'
+            
+            # Update corresponding Pendapatan record
+            try:
+                pendapatan = Pendapatan.objects.get(booking=booking)
+                pendapatan.payment_status = 'refunded'
+                pendapatan.save()
+            except Pendapatan.DoesNotExist:
+                print(f'Warning: No Pendapatan record found for booking {booking.id}')
+        
+        # Save the booking
+        booking.save()
+        
+        # Log the cancellation activity
+        try:
+            ActivityLog.objects.create(
+                user=request.user,
+                action_type='cancel',
+                description=f'Booking cancelled: {booking.court.venue.name} - {booking.court.name} on {booking.booking_date}',
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+        except Exception as log_error:
+            print(f'Failed to log cancellation activity: {log_error}')
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Booking has been successfully cancelled',
+            'data': {
+                'booking_id': str(booking.id),
+                'booking_status': booking.booking_status,
+                'payment_status': booking.payment_status,
+                'cancelled_at': booking.updated_at.isoformat()
+            }
+        })
+        
+    except Booking.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Booking not found'
+        }, status=404)
+        
+    except Exception as e:
+        print(f'Error cancelling booking {booking_id}: {str(e)}')
+        return JsonResponse({
+            'success': False,
+            'message': f'Failed to cancel booking: {str(e)}'
+        }, status=500)
+
+
+@require_http_methods(["GET"])
+def get_booking_status(request, booking_id):
+    """
+    Get current status of a booking
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication required'
+        }, status=401)
+    
+    try:
+        booking = get_object_or_404(Booking, id=booking_id)
+        
+        # Check if user owns this booking
+        if booking.user != request.user:
+            return JsonResponse({
+                'success': False,
+                'message': 'You are not authorized to view this booking'
+            }, status=403)
+        
+        # Check if booking can be cancelled
+        is_cancellable = (
+            booking.booking_date > date.today() and 
+            booking.booking_status not in ['cancelled', 'completed']
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'booking_id': str(booking.id),
+                'venue_name': booking.court.venue.name,
+                'court_name': booking.court.name,
+                'booking_date': booking.booking_date.isoformat(),
+                'start_time': booking.start_time.strftime('%H:%M'),
+                'end_time': booking.end_time.strftime('%H:%M'),
+                'booking_status': booking.booking_status,
+                'payment_status': booking.payment_status,
+                'total_price': str(booking.total_price),
+                'is_cancellable': is_cancellable,
+                'cancellation_reason': booking.cancellation_reason
+            }
+        })
+        
+    except Booking.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Booking not found'
+        }, status=404)
+        
+    except Exception as e:
+        print(f'Error getting booking status {booking_id}: {str(e)}')
+        return JsonResponse({
+            'success': False,
+            'message': f'Failed to get booking status: {str(e)}'
+        }, status=500)

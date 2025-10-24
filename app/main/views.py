@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.safestring import mark_safe
 from django.db.models import Avg
 import json
@@ -19,12 +20,13 @@ def admin_mitra_earnings_page(request):
 
 def venue_list_view(request):
     """Render halaman daftar venue"""
-    # Provide a small server-side snapshot of venues so the frontend can render
-    # seeded data immediately and avoid falling back to client-only dummy IDs
-    # (which produce links like /venue/dummy-1/).
+    # Don't send initial data, let JavaScript fetch from API with pagination
     venues = []
     try:
-        qs = Venue.objects.all()[:100]
+        # Only send first page for initial load - filter for approved venues only
+        qs = Venue.objects.filter(verification_status='approved').order_by('-created_at', 'name')[:9]
+        print(f"[Initial Load] Found {Venue.objects.filter(verification_status='approved').count()} approved venues")
+        print(f"[Initial Load] Showing first {qs.count()} venues")
         for v in qs:
             # pick a safe first image if available
             first_img = ''
@@ -32,22 +34,41 @@ def venue_list_view(request):
                 img = VenueImage.objects.filter(venue=v).order_by('-is_primary', 'id').first()
                 if img and img.image_url:
                     first_img = img.image_url
-            except Exception:
+            except Exception as e:
+                print(f"Error getting image for venue {v.name}: {e}")
                 first_img = ''
 
+            # Calculate average rating
+            avg_rating = Review.objects.filter(booking__court__venue=v).aggregate(Avg('rating'))['rating__avg'] or 0.0
+            rating_count = Review.objects.filter(booking__court__venue=v).count()
+            
+            # Get all unique categories from courts in this venue
+            courts = Court.objects.filter(venue=v).select_related('category')
+            categories = set()
+            for court in courts:
+                if court.category:
+                    categories.add(court.category.get_name_display())
+            categories_display = ', '.join(sorted(categories)) if categories else ''
+            
             venues.append({
                 'id': str(v.id),
                 'name': v.name,
-                'category': v.category.name if getattr(v, 'category', None) else '',
+                'category': categories_display,
                 'address': getattr(v, 'address', '') or '',
                 'price_per_hour': float(Court.objects.filter(venue=v).aggregate(Avg('price_per_hour'))['price_per_hour__avg'] or 0),
                 'images': [first_img] if first_img else [],
-                'avg_rating': 0.0,
-                'rating_count': Review.objects.filter(booking__court__venue=v).count(),
+                'avg_rating': round(avg_rating, 1),
+                'rating_count': rating_count,
             })
-    except Exception:
+            print(f"[Initial Load] Added venue: {v.name} (ID: {v.id})")
+    except Exception as e:
+        print(f"Error in venue_list_view: {e}")
+        import traceback
+        traceback.print_exc()
         venues = []
-    print(venues)
+    print(f"[Initial Load] Total venues loaded: {len(venues)}")
+    venue_names = [v['name'] for v in venues]
+    print(f"[Initial Load] Venue names: {venue_names}")
     context = {
         'venues_json': mark_safe(json.dumps(venues, default=str)),
     }
@@ -72,9 +93,15 @@ def venue_detail_view(request, venue_id):
     # Get operational hours
     operational_hours = OperationalHour.objects.filter(venue=venue).order_by('day_of_week')
     
-    # Get venue reviews
-    reviews = Review.objects.filter(booking__court__venue=venue).select_related('booking__user')
-    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+    # Get venue reviews with pagination
+    from django.core.paginator import Paginator
+    all_reviews = Review.objects.filter(booking__court__venue=venue).select_related('booking__user').order_by('-created_at')
+    avg_rating = all_reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+    
+    # Pagination
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(all_reviews, 5)  # Show 5 reviews per page
+    reviews = paginator.get_page(page_number)
     
     # Check if user has completed booking at this venue (eligible to review)
     can_review = False
@@ -143,9 +170,10 @@ def venue_detail_view(request, venue_id):
         'operational_hours': operational_hours,
         'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
-        'review_count': reviews.count(),
+        'review_count': all_reviews.count(),
         'is_authenticated': request.user.is_authenticated,
-        'can_review': can_review
+        'can_review': can_review,
+        'today': today.isoformat()
     }
     return render(request, 'venue_detail.html', context)
 
@@ -181,3 +209,25 @@ def admin_mitra_page(request):
 @login_required
 def profile_view(request):
     return render(request, 'profile.html')
+
+def about_view(request):
+    """About page"""
+    return render(request, 'about.html')
+
+def contact_view(request):
+    """Contact page"""
+    return render(request, 'contact.html')
+
+def daftar_mitra_view(request):
+    """Daftar Mitra page"""
+    return render(request, 'daftar_mitra.html')
+
+@login_required
+def booking_checkout_view(request):
+    """Booking checkout page"""
+    return render(request, 'booking_checkout.html')
+
+@login_required  
+def booking_history_view(request):
+    """Booking history page"""
+    return render(request, 'booking_history.html')

@@ -209,13 +209,111 @@ def api_venue_reviews(request, venue_id):
     except Venue.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Venue not found'}, status=404)
     if request.method == "GET":
+        # Check if this is an AJAX request for pagination
+        page = request.GET.get('page', 1)
+        
+        # Get all reviews
+        from django.core.paginator import Paginator
+        all_reviews = Review.objects.filter(booking__court__venue=v).order_by('-created_at')
+        paginator = Paginator(all_reviews, 6)  # 6 reviews per page (2 rows of 3)
+        reviews_page = paginator.get_page(page)
+        
+        # If it's an AJAX request (has page parameter), return HTML fragments
+        if 'page' in request.GET:
+            # Generate reviews HTML
+            reviews_html = ''
+            for review in reviews_page:
+                # Build star rating HTML
+                stars_html = ''
+                for i in range(1, 6):
+                    color = 'text-yellow-400' if i <= review.rating else 'text-neutral-300'
+                    stars_html += f'<svg class="w-4 h-4 {color}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/></svg>'
+                
+                # Build edit/delete buttons if user owns the review
+                edit_delete_html = ''
+                if request.user.is_authenticated and review.booking.user == request.user:
+                    comment_escaped = review.comment.replace("'", "\\'").replace('"', '&quot;') if review.comment else ''
+                    edit_delete_html = f'''
+                    <div class="flex gap-1 flex-shrink-0">
+                      <button onclick="openEditReviewModal('{review.id}', '{review.rating}', '{comment_escaped}')" class="px-2 py-1 text-xs border border-primary-500 text-primary-600 rounded hover:bg-primary-50 transition-colors">Edit</button>
+                      <button onclick="deleteReview('{review.id}')" class="px-2 py-1 text-xs border border-red-500 text-red-600 rounded hover:bg-red-50 transition-colors">Delete</button>
+                    </div>
+                    '''
+                
+                comment_html = f'<p class="mt-3 text-sm leading-relaxed text-neutral-700 break-words">{review.comment}</p>' if review.comment else ''
+                
+                reviews_html += f'''
+                <article id="review-{review.id}" class="group h-full rounded-xl border border-neutral-200 bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.05)] hover:shadow-md transition-shadow">
+                  <header class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3 min-w-0">
+                      <div class="relative">
+                        <div class="w-10 h-10 rounded-full bg-primary-600 text-white grid place-items-center font-semibold text-sm">
+                          {review.booking.user.username[0].upper()}
+                        </div>
+                      </div>
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                          <h3 class="font-semibold text-neutral-900 text-sm truncate">{review.booking.user.username}</h3>
+                          <span class="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 text-[11px] font-medium">{review.rating}★</span>
+                        </div>
+                        <time class="block text-xs text-neutral-500 mt-0.5">{review.created_at.strftime("%b %d, %Y")}</time>
+                      </div>
+                    </div>
+                    {edit_delete_html}
+                  </header>
+                  <div class="mt-3 flex items-center gap-1" aria-hidden="true">{stars_html}</div>
+                  {comment_html}
+                </article>
+                '''
+            
+            # If no reviews
+            if not reviews_html:
+                reviews_html = '''
+                <div class="col-span-full">
+                  <div class="text-center py-10 rounded-xl border border-dashed border-neutral-200 bg-neutral-50">
+                    <svg class="w-12 h-12 text-neutral-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                    <p class="text-neutral-600 text-sm">No reviews yet. Be the first to review!</p>
+                  </div>
+                </div>
+                '''
+            
+            # Generate pagination HTML
+            pagination_html = ''
+            if reviews_page.has_other_pages():
+                pagination_html = '<div id="review-pagination" class="flex items-center justify-center space-x-2 mt-6 pt-4 border-t border-neutral-200">'
+                
+                if reviews_page.has_previous():
+                    pagination_html += f'<button onclick="loadReviewPage({reviews_page.previous_page_number()})" class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">Previous</button>'
+                
+                pagination_html += '<div class="flex items-center space-x-1">'
+                for num in paginator.page_range:
+                    if num == reviews_page.number:
+                        pagination_html += f'<span class="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg font-medium">{num}</span>'
+                    elif num >= reviews_page.number - 2 and num <= reviews_page.number + 2:
+                        pagination_html += f'<button onclick="loadReviewPage({num})" class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">{num}</button>'
+                pagination_html += '</div>'
+                
+                if reviews_page.has_next():
+                    pagination_html += f'<button onclick="loadReviewPage({reviews_page.next_page_number()})" class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">Next</button>'
+                
+                pagination_html += '</div>'
+            
+            return JsonResponse({
+                'status': 'success',
+                'reviews_html': reviews_html,
+                'pagination_html': pagination_html
+            })
+        
+        # Otherwise return JSON data (for backwards compatibility)
         reviews = [
             {
                 'user': r.booking.user.username,
                 'rating': r.rating,
                 'comment': r.comment,
                 'created_at': r.created_at
-            } for r in Review.objects.filter(booking__court__venue=v).order_by('-created_at')
+            } for r in all_reviews
         ]
         return JsonResponse({'status': 'ok', 'data': reviews})
     elif request.method == "POST":

@@ -26,5 +26,13 @@ urlpatterns = [
     path('lapangan/', views.venue_list_view, name='venue_list'),
     path('lapangan/<str:venue_id>/', views.venue_detail_view, name='venue_detail'),
     
+    # Booking checkout
+    path('booking/checkout/', views.booking_checkout_view, name='booking_checkout'),
+    path('booking-history/', views.booking_history_view, name='booking_history'),
+    
     path('profile/', views.profile_view, name='profile'),
+
+    path('tentang/', views.about_view, name='about'),
+    path('kontak/', views.contact_view, name='contact'),
+    path('daftar-mitra/', views.daftar_mitra_view, name='daftar_mitra'),
 ]
