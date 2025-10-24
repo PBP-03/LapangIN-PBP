@@ -12,13 +12,8 @@
     <div class="flex justify-between items-center h-16">
       <!-- Logo & Brand -->
       <div class="flex items-center">
-        <a href="{% url 'main:home' %}" class="flex items-center space-x-2 group">
-          <div class="w-9 h-9 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-          </div>
-          <h1 class="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">LapangIN</h1>
+        <a href="{% url 'main:home' %}" class="flex items-center space-x-3 group">
+          <img src="{% static 'img/logo/Lapangan Logo.png' %}" alt="LapangIN Logo" class="h-7 w-auto transition-transform duration-300 group-hover:scale-105">
         </a>
       </div>
 
@@ -29,7 +24,9 @@
           <a href="{% url 'main:venue_list' %}" class="nav-link {% if current == 'lapangan_list' %}active{% endif %}">Cari Lapangan</a>
           <a href="{% url 'main:about' %}" class="nav-link {% if current == 'about' %}active{% endif %}">Tentang</a>
           <a href="{% url 'main:contact' %}" class="nav-link {% if current == 'contact' %}active{% endif %}">Kontak</a>
+          {% if not user.is_authenticated %}
           <a href="{% url 'main:daftar_mitra' %}" class="nav-link {% if current == 'daftar_mitra' %}active{% endif %}">Mitra</a>
+          {% endif %}
         </div>    
       </div>
 
@@ -210,7 +207,9 @@
       <a href="{% url 'main:venue_list' %}" class="nav-link-mobile {% if current == 'lapangan_list' %}active{% endif %}">Cari Lapangan</a>
       <a href="{% url 'main:about' %}" class="nav-link-mobile {% if current == 'about' %}active{% endif %}">Tentang</a>
       <a href="{% url 'main:contact' %}" class="nav-link-mobile {% if current == 'contact' %}active{% endif %}">Kontak</a>
+      {% if not user.is_authenticated %}
       <a href="{% url 'main:daftar_mitra' %}" class="nav-link-mobile {% if current == 'daftar_mitra' %}active{% endif %}">Mitra</a>
+      {% endif %}
 
       <div class="pt-3 border-t border-neutral-100">
         {% if user.is_authenticated %}
