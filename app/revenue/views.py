@@ -24,26 +24,42 @@ from django.views.decorators.http import require_http_methods
 @require_http_methods(["GET"])
 @csrf_exempt
 def api_mitra_earnings(request):
-    """Return each mitra's total earnings based on completed transactions (paid)."""
+    """Return each mitra's total earnings based on completed transactions (paid, excluding refunded)."""
     if not request.user.is_authenticated or request.user.role != 'admin':
         return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
 
     mitras = User.objects.filter(role='mitra')
     data = []
     for mitra in mitras:
-        # Sum net_amount for Pendapatan where payment_status is 'paid' and booking_status is 'completed'
+        # Sum net_amount for Pendapatan where payment_status is 'paid' (NOT refunded) and booking_status is 'completed'
         total_earnings = Pendapatan.objects.filter(
             mitra=mitra,
             payment_status='paid',
             booking__booking_status='completed'
+        ).exclude(
+            payment_status='refunded'
         ).aggregate(total=Sum('net_amount'))['total'] or 0
         
-        # Count completed transactions
+        # Count completed transactions (excluding refunded)
         completed_transactions = Pendapatan.objects.filter(
             mitra=mitra,
             payment_status='paid',
             booking__booking_status='completed'
+        ).exclude(
+            payment_status='refunded'
         ).count()
+        
+        # Count refunded transactions
+        refunded_transactions = Pendapatan.objects.filter(
+            mitra=mitra,
+            payment_status='refunded'
+        ).count()
+        
+        # Calculate total refunded amount
+        total_refunded = Pendapatan.objects.filter(
+            mitra=mitra,
+            payment_status='refunded'
+        ).aggregate(total=Sum('net_amount'))['total'] or 0
         
         data.append({
             'mitra_id': str(mitra.id),
@@ -51,7 +67,9 @@ def api_mitra_earnings(request):
             'mitra_email': mitra.email,
             'mitra_phone': mitra.phone_number or '-',
             'total_earnings': float(total_earnings),
-            'completed_transactions': completed_transactions
+            'completed_transactions': completed_transactions,
+            'refunded_transactions': refunded_transactions,
+            'total_refunded': float(total_refunded)
         })
     return JsonResponse({'status': 'ok', 'data': data})
 
@@ -68,12 +86,20 @@ def api_mitra_earnings_detail(request, mitra_id):
     except User.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Mitra not found'}, status=404)
     
-    # Get all completed and paid transactions for this mitra
+    # Get all completed and paid transactions for this mitra (EXCLUDING refunded)
     pendapatans = Pendapatan.objects.filter(
         mitra=mitra,
         payment_status='paid',
         booking__booking_status='completed'
+    ).exclude(
+        payment_status='refunded'
     ).select_related('booking', 'booking__user', 'booking__court', 'booking__court__venue').order_by('-created_at')
+    
+    # Get refunded transactions separately
+    refunded_pendapatans = Pendapatan.objects.filter(
+        mitra=mitra,
+        payment_status='refunded'
+    ).select_related('booking', 'booking__user', 'booking__court', 'booking__court__venue').order_by('-updated_at')
     
     transactions = []
     total_earnings = 0
@@ -95,7 +121,41 @@ def api_mitra_earnings_detail(request, mitra_id):
             'commission_rate': float(p.commission_rate),
             'commission_amount': float(p.commission_amount),
             'net_amount': float(p.net_amount),
+            'payment_status': p.payment_status,
             'paid_at': p.paid_at.isoformat() if p.paid_at else None,
+            'created_at': p.created_at.isoformat()
+        })
+    
+    # Add refunded transactions to a separate list
+    refunded_transactions = []
+    total_refunded = 0
+    total_refunded_commission = 0
+    
+    for p in refunded_pendapatans:
+        total_refunded += float(p.net_amount)
+        total_refunded_commission += float(p.commission_amount)
+        
+        # Parse refund reason from notes
+        refund_reason = ''
+        if p.notes and 'REFUND:' in p.notes:
+            parts = p.notes.split('|')
+            if len(parts) > 0:
+                refund_reason = parts[0].replace('REFUND:', '').strip()
+        
+        refunded_transactions.append({
+            'id': str(p.id),
+            'booking_id': str(p.booking.id),
+            'customer_name': p.booking.user.get_full_name() or p.booking.user.username,
+            'venue_name': p.booking.court.venue.name,
+            'court_name': p.booking.court.name,
+            'booking_date': p.booking.booking_date.isoformat(),
+            'time_slot': f"{p.booking.start_time.strftime('%H:%M')} - {p.booking.end_time.strftime('%H:%M')}",
+            'amount': float(p.amount),
+            'commission_amount': float(p.commission_amount),
+            'net_amount': float(p.net_amount),
+            'payment_status': p.payment_status,
+            'refund_reason': refund_reason,
+            'refunded_at': p.updated_at.isoformat(),
             'created_at': p.created_at.isoformat()
         })
     
@@ -112,9 +172,13 @@ def api_mitra_earnings_detail(request, mitra_id):
             'summary': {
                 'total_earnings': total_earnings,
                 'total_commission': total_commission,
-                'total_transactions': len(transactions)
+                'total_transactions': len(transactions),
+                'total_refunded': total_refunded,
+                'total_refunded_commission': total_refunded_commission,
+                'refunded_transactions_count': len(refunded_transactions)
             },
-            'transactions': transactions
+            'transactions': transactions,
+            'refunded_transactions': refunded_transactions
         }
     })
 

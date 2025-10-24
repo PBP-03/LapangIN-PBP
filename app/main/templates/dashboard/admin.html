@@ -1,4 +1,5 @@
-{% extends 'base.html' %} {% block title %}Dashboard Admin - LapangIN{% endblock %} {% block content %}
+{% extends 'base.html' %} {% block title %}Dashboard Admin - LapangIN{% endblock
+%} {% block content %}
 <div class="min-h-screen bg-neutral-50" id="adminDashboard">
   <!-- Header -->
   <div class="bg-white border-b border-neutral-200">
@@ -48,20 +49,42 @@
   </div>
 
   <!-- Main Content -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden" id="dashboardContent">
+  <div
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden"
+    id="dashboardContent"
+  >
     <!-- Content will be loaded dynamically -->
   </div>
 
   <!-- Error State -->
-  <div id="dashboardError" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center hidden">
-    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  <div
+    id="dashboardError"
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center hidden"
+  >
+    <div
+      class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+    >
+      <svg
+        class="w-8 h-8 text-red-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
       </svg>
     </div>
     <h3 class="text-neutral-900 font-medium mb-2">Gagal memuat dashboard</h3>
-    <p class="text-neutral-600 text-sm mb-4">Terjadi kesalahan saat memuat data dashboard</p>
-    <button onclick="window.location.reload()" class="btn btn-primary">Coba Lagi</button>
+    <p class="text-neutral-600 text-sm mb-4">
+      Terjadi kesalahan saat memuat data dashboard
+    </p>
+    <button onclick="window.location.reload()" class="btn btn-primary">
+      Coba Lagi
+    </button>
   </div>
 </div>
 {% endblock %} {% block script %}
@@ -71,9 +94,9 @@
     try {
       // Check user authentication
       const userStatus = await checkUserStatus();
-      
-      if (!userStatus.authenticated || userStatus.user.role !== 'admin') {
-        window.location.href = '/login';
+
+      if (!userStatus.authenticated || userStatus.user.role !== "admin") {
+        window.location.href = "/login";
         return;
       }
 
@@ -98,7 +121,7 @@
       }
     } catch (error) {
       console.error("Error loading dashboard:", error);
-      
+
       // Hide loading and show error
       document.getElementById("dashboardLoading").classList.add("hidden");
       document.getElementById("dashboardError").classList.remove("hidden");
@@ -123,7 +146,9 @@
             </div>
             <div>
               <p class="text-sm text-neutral-600">Total User</p>
-              <p class="text-2xl font-bold text-neutral-900">${statistics.total_users}</p>
+              <p class="text-2xl font-bold text-neutral-900">${
+                statistics.total_users
+              }</p>
             </div>
           </div>
         </div>
@@ -137,7 +162,9 @@
             </div>
             <div>
               <p class="text-sm text-neutral-600">Total Mitra</p>
-              <p class="text-2xl font-bold text-neutral-900">${statistics.total_mitras}</p>
+              <p class="text-2xl font-bold text-neutral-900">${
+                statistics.total_mitras
+              }</p>
             </div>
           </div>
         </div>
@@ -165,7 +192,9 @@
             </div>
             <div>
               <p class="text-sm text-neutral-600">Aktivitas Hari Ini</p>
-              <p class="text-2xl font-bold text-neutral-900">${recentActivities.length}</p>
+              <p class="text-2xl font-bold text-neutral-900">${
+                recentActivities.length
+              }</p>
             </div>
           </div>
         </div>
@@ -183,9 +212,13 @@
               </button>
             </div>
 
-            ${recentActivities.length > 0 ? `
+            ${
+              recentActivities.length > 0
+                ? `
               <div class="space-y-4">
-                ${recentActivities.map(activity => `
+                ${recentActivities
+                  .map(
+                    (activity) => `
                   <div class="flex items-start space-x-4 p-4 border border-neutral-100 rounded-xl">
                     <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,20 +226,29 @@
                       </svg>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-neutral-900">${activity.description}</p>
+                      <p class="text-sm font-medium text-neutral-900">${
+                        activity.description
+                      }</p>
                       <div class="flex items-center text-xs text-neutral-500 mt-1">
                         <span>Oleh: ${activity.user}</span>
                         <span class="mx-2">•</span>
-                        <span>${new Date(activity.timestamp).toLocaleString('id-ID')}</span>
+                        <span>${new Date(activity.timestamp).toLocaleString(
+                          "id-ID"
+                        )}</span>
                       </div>
                     </div>
-                    <span class="px-2 py-1 text-xs font-medium rounded-full ${getActivityTypeClass(activity.action_type)}">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full ${getActivityTypeClass(
+                      activity.action_type
+                    )}">
                       ${activity.action_type}
                     </span>
                   </div>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </div>
-            ` : `
+            `
+                : `
               <div class="text-center py-8">
                 <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,7 +258,8 @@
                 <h3 class="text-neutral-900 font-medium mb-2">Belum ada aktivitas</h3>
                 <p class="text-neutral-600 text-sm">Aktivitas pengguna akan muncul di sini</p>
               </div>
-            `}
+            `
+            }
           </div>
         </div>
 
@@ -253,6 +296,20 @@
                   </div>
                 </div>
               </button>
+
+              <a href="/admin/mitra/earnings/" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-neutral-900">Pendapatan Mitra</h3>
+                    <p class="text-sm text-neutral-600">Lihat pendapatan semua mitra</p>
+                  </div>
+                </div>
+              </a>
 
               <button onclick="viewReports()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
                 <div class="flex items-center">
@@ -305,12 +362,12 @@
   }
 
   function getActivityIcon(actionType) {
-    switch(actionType) {
-      case 'login':
+    switch (actionType) {
+      case "login":
         return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>';
-      case 'logout':
+      case "logout":
         return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H3"></path>';
-      case 'create':
+      case "create":
         return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>';
       default:
         return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
@@ -318,15 +375,15 @@
   }
 
   function getActivityTypeClass(actionType) {
-    switch(actionType) {
-      case 'login':
-        return 'bg-green-100 text-green-800';
-      case 'logout':
-        return 'bg-red-100 text-red-800';
-      case 'create':
-        return 'bg-blue-100 text-blue-800';
+    switch (actionType) {
+      case "login":
+        return "bg-green-100 text-green-800";
+      case "logout":
+        return "bg-red-100 text-red-800";
+      case "create":
+        return "bg-blue-100 text-blue-800";
       default:
-        return 'bg-neutral-100 text-neutral-800';
+        return "bg-neutral-100 text-neutral-800";
     }
   }
 
