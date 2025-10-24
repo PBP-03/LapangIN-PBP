@@ -1437,8 +1437,32 @@ def api_court_sessions(request, court_id):
     try:
         court = Court.objects.get(id=court_id)
         
-        # Get date parameter (optional, for checking booking status on specific date)
+        # Get date parameter (required for checking booking status)
         booking_date = request.GET.get('date')  # Format: YYYY-MM-DD
+        
+        if not booking_date:
+            return JsonResponse({
+                'success': False,
+                'message': 'Date parameter is required'
+            }, status=400)
+        
+        # Parse and validate date
+        try:
+            from datetime import datetime, timedelta
+            date_obj = datetime.strptime(booking_date, '%Y-%m-%d').date()
+            
+            # Don't allow past dates (except today)
+            from datetime import date as date_today
+            if date_obj < date_today.today():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Cannot check availability for past dates'
+                }, status=400)
+        except ValueError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid date format. Use YYYY-MM-DD'
+            }, status=400)
         
         # Get all active sessions for this court
         sessions = CourtSession.objects.filter(
@@ -1448,55 +1472,67 @@ def api_court_sessions(request, court_id):
         
         sessions_data = []
         for session in sessions:
+            # Calculate session duration in minutes
+            start_time = session.start_time
+            end_time = session.end_time
+            
+            # Calculate duration
+            start_datetime = datetime.combine(date_obj, start_time)
+            end_datetime = datetime.combine(date_obj, end_time)
+            duration_minutes = int((end_datetime - start_datetime).total_seconds() / 60)
+            
+            # Check if this session is booked on the specified date
+            booking = Booking.objects.filter(
+                court=court,
+                session=session,
+                booking_date=date_obj,
+                booking_status__in=['pending', 'confirmed']
+            ).first()
+            
+            is_available = not bool(booking)
+            
             session_info = {
                 'id': session.id,
                 'session_name': session.session_name,
                 'start_time': session.start_time.strftime('%H:%M'),
                 'end_time': session.end_time.strftime('%H:%M'),
+                'duration': duration_minutes,
                 'is_active': session.is_active,
-                'is_booked': False,
-                'booking_id': None
+                'is_available': is_available,
+                'is_booked': bool(booking),
+                'booking_id': str(booking.id) if booking else None,
+                'booking_user': booking.user.get_full_name() if booking else None
             }
-            
-            # Check if this session is booked on the specified date
-            if booking_date:
-                try:
-                    from datetime import datetime
-                    date_obj = datetime.strptime(booking_date, '%Y-%m-%d').date()
-                    
-                    # Check for confirmed or pending bookings for this session on this date
-                    booking = Booking.objects.filter(
-                        court=court,
-                        session=session,
-                        booking_date=date_obj,
-                        booking_status__in=['pending', 'confirmed']
-                    ).first()
-                    
-                    if booking:
-                        session_info['is_booked'] = True
-                        session_info['booking_id'] = str(booking.id)
-                except ValueError:
-                    pass  # Invalid date format, continue without booking check
             
             sessions_data.append(session_info)
         
         return JsonResponse({
             'success': True,
-            'court_id': court.id,
-            'court_name': court.name,
-            'sessions': sessions_data,
-            'date': booking_date
+            'status': 'ok',
+            'data': {
+                'court_id': court.id,
+                'court_name': court.name,
+                'venue_name': court.venue.name,
+                'venue_id': str(court.venue.id),
+                'price_per_hour': float(court.price_per_hour),
+                'sessions': sessions_data,
+                'date': booking_date,
+                'total_sessions': len(sessions_data),
+                'available_sessions': len([s for s in sessions_data if s['is_available']])
+            }
         })
         
     except Court.DoesNotExist:
         return JsonResponse({
             'success': False,
-            'message': 'Lapangan tidak ditemukan'
+            'message': 'Court not found'
         }, status=404)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
-            'message': f'Terjadi kesalahan: {str(e)}'
+            'message': f'An error occurred: {str(e)}'
         }, status=500)
 
 

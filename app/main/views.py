@@ -168,7 +168,8 @@ def venue_detail_view(request, venue_id):
         'avg_rating': round(avg_rating, 1),
         'review_count': all_reviews.count(),
         'is_authenticated': request.user.is_authenticated,
-        'can_review': can_review
+        'can_review': can_review,
+        'today': today.isoformat()
     }
     return render(request, 'venue_detail.html', context)
 
