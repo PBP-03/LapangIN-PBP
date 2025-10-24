@@ -48,10 +48,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'main',
-    'backend',
-    'main.mitra.apps.MitraConfig',
-    'main.admin.apps.MainAdminConfig'
+    'app.backend',
+    'app.main',
+    'app.mitra',
+    'app.admin',
 ]
 
 MIDDLEWARE = [

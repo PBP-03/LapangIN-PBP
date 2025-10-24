@@ -4,7 +4,7 @@ from django.utils import timezone
 from decimal import Decimal
 import random
 from datetime import datetime, time, date, timedelta
-from backend.models import (
+from app.backend.models import (
     User, SportsCategory, Venue, Facility, VenueFacility,
     Court, OperationalHour, Booking, Payment, Review, ActivityLog
 )

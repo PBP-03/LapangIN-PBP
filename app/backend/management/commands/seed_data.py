@@ -6,7 +6,7 @@ from decimal import Decimal
 import requests
 import random
 from datetime import datetime, time, date, timedelta
-from backend.models import (
+from app.backend.models import (
     User, SportsCategory, Venue, VenueImage, Facility, VenueFacility,
     Court, OperationalHour, Booking, Payment, Review, ActivityLog
 )

@@ -21,9 +21,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin-django/', admin.site.urls),
-    # Include main app URLs (main/urls.py defines app_name='main' and includes sub-namespaces)
-    path('', include('main.urls')),
-    path('api/', include('backend.urls')),
+    # Include main app URLs (app.main/urls.py defines app_name='main' and includes sub-namespaces)
+    path('', include('app.main.urls')),
+    path('api/', include('app.backend.urls')),
 ]
 
 # Serve static and media files during development

@@ -3,8 +3,8 @@ from django.utils.safestring import mark_safe
 from django.db.models import Avg
 import json
 
-from backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
-from backend.models import (
+from app.backend.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
+from app.backend.models import (
     Venue, VenueImage, VenueFacility, Facility, 
     Court, Review, OperationalHour, Booking
 )
