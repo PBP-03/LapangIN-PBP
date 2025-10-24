@@ -4,6 +4,9 @@
 {% block title %}Total Earnings Mitra - LapangIN{% endblock %}
 
 {% block content %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 <div class="min-h-screen bg-neutral-50">
   <!-- Header -->
   <div class="bg-white border-b border-neutral-200">
@@ -38,23 +41,30 @@
     
     <!-- Refunds Section -->
     <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 overflow-hidden mb-6">
-      <div class="p-6 border-b border-neutral-200">
+      <div class="p-6 border-b border-neutral-200 flex justify-between items-center">
         <h2 class="text-lg font-semibold text-neutral-900">Refund Transactions</h2>
+        <button onclick="openCreateRefundModal()" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Create Manual Refund
+        </button>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full" id="refunds-table">
           <thead class="bg-neutral-50 border-b border-neutral-200">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">#</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Mitra</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Venue</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Amount</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Reason</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Actions</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider w-12">#</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider w-40">Mitra</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider w-44">Venue</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider w-36">Amount</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider w-32">Type</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Reason</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider w-28">Actions</th>
             </tr>
           </thead>
           <tbody id="refunds-body" class="bg-white divide-y divide-neutral-200">
-            <tr><td colspan="6" class="px-6 py-12 text-center text-neutral-500">Loading refunds...</td></tr>
+            <tr><td colspan="7" class="px-6 py-12 text-center text-neutral-500">Loading refunds...</td></tr>
           </tbody>
         </table>
       </div>
@@ -151,17 +161,38 @@
         </button>
       </div>
     </div>
-    <div class="p-6">
-      <label class="block text-sm font-medium text-neutral-700 mb-2">
-        Refund Reason <span class="text-red-600">*</span>
-      </label>
-      <textarea 
-        id="refundReasonInput" 
-        rows="4" 
-        class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
-        placeholder="Enter the reason for this refund..."
-      ></textarea>
-      <p class="mt-2 text-sm text-neutral-500">Please provide a clear reason for processing this refund.</p>
+    <div class="p-6 space-y-4">
+      <!-- Refund Type -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-2">
+          Refund Type <span class="text-red-600">*</span>
+        </label>
+        <select id="inlineRefundType" onchange="updateInlineRefundTypeWarning()" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+          <option value="mitra_fault">Mitra Fault (Deduct from Mitra)</option>
+          <option value="customer_fault">Customer Fault (Deduct from Mitra)</option>
+          <option value="platform_fault">Platform Fault (Platform Bears Cost)</option>
+          <option value="force_majeure">Force Majeure (Platform Bears Cost)</option>
+        </select>
+        <div id="inlineRefundTypeWarning" class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-xs text-red-700">
+            <strong>⚠️ Mitra Fault:</strong> The refund amount will be deducted from this mitra's earnings.
+          </p>
+        </div>
+      </div>
+
+      <!-- Refund Reason -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-2">
+          Refund Reason <span class="text-red-600">*</span>
+        </label>
+        <textarea 
+          id="refundReasonInput" 
+          rows="4" 
+          class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+          placeholder="Enter the reason for this refund..."
+        ></textarea>
+        <p class="mt-2 text-sm text-neutral-500">Please provide a clear reason for processing this refund.</p>
+      </div>
     </div>
     <div class="p-6 border-t border-neutral-200 flex gap-3">
       <button onclick="closeRefundReasonModal()" class="flex-1 px-4 py-2 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors">
@@ -208,6 +239,72 @@
       </button>
       <button onclick="confirmCancelRefund()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
         Yes, Cancel Refund
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Refund Modal -->
+<div id="createRefundModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="p-6 border-b border-neutral-200 flex-shrink-0">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-display font-bold text-neutral-900">Create Manual Refund</h2>
+        <button onclick="closeCreateRefundModal()" class="text-neutral-400 hover:text-neutral-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="p-6 overflow-y-auto flex-1">
+      <div class="space-y-4">
+        <!-- Select Mitra -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-2">Select Mitra <span class="text-red-600">*</span></label>
+          <select id="createRefundMitra" onchange="loadMitraTransactionsForRefund()" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+            <option value="">-- Select Mitra --</option>
+          </select>
+        </div>
+
+        <!-- Select Transaction -->
+        <div id="transactionSelectContainer" class="hidden">
+          <label class="block text-sm font-medium text-neutral-700 mb-2">Select Transaction to Refund <span class="text-red-600">*</span></label>
+          <div id="transactionsList" class="space-y-2 max-h-80 overflow-y-auto border border-neutral-200 rounded-lg p-4">
+            <p class="text-neutral-500 text-sm">Loading transactions...</p>
+          </div>
+        </div>
+
+        <!-- Refund Type -->
+        <div id="refundTypeContainer" class="hidden">
+          <label class="block text-sm font-medium text-neutral-700 mb-2">Refund Type <span class="text-red-600">*</span></label>
+          <select id="createRefundType" onchange="updateRefundTypeWarning()" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+            <option value="mitra_fault">Mitra Fault (Deduct from Mitra)</option>
+            <option value="customer_fault">Customer Fault (Deduct from Mitra)</option>
+            <option value="platform_fault">Platform Fault (Platform Bears Cost)</option>
+            <option value="force_majeure">Force Majeure (Platform Bears Cost)</option>
+          </select>
+          <div id="refundTypeWarning" class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-xs text-red-700">
+              <strong>⚠️ Mitra Fault:</strong> The refund amount will be deducted from this mitra's earnings. Use when the venue/mitra caused the issue (e.g., court not available, facility problems).
+            </p>
+          </div>
+        </div>
+
+        <!-- Refund Reason -->
+        <div id="refundReasonContainer" class="hidden">
+          <label class="block text-sm font-medium text-neutral-700 mb-2">Refund Reason <span class="text-red-600">*</span></label>
+          <textarea id="createRefundReason" rows="4" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none" placeholder="Enter detailed reason for this refund (e.g., customer complaint, venue issue, admin error)..."></textarea>
+          <p class="mt-1 text-xs text-neutral-500">This reason will be stored in the system for audit purposes</p>
+        </div>
+      </div>
+    </div>
+    <div class="p-6 border-t border-neutral-200 flex gap-3 flex-shrink-0">
+      <button onclick="closeCreateRefundModal()" class="flex-1 px-4 py-2 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors">
+        Cancel
+      </button>
+      <button id="submitRefundBtn" onclick="submitCreateRefund()" class="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+        Create Refund
       </button>
     </div>
   </div>
@@ -263,27 +360,71 @@ function renderRefunds(data) {
   body.innerHTML = '';
   
   data.forEach((r, idx) => {
+    // Parse refund type from notes field (format: [REFUND:type] reason | metadata)
+    let refundType = 'mitra_fault'; // default
+    let cleanReason = r.reason || 'No reason provided';
+    
+    // Extract refund type (case insensitive)
+    const refundTypeMatch = cleanReason.match(/^\[REFUND:(\w+)\]\s*/i);
+    if (refundTypeMatch) {
+      refundType = refundTypeMatch[1].toLowerCase();
+      // Remove the [REFUND:type] prefix
+      cleanReason = cleanReason.replace(/^\[REFUND:\w+\]\s*/i, '');
+    }
+    
+    // Also handle plain "REFUND:" without brackets (for backward compatibility)
+    if (cleanReason.toLowerCase().startsWith('refund:')) {
+      cleanReason = cleanReason.replace(/^refund:\s*/i, '');
+    }
+    
+    // Remove metadata (everything after the first |)
+    const pipeIndex = cleanReason.indexOf('|');
+    if (pipeIndex !== -1) {
+      cleanReason = cleanReason.substring(0, pipeIndex).trim();
+    }
+    
+    // Define type display with colors
+    const typeDisplay = {
+      'mitra_fault': { label: 'Mitra Fault', color: 'red', icon: '⚠️' },
+      'customer_fault': { label: 'Customer Fault', color: 'blue', icon: 'ℹ️' },
+      'platform_fault': { label: 'Platform Fault', color: 'yellow', icon: '⚠️' },
+      'force_majeure': { label: 'Force Majeure', color: 'purple', icon: '🌧️' }
+    };
+    
+    const typeInfo = typeDisplay[refundType] || typeDisplay['mitra_fault'];
+    const typeColorClasses = {
+      'red': 'bg-red-100 text-red-800 border-red-200',
+      'blue': 'bg-blue-100 text-blue-800 border-blue-200',
+      'yellow': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'purple': 'bg-purple-100 text-purple-800 border-purple-200'
+    };
+    
     const row = document.createElement('tr');
     row.className = 'hover:bg-neutral-50 transition-colors';
     row.innerHTML = `
-      <td class="px-6 py-4 text-sm text-neutral-900">${idx + 1}</td>
-      <td class="px-6 py-4">
+      <td class="px-4 py-4 text-sm text-neutral-900">${idx + 1}</td>
+      <td class="px-4 py-4">
         <div class="text-sm font-medium text-neutral-900">${escapeHtml(r.mitra_name)}</div>
         <div class="text-xs text-neutral-500">${escapeHtml(r.customer_name)}</div>
       </td>
-      <td class="px-6 py-4">
+      <td class="px-4 py-4">
         <div class="text-sm text-neutral-900">${escapeHtml(r.venue_name)}</div>
         <div class="text-xs text-neutral-500">${escapeHtml(r.court_name)}</div>
       </td>
-      <td class="px-6 py-4">
-        <div class="font-bold text-red-600">Rp ${parseInt(r.amount).toLocaleString('id-ID')}</div>
-        <div class="text-xs text-neutral-500">${new Date(r.refunded_at).toLocaleDateString('id-ID')}</div>
+      <td class="px-4 py-4 whitespace-nowrap">
+        <div class="text-sm font-bold text-red-600">Rp ${parseInt(r.amount).toLocaleString('id-ID')}</div>
       </td>
-      <td class="px-6 py-4">
-        <div class="text-sm text-neutral-600">${escapeHtml(r.reason || 'No reason provided')}</div>
+      <td class="px-4 py-4">
+        <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full border ${typeColorClasses[typeInfo.color]}">
+          <span class="mr-1">${typeInfo.icon}</span>
+          ${typeInfo.label}
+        </span>
       </td>
-      <td class="px-6 py-4">
-        <button onclick="cancelRefund('${r.id}')" 
+      <td class="px-4 py-4">
+        <div class="text-sm text-neutral-600">${escapeHtml(cleanReason)}</div>
+      </td>
+      <td class="px-4 py-4">
+        <button onclick="cancelRefund('${r.id}', '${refundType}')" 
                 class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
           <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -296,9 +437,9 @@ function renderRefunds(data) {
   });
 }
 
-async function cancelRefund(pendapatanId) {
+async function cancelRefund(pendapatanId, refundType = 'mitra_fault') {
   currentCancelRefundId = pendapatanId;
-  document.getElementById('cancelRefundModal').classList.remove('hidden');
+  confirmCancelRefund();
 }
 
 function closeCancelRefundModal() {
@@ -308,11 +449,6 @@ function closeCancelRefundModal() {
 
 async function confirmCancelRefund() {
   if (!currentCancelRefundId) return;
-  
-  closeCancelRefundModal();
-  
-  // Show loading toast
-  toasterUtils.info('Cancelling refund...', 0);
   
   try {
     const res = await fetch(`/api/refunds/${currentCancelRefundId}/cancel/`, {
@@ -324,10 +460,12 @@ async function confirmCancelRefund() {
     if (json.status !== 'ok') throw new Error(json.message || 'Failed to cancel refund');
     
     toasterUtils.success('Refund cancelled successfully!', 3000);
+    currentCancelRefundId = null;
     fetchRefunds();
     fetchEarnings(); // Refresh earnings too
   } catch (err) {
     toasterUtils.error('Error: ' + err.message, 4000);
+    currentCancelRefundId = null;
   }
 }
 
@@ -474,6 +612,29 @@ async function openTransactionDetailsModal(mitraId) {
         </div>
       </div>
       
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 gap-6 mb-6">
+        <!-- Earnings Timeline Chart -->
+        <div class="bg-white rounded-xl p-6 border border-neutral-200">
+          <h3 class="text-lg font-semibold text-neutral-900 mb-4">Earnings Timeline</h3>
+          <canvas id="earningsTimelineChart" style="max-height: 300px;"></canvas>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Revenue by Venue Chart -->
+          <div class="bg-white rounded-xl p-6 border border-neutral-200">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">Revenue by Venue</h3>
+            <canvas id="revenueByVenueChart" style="max-height: 300px;"></canvas>
+          </div>
+          
+          <!-- Earnings Breakdown Chart -->
+          <div class="bg-white rounded-xl p-6 border border-neutral-200">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">Earnings Breakdown</h3>
+            <canvas id="earningsBreakdownChart" style="max-height: 300px;"></canvas>
+          </div>
+        </div>
+      </div>
+      
       <!-- Transactions List -->
       <div class="mb-4">
         <h3 class="text-lg font-semibold text-neutral-900 mb-3">Daftar Transaksi</h3>
@@ -530,13 +691,6 @@ async function openTransactionDetailsModal(mitraId) {
                 <p class="text-lg font-bold text-neutral-900">Rp ${parseFloat(txn.amount).toLocaleString('id-ID')}</p>
                 <p class="text-xs text-red-600 mt-1">- Komisi (${txn.commission_rate}%): Rp ${parseFloat(txn.commission_amount).toLocaleString('id-ID')}</p>
                 <p class="text-sm font-bold text-primary-600 mt-1">Net: Rp ${parseFloat(txn.net_amount).toLocaleString('id-ID')}</p>
-                <button onclick="showRefundForm('${txn.pendapatan_id}')" 
-                        class="mt-2 inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
-                  </svg>
-                  Process Refund
-                </button>
               </div>
             </div>
           </div>
@@ -546,6 +700,11 @@ async function openTransactionDetailsModal(mitraId) {
     }
     
     content.innerHTML = html;
+    
+    // Render charts after content is loaded
+    if (transactions && transactions.length > 0) {
+      renderCharts(transactions, summary);
+    }
   } catch (err) {
     console.error(err);
     content.innerHTML = `
@@ -562,8 +721,203 @@ async function openTransactionDetailsModal(mitraId) {
   }
 }
 
+// Chart rendering
+let revenueChart = null;
+let breakdownChart = null;
+let timelineChart = null;
+
+function renderCharts(transactions, summary) {
+  // Destroy existing charts
+  if (revenueChart) revenueChart.destroy();
+  if (breakdownChart) breakdownChart.destroy();
+  if (timelineChart) timelineChart.destroy();
+  
+  // Group transactions by date
+  const dateData = {};
+  transactions.forEach(txn => {
+    const date = new Date(txn.booking_date).toLocaleDateString('id-ID');
+    if (!dateData[date]) {
+      dateData[date] = 0;
+    }
+    dateData[date] += parseFloat(txn.net_amount);
+  });
+  
+  // Sort dates
+  const sortedDates = Object.keys(dateData).sort((a, b) => {
+    return new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-'));
+  });
+  const dateRevenues = sortedDates.map(date => dateData[date]);
+  
+  // Group transactions by venue
+  const venueData = {};
+  transactions.forEach(txn => {
+    if (!venueData[txn.venue_name]) {
+      venueData[txn.venue_name] = 0;
+    }
+    venueData[txn.venue_name] += parseFloat(txn.net_amount);
+  });
+  
+  const venueNames = Object.keys(venueData);
+  const venueRevenues = Object.values(venueData);
+  
+  // Chart 1: Earnings Timeline (Line Chart)
+  const ctxTimeline = document.getElementById('earningsTimelineChart');
+  if (ctxTimeline) {
+    timelineChart = new Chart(ctxTimeline, {
+      type: 'line',
+      data: {
+        labels: sortedDates,
+        datasets: [{
+          label: 'Daily Earnings (Rp)',
+          data: dateRevenues,
+          borderColor: 'rgba(59, 130, 246, 1)',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return 'Rp ' + (value / 1000).toFixed(0) + 'k';
+              }
+            }
+          },
+          x: {
+            ticks: {
+              maxRotation: 45,
+              minRotation: 45
+            }
+          }
+        }
+      }
+    });
+  }
+  
+  // Chart 2: Revenue by Venue (Bar Chart)
+  const ctx1 = document.getElementById('revenueByVenueChart');
+  if (ctx1) {
+    revenueChart = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: venueNames,
+        datasets: [{
+          label: 'Revenue (Rp)',
+          data: venueRevenues,
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1,
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return 'Rp ' + (value / 1000).toFixed(0) + 'k';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+  
+  // Chart 3: Earnings Breakdown (Doughnut Chart)
+  const ctx2 = document.getElementById('earningsBreakdownChart');
+  if (ctx2) {
+    breakdownChart = new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Net Earnings', 'Commission'],
+        datasets: [{
+          data: [
+            parseFloat(summary.total_earnings),
+            parseFloat(summary.total_commission)
+          ],
+          backgroundColor: [
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderColor: [
+            'rgba(34, 197, 94, 1)',
+            'rgba(239, 68, 68, 1)'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                return label + ': Rp ' + value.toLocaleString('id-ID');
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
 function closeTransactionDetailsModal() {
   document.getElementById('transactionDetailsModal').classList.add('hidden');
+  // Destroy charts when closing
+  if (timelineChart) {
+    timelineChart.destroy();
+    timelineChart = null;
+  }
+  if (revenueChart) {
+    revenueChart.destroy();
+    revenueChart = null;
+  }
+  if (breakdownChart) {
+    breakdownChart.destroy();
+    breakdownChart = null;
+  }
 }
 
 // Refund modal functions
@@ -573,7 +927,37 @@ let currentCancelRefundId = null;
 function showRefundForm(pendapatanId) {
   currentRefundPendapatanId = pendapatanId;
   document.getElementById('refundReasonInput').value = '';
+  document.getElementById('inlineRefundType').value = 'mitra_fault';
+  updateInlineRefundTypeWarning();
   document.getElementById('refundReasonModal').classList.remove('hidden');
+}
+
+function updateInlineRefundTypeWarning() {
+  const refundType = document.getElementById('inlineRefundType').value;
+  const warningDiv = document.getElementById('inlineRefundTypeWarning');
+  
+  const warnings = {
+    'mitra_fault': {
+      color: 'red',
+      text: '<strong>⚠️ Mitra Fault:</strong> The refund amount will be deducted from this mitra\'s earnings. Use when the venue/mitra caused the issue (e.g., court not available, facility problems).'
+    },
+    'customer_fault': {
+      color: 'blue',
+      text: '<strong>ℹ️ Customer Fault:</strong> The refund amount will still be deducted from mitra\'s earnings (customer already paid). Use for customer-initiated cancellations or no-shows where mitra wasn\'t at fault.'
+    },
+    'platform_fault': {
+      color: 'yellow',
+      text: '<strong>⚠️ Platform Fault:</strong> The platform will bear the refund cost - mitra earnings will NOT be affected. Use when LapangIN system errors or admin mistakes caused the issue.'
+    },
+    'force_majeure': {
+      color: 'purple',
+      text: '<strong>🌧️ Force Majeure:</strong> The platform will bear the refund cost due to extraordinary circumstances. Use for natural disasters, government restrictions, or unforeseeable events.'
+    }
+  };
+  
+  const warning = warnings[refundType];
+  warningDiv.className = `mt-2 p-3 border rounded-lg bg-${warning.color}-50 border-${warning.color}-200`;
+  warningDiv.innerHTML = `<p class="text-xs text-${warning.color}-700">${warning.text}</p>`;
 }
 
 function closeRefundReasonModal() {
@@ -583,21 +967,19 @@ function closeRefundReasonModal() {
 
 function submitRefund() {
   const reason = document.getElementById('refundReasonInput').value.trim();
+  const refundType = document.getElementById('inlineRefundType').value;
   
   if (!reason) {
     toasterUtils.warning('Refund reason is required', 3000);
     return;
   }
-  
+
   closeRefundReasonModal();
-  processRefund(currentRefundPendapatanId, reason);
+  processRefund(currentRefundPendapatanId, reason, refundType);
 }
 
 // Refund processing functions
-async function processRefund(pendapatanId, reason) {
-  // Show loading toast
-  toasterUtils.info('Processing refund...', 0);
-  
+async function processRefund(pendapatanId, reason, refundType = 'mitra_fault') {
   try {
     const res = await fetch('/api/refunds/', {
       method: 'POST',
@@ -608,20 +990,225 @@ async function processRefund(pendapatanId, reason) {
       credentials: 'same-origin',
       body: JSON.stringify({ 
         pendapatan_id: pendapatanId, 
-        reason: reason 
+        reason: reason,
+        refund_type: refundType
       })
     });
     const json = await res.json();
     
     if (json.status !== 'ok') throw new Error(json.message || 'Failed to process refund');
     
-    toasterUtils.success('Refund processed successfully!', 3000);
+    toasterUtils.success('Refund created successfully!', 3000);
     closeTransactionDetailsModal();
     fetchRefunds();
     fetchEarnings();
   } catch (err) {
     toasterUtils.error('Error: ' + err.message, 4000);
   }
+}
+
+// Create Refund Modal Functions
+let selectedTransactionForRefund = null;
+
+function openCreateRefundModal() {
+  document.getElementById('createRefundModal').classList.remove('hidden');
+  document.getElementById('transactionSelectContainer').classList.add('hidden');
+  document.getElementById('refundTypeContainer').classList.add('hidden');
+  document.getElementById('refundReasonContainer').classList.add('hidden');
+  document.getElementById('submitRefundBtn').disabled = true;
+  selectedTransactionForRefund = null;
+  document.getElementById('createRefundType').value = 'mitra_fault';
+  updateRefundTypeWarning();
+  loadMitrasForRefund();
+}
+
+function closeCreateRefundModal() {
+  document.getElementById('createRefundModal').classList.add('hidden');
+  document.getElementById('createRefundMitra').value = '';
+  document.getElementById('createRefundType').value = 'mitra_fault';
+  document.getElementById('createRefundReason').value = '';
+  document.getElementById('transactionsList').innerHTML = '<p class="text-neutral-500 text-sm">Select a mitra first...</p>';
+}
+
+function loadMitrasForRefund() {
+  fetch(apiEarningsUrl, { credentials: 'same-origin' })
+    .then(res => res.json())
+    .then(json => {
+      if (json.status === 'ok') {
+        const select = document.getElementById('createRefundMitra');
+        select.innerHTML = '<option value="">-- Select Mitra --</option>';
+        
+        json.data.forEach(mitra => {
+          if (mitra.completed_transactions > 0) {
+            const option = document.createElement('option');
+            option.value = mitra.mitra_id;
+            option.textContent = `${mitra.mitra_name} (${mitra.completed_transactions} transactions)`;
+            select.appendChild(option);
+          }
+        });
+      }
+    })
+    .catch(err => {
+      console.error('Error loading mitras:', err);
+      toasterUtils.error('Failed to load mitras', 3000);
+    });
+}
+
+function loadMitraTransactionsForRefund() {
+  const mitraId = document.getElementById('createRefundMitra').value;
+  
+  if (!mitraId) {
+    document.getElementById('transactionSelectContainer').classList.add('hidden');
+    document.getElementById('refundTypeContainer').classList.add('hidden');
+    document.getElementById('refundReasonContainer').classList.add('hidden');
+    return;
+  }
+
+  document.getElementById('transactionsList').innerHTML = '<p class="text-neutral-500 text-sm">Loading transactions...</p>';
+  document.getElementById('transactionSelectContainer').classList.remove('hidden');
+
+  fetch(`/api/mitra/${mitraId}/earnings/`, { credentials: 'same-origin' })
+    .then(res => res.json())
+    .then(json => {
+      if (json.status === 'ok' && json.data.transactions) {
+        const transactions = json.data.transactions;
+        
+        if (transactions.length === 0) {
+          document.getElementById('transactionsList').innerHTML = '<p class="text-neutral-500 text-sm">No paid transactions available for refund</p>';
+          return;
+        }
+
+        const transactionsList = document.getElementById('transactionsList');
+        transactionsList.innerHTML = transactions.map(txn => `
+          <div class="border border-neutral-200 rounded-lg p-4 cursor-pointer hover:border-primary-500 hover:bg-primary-50 transition-all" onclick="selectTransactionForRefund('${txn.id}', this)">
+            <div class="flex justify-between items-start gap-4">
+              <div class="flex-1">
+                <p class="font-semibold text-neutral-900">${escapeHtml(txn.venue_name)} - ${escapeHtml(txn.court_name)}</p>
+                <p class="text-sm text-neutral-600 mt-1">Customer: ${escapeHtml(txn.customer_name)}</p>
+                <p class="text-sm text-neutral-600">Date: ${new Date(txn.booking_date).toLocaleDateString('id-ID')} | ${escapeHtml(txn.time_slot)}</p>
+                ${txn.paid_at ? `<p class="text-xs text-neutral-500 mt-1">Paid: ${new Date(txn.paid_at).toLocaleDateString('id-ID')}</p>` : ''}
+              </div>
+              <div class="text-right">
+                <p class="text-sm text-neutral-600">Total: Rp ${parseFloat(txn.amount).toLocaleString('id-ID')}</p>
+                <p class="text-xs text-red-600">Commission: Rp ${parseFloat(txn.commission_amount).toLocaleString('id-ID')}</p>
+                <p class="text-sm font-bold text-primary-600 mt-1">Net: Rp ${parseFloat(txn.net_amount).toLocaleString('id-ID')}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    })
+    .catch(err => {
+      console.error('Error loading transactions:', err);
+      document.getElementById('transactionsList').innerHTML = '<p class="text-red-600 text-sm">Failed to load transactions</p>';
+    });
+}
+
+function selectTransactionForRefund(pendapatanId, element) {
+  // Remove previous selection
+  document.querySelectorAll('#transactionsList > div').forEach(div => {
+    div.classList.remove('border-primary-600', 'bg-primary-100', 'ring-2', 'ring-primary-500');
+  });
+
+  // Mark as selected
+  element.classList.add('border-primary-600', 'bg-primary-100', 'ring-2', 'ring-primary-500');
+  selectedTransactionForRefund = pendapatanId;
+
+  console.log('Selected transaction for refund:', pendapatanId);
+
+  // Show refund type and reason fields
+  document.getElementById('refundTypeContainer').classList.remove('hidden');
+  document.getElementById('refundReasonContainer').classList.remove('hidden');
+  document.getElementById('submitRefundBtn').disabled = false;
+}
+
+function updateRefundTypeWarning() {
+  const refundType = document.getElementById('createRefundType').value;
+  const warningDiv = document.getElementById('refundTypeWarning');
+  
+  const warnings = {
+    'mitra_fault': {
+      color: 'red',
+      text: '<strong>⚠️ Mitra Fault:</strong> The refund amount will be deducted from this mitra\'s earnings. Use when the venue/mitra caused the issue (e.g., court not available, facility problems).'
+    },
+    'customer_fault': {
+      color: 'blue',
+      text: '<strong>ℹ️ Customer Fault:</strong> The refund amount will still be deducted from mitra\'s earnings (customer already paid). Use for customer-initiated cancellations or no-shows where mitra wasn\'t at fault.'
+    },
+    'platform_fault': {
+      color: 'yellow',
+      text: '<strong>⚠️ Platform Fault:</strong> The platform will bear the refund cost - mitra earnings will NOT be affected. Use when LapangIN system errors or admin mistakes caused the issue.'
+    },
+    'force_majeure': {
+      color: 'purple',
+      text: '<strong>🌧️ Force Majeure:</strong> The platform will bear the refund cost due to extraordinary circumstances. Use for natural disasters, government restrictions, or unforeseeable events.'
+    }
+  };
+  
+  const warning = warnings[refundType];
+  warningDiv.className = `mt-2 p-3 border rounded-lg bg-${warning.color}-50 border-${warning.color}-200`;
+  warningDiv.innerHTML = `<p class="text-xs text-${warning.color}-700">${warning.text}</p>`;
+}
+
+function submitCreateRefund() {
+  const reason = document.getElementById('createRefundReason').value.trim();
+  const refundType = document.getElementById('createRefundType').value;
+
+  if (!selectedTransactionForRefund) {
+    toasterUtils.warning('Please select a transaction', 3000);
+    return;
+  }
+
+  if (!reason) {
+    toasterUtils.warning('Please enter a refund reason', 3000);
+    return;
+  }
+
+  // Disable button during submission
+  const submitBtn = document.getElementById('submitRefundBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Processing...';
+
+  const payload = {
+    pendapatan_id: selectedTransactionForRefund,
+    reason: reason,
+    refund_type: refundType
+  };
+  
+  console.log('Sending refund request:', payload);
+
+  fetch('/api/refunds/', {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    credentials: 'same-origin',
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(json => {
+    if (json.status === 'ok') {
+      toasterUtils.success('Refund created successfully!', 3000);
+      closeCreateRefundModal();
+      fetchRefunds();
+      fetchEarnings();
+    } else {
+      toasterUtils.error(json.message || 'Failed to create refund', 4000);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create Refund';
+    }
+  })
+  .catch(err => {
+    console.error('Error creating refund:', err);
+    toasterUtils.error('Failed to create refund', 4000);
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Refund';
+  })
+  .finally(() => {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Refund';
+  });
 }
 
 // Helper function to get CSRF token
