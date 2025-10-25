@@ -149,7 +149,7 @@
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
       {% for court in courts %}
         <div
-          onclick="selectCourt('{{ court.id }}', '{{ court.name }}', {{ court.price_per_hour }})"
+          onclick="selectCourt('{{ court.id }}', '{{ court.name }}', '{{ court.price_per_hour }}')"
           id="court-card-{{ court.id }}"
           data-court-id="{{ court.id }}"
           data-court-name="{{ court.name }}"
@@ -718,10 +718,6 @@
       const check = selectedCard.querySelector('.court-check');
       if (check) check.classList.remove('hidden');
 
-      // Highlight selected court
-      selectedCard.style.borderColor = '#dc2626';
-      selectedCard.style.backgroundColor = '#fef2f2';
-
       selectedCourt = { id: courtId, name: courtName, price: parseFloat(courtPrice) };
       selectedSessions = []; // Clear previous selections
 
@@ -796,7 +792,7 @@
           ? `Rp ${(selectedCourt.price * (session.duration / 60)).toLocaleString('id-ID')}`
           : 'Booked';
 
-        const statusClass = session.is_available ? 'text-green-600' : 'text-red-600';
+        const statusClass = session.is_available ? 'text-primary-700' : 'text-red-600';
         const statusText = session.is_available ? 'Available' : 'Booked';
 
         sessionCard.innerHTML = `
@@ -945,6 +941,9 @@
       border-color: #6366f1;
     }
     #booking-date-input::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+    }
+    .tes{
       cursor: pointer;
     }
   </style>
