@@ -695,20 +695,22 @@ class Command(BaseCommand):
         admin = User.objects.filter(role='admin').first()
         
         for booking in paid_bookings:
-            payment = Payment.objects.create(
+            payment, created = Payment.objects.get_or_create(
                 booking=booking,
-                amount=booking.total_price,
-                payment_method=random.choice(payment_methods),
-                transaction_id=f'TXN{random.randint(100000, 999999)}',
-                verified_by=admin if random.random() > 0.15 else None,  # 85% verified
-                notes=random.choice([
-                    None,
-                    'Payment verified automatically',
-                    'Manual verification completed',
-                    'Auto payment processing',
-                    'Payment confirmed by admin'
-                ]),
-                paid_at=booking.created_at + timedelta(minutes=random.randint(1, 60))
+                defaults={
+                    'amount': booking.total_price,
+                    'payment_method': random.choice(payment_methods),
+                    'transaction_id': f'TXN{random.randint(100000, 999999)}',
+                    'verified_by': admin if random.random() > 0.15 else None,  # 85% verified
+                    'notes': random.choice([
+                        None,
+                        'Payment verified automatically',
+                        'Manual verification completed',
+                        'Auto payment processing',
+                        'Payment confirmed by admin'
+                    ]),
+                    'paid_at': booking.created_at + timedelta(minutes=random.randint(1, 60))
+                }
             )
 
         self.stdout.write(f'Created {Payment.objects.count()} payments')
