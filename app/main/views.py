@@ -15,9 +15,26 @@ def venue_list_view(request):
     """Render halaman daftar venue"""
     # Don't send initial data, let JavaScript fetch from API with pagination
     venues = []
+    search_query = request.GET.get('search', '').strip()
+    
     try:
-        # Only send first page for initial load - filter for approved venues only
-        qs = Venue.objects.filter(verification_status='approved').order_by('-created_at', 'name')[:9]
+        # Filter for approved venues only
+        qs = Venue.objects.filter(verification_status='approved')
+        
+        # Apply search filter if search query exists
+        if search_query:
+            from django.db.models import Q
+            qs = qs.filter(
+                Q(name__icontains=search_query) |
+                Q(address__icontains=search_query) |
+                Q(description__icontains=search_query)
+            )
+            print(f"[Search] Searching for: '{search_query}'")
+            print(f"[Search] Found {qs.count()} matching venues")
+        
+        # Order and limit results
+        qs = qs.order_by('-created_at', 'name')[:9]
+        
         print(f"[Initial Load] Found {Venue.objects.filter(verification_status='approved').count()} approved venues")
         print(f"[Initial Load] Showing first {qs.count()} venues")
         for v in qs:
@@ -64,6 +81,7 @@ def venue_list_view(request):
     print(f"[Initial Load] Venue names: {venue_names}")
     context = {
         'venues_json': mark_safe(json.dumps(venues, default=str)),
+        'search_query': search_query,
     }
     return render(request, 'venue_list.html', context)
 

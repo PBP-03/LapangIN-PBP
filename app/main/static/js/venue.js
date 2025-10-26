@@ -138,7 +138,9 @@ function renderVenueCard(container, v) {
                 v.price_per_hour ||
                 v.price ||
                 0
-              ).toLocaleString("id-ID")}<span class="text-xs text-neutral-500">/jam</span></div>
+              ).toLocaleString(
+                "id-ID"
+              )}<span class="text-xs text-neutral-500">/jam</span></div>
             </div>
           </div>
         </div>
@@ -573,6 +575,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchForm = document.getElementById("venue-search-form");
   const sortSelect = document.getElementById("venue-sort");
   let lastParams = {};
+
+  // Check for URL search parameters (from navbar search)
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchQuery = urlParams.get("search");
+
+  // Pre-fill form with search query if present
+  if (searchQuery && searchForm) {
+    const nameInput = searchForm.querySelector('input[name="name"]');
+    if (nameInput) {
+      nameInput.value = searchQuery;
+    }
+  }
+
   // If the server injected a snapshot of venues, render it immediately so
   // links point to real IDs (UUIDs) instead of client-only dummy ids.
   if (Array.isArray(window.venuesData) && window.venuesData.length > 0) {
@@ -608,10 +623,13 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // initial load uses empty params
-    fetchAndRenderVenueList({}, 1);
+    // initial load - use search query from URL if present, otherwise empty params
+    const initialParams = searchQuery ? { name: searchQuery } : {};
+    fetchAndRenderVenueList(initialParams, 1);
   } else {
-    fetchAndRenderVenueList({}, 1);
+    // No form found, use URL search if present
+    const initialParams = searchQuery ? { name: searchQuery } : {};
+    fetchAndRenderVenueList(initialParams, 1);
   }
 
   if (sortSelect) {

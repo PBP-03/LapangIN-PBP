@@ -37,6 +37,7 @@ def update_venue_court_count(venue):
 def api_venue_list(request):
     """API endpoint for venue list & search/filter"""
     # Get query params
+    search = request.GET.get('search')  # General search parameter
     name = request.GET.get('name')
     category = request.GET.get('category')
     min_price = request.GET.get('min_price')
@@ -48,6 +49,16 @@ def api_venue_list(request):
     page_size = int(request.GET.get('page_size', 9))
 
     venues = Venue.objects.filter(verification_status='approved').order_by('-created_at', 'name')
+    
+    # General search across multiple fields
+    if search:
+        venues = venues.filter(
+            Q(name__icontains=search) |
+            Q(address__icontains=search) |
+            Q(description__icontains=search)
+        )
+    
+    # Specific field searches
     if name:
         venues = venues.filter(name__icontains=name)
     if category:
