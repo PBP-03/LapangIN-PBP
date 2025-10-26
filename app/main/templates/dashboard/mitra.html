@@ -9,7 +9,7 @@
       <div class="py-6 flex items-center justify-between">
         <div class="scroll-animate">
           <h1 class="text-2xl md:text-3xl font-black text-neutral-900 leading-tight">
-            Dashboard <span class="bg-gradient-to-br from-primary-500 to-primary-700 text-transparent bg-clip-text">Mitra</span>
+            Dashboard <span class="text-gradient-custom">Mitra</span>
           </h1>
           <p class="text-neutral-600" id="welcomeMessage">Kelola lapangan dan pantau bisnis Anda!</p>
         </div>
@@ -310,12 +310,11 @@
         <!-- Quick Actions -->
         <aside class="lg:col-span-1">
           <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-neutral-200 p-6 scroll-animate">
-            <h4 class="text-sm font-bold text-neutral-900 mb-3 uppercase tracking-wide">Aksi Cepat</h4>
-            <div class="space-y-3">
-              ${quickAction('/mitra/venues/', 'Kelola Venue', 'Tambah & edit venue', 'primary')}
-              ${quickAction('/mitra/lapangan/', 'Kelola Lapangan', 'Atur lapangan per venue', 'emerald')}
-              ${quickAction('/mitra/pendapatan/', 'Pendapatan', 'Lihat laporan keuangan', 'amber')}
-              ${quickAction('/mitra/bookings/', 'Kelola Booking', 'Lihat & kelola pesanan', 'blue')}
+            <div class="space-y-3" id="quick-actions">
+              ${quickActionPro('/mitra/venues/',   'Kelola Venue',     'Tambah & edit venue',         'primary', 'Squares2X2Icon')}
+              ${quickActionPro('/mitra/lapangan/', 'Kelola Lapangan',  'Atur lapangan per venue',     'emerald', 'Rows3Icon')}
+              ${quickActionPro('/mitra/bookings/', 'Kelola Booking',   'Lihat & kelola pesanan',      'blue',    'CalendarCheckIcon')}
+              ${quickActionPro('/mitra/pendapatan/','Pendapatan',      'Lihat laporan keuangan',      'amber',   'BanknotesIcon')}
             </div>
           </div>
         </aside>
@@ -429,30 +428,65 @@
     `;
   }
 
-  function quickAction(href, title, desc, tone){
-    const color = {
-      primary: 'bg-primary-100 text-primary-600',
-      emerald: 'bg-emerald-100 text-emerald-600',
-      amber:   'bg-amber-100 text-amber-600',
-      blue:    'bg-blue-100 text-blue-600',
-    }[tone] || 'bg-neutral-100 text-neutral-700';
+  function quickActionPro(href, title, desc, tone, iconName){
+    const toneMap = {
+      primary: {bg:'from-primary-50 to-cyan-50', dot:'bg-primary-500', text:'text-primary-700', ring:'ring-primary-200'},
+      emerald: {bg:'from-emerald-50 to-teal-50', dot:'bg-emerald-500', text:'text-emerald-700', ring:'ring-emerald-200'},
+      blue:    {bg:'from-blue-50 to-sky-50',     dot:'bg-blue-500',    text:'text-blue-700',    ring:'ring-blue-200'},
+      amber:   {bg:'from-amber-50 to-yellow-50', dot:'bg-amber-500',   text:'text-amber-700',   ring:'ring-amber-200'},
+    }[tone] || {bg:'from-neutral-50 to-white', dot:'bg-neutral-400', text:'text-neutral-700', ring:'ring-neutral-200'};
+
+    const iconSvg = {
+      Squares2X2Icon: `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8h8V3H3v5zm10 0h8V3h-8v5zM3 21h8v-8H3v8zm10 0h8v-8h-8v8z"/>
+        </svg>`,
+      Rows3Icon: `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h18M3 18h18"/>
+        </svg>`,
+      CalendarCheckIcon: `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V5m8 2V5m-9 8l3 3 6-6M5 7h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z"/>
+        </svg>`,
+      BanknotesIcon: `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18v10H3zM7 12a2 2 0 104 0 2 2 0 00-4 0zm8 0h2m-12 0H3"/>
+        </svg>`
+    }[iconName] || '';
 
     return `
-      <a href="${href}" class="group block px-4 py-3 rounded-xl border border-neutral-200 hover:bg-neutral-50 transition-colors">
-        <div class="flex items-center">
-          <div class="w-9 h-9 ${color} rounded-lg flex items-center justify-center mr-3">
-            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586l5.414 5.414V21z"/>
-            </svg>
+      <a href="${href}"
+        class="group relative block overflow-hidden rounded-xl border border-neutral-200 bg-gradient-to-br ${toneMap.bg}
+                hover:bg-white transition-all focus:outline-none focus-visible:${toneMap.ring} focus-visible:ring-2">
+        <!-- Glow -->
+        <div class="absolute -inset-1 opacity-0 group-hover:opacity-100 transition-opacity
+                    bg-gradient-to-r from-white/0 via-white/40 to-white/0 pointer-events-none"></div>
+
+        <div class="relative p-4 flex items-center">
+          <div class="mr-3">
+            <div class="w-10 h-10 rounded-xl bg-white/80 backdrop-blur flex items-center justify-center shadow-sm border border-white">
+              ${iconSvg}
+            </div>
           </div>
-          <div>
-            <p class="font-semibold text-neutral-900">${title}</p>
-            <p class="text-xs text-neutral-600">${desc}</p>
+
+          <div class="min-w-0 flex-1">
+            <p class="font-semibold text-neutral-900 leading-tight">${title}</p>
+            <p class="text-xs text-neutral-600 truncate">${desc}</p>
+          </div>
+
+          <div class="ml-3 flex items-center">
+            <span class="w-2 h-2 ${toneMap.dot} rounded-full mr-2"></span>
+            <svg class="w-5 h-5 ${toneMap.text} transform transition-transform group-hover:translate-x-0.5"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
           </div>
         </div>
       </a>
     `;
   }
+
 </script>
 
 <style>
@@ -468,5 +502,9 @@
     background: linear-gradient(135deg,#14b8a6 0%,#06b6d4 50%,#3b82f6 100%);
     -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   }
+  /* subtle hover lift for quick actions */
+  #quick-actions a { transform: translateY(0); transition: transform .2s ease, box-shadow .2s ease; }
+  #quick-actions a:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -12px rgba(0,0,0,.25); }
+
 </style>
 {% endblock %}
