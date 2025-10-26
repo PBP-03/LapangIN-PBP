@@ -13,32 +13,26 @@
     <div class="bg-white border-b border-neutral-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="py-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="flex items-center space-x-2 text-sm text-neutral-600 mb-2">
+          <div class="flex items-start sm:items-center justify-between gap-4 flex-col sm:flex-row">
+            <div class="min-w-0">
+              <div class="flex items-center flex-wrap gap-2 text-sm text-neutral-600 mb-2">
                 <a href="/mitra/dashboard" class="hover:text-primary-600">Dashboard</a>
                 <span>/</span>
                 <a href="/mitra/lapangan" class="hover:text-primary-600">Lapangan</a>
                 <span>/</span>
-                <span class="text-neutral-900" id="breadcrumbLapanganName">Detail</span>
+                <span class="text-neutral-900 truncate" id="breadcrumbLapanganName">Detail</span>
               </div>
-              <h1 class="text-2xl font-display font-bold text-neutral-900" id="lapanganName">
-                Loading...
-              </h1>
-              <p class="text-neutral-600" id="lapanganVenueName">
-                ...
-              </p>
+              <h1 class="text-2xl font-display font-bold text-neutral-900 truncate" id="lapanganName">Loading...</h1>
+              <p class="text-neutral-600" id="lapanganVenueName">...</p>
             </div>
-            <div class="flex items-center space-x-3">
-              <button onclick="editLapangan()" class="btn btn-primary">
+            <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              <button onclick="editLapangan()" class="btn btn-primary flex-1 sm:flex-none">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
                 Edit Lapangan
               </button>
-              <a href="/mitra/lapangan" class="btn btn-secondary">
-                Kembali
-              </a>
+              <a href="/mitra/lapangan" class="btn btn-secondary flex-1 sm:flex-none">Kembali</a>
             </div>
           </div>
         </div>
@@ -62,9 +56,7 @@
           <!-- Description Section -->
           <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
             <h2 class="text-lg font-semibold text-neutral-900 mb-4">Deskripsi Lapangan</h2>
-            <p id="lapanganDescription" class="text-neutral-700 whitespace-pre-line">
-              <!-- Description will be loaded here -->
-            </p>
+            <p id="lapanganDescription" class="text-neutral-700 whitespace-pre-line"></p>
           </div>
 
           <!-- Sessions Section -->
@@ -73,17 +65,13 @@
               <h2 class="text-lg font-semibold text-neutral-900">Sesi Waktu Tersedia</h2>
               <span id="sessionCount" class="text-sm text-neutral-600">0 sesi</span>
             </div>
-            <div id="sessionsContainer">
-              <!-- Sessions will be loaded here -->
-            </div>
+            <div id="sessionsContainer"></div>
           </div>
 
           <!-- Maintenance Notes Section -->
           <div id="maintenanceSection" class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6 hidden">
             <h2 class="text-lg font-semibold text-neutral-900 mb-4">Catatan Maintenance</h2>
-            <p id="lapanganMaintenance" class="text-neutral-700 whitespace-pre-line">
-              <!-- Maintenance notes will be loaded here -->
-            </p>
+            <p id="lapanganMaintenance" class="text-neutral-700 whitespace-pre-line"></p>
           </div>
 
           <!-- Statistics Section -->
@@ -118,26 +106,20 @@
             <div class="space-y-4">
               <div>
                 <label class="text-sm text-neutral-600">Status</label>
-                <div id="lapanganStatus" class="mt-1">
-                  <!-- Status badge will be loaded here -->
-                </div>
+                <div id="lapanganStatus" class="mt-1"></div>
               </div>
-              
               <div>
                 <label class="text-sm text-neutral-600">Kategori Olahraga</label>
                 <p id="lapanganCategory" class="mt-1 text-sm font-medium text-neutral-900">-</p>
               </div>
-              
               <div>
                 <label class="text-sm text-neutral-600">Harga per Jam</label>
                 <p id="lapanganPrice" class="mt-1 text-lg font-bold text-primary-600">Rp 0</p>
               </div>
-              
               <div>
                 <label class="text-sm text-neutral-600">Venue</label>
                 <p id="lapanganVenue" class="mt-1 text-sm font-medium text-neutral-900">-</p>
               </div>
-              
               <div>
                 <label class="text-sm text-neutral-600">Lokasi</label>
                 <p id="lapanganLocation" class="mt-1 text-sm text-neutral-700">-</p>
@@ -155,14 +137,12 @@
                 </svg>
                 Ubah Status
               </button>
-              
               <button onclick="viewBookings()" class="w-full btn btn-secondary">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                 </svg>
                 Lihat Booking
               </button>
-              
               <button onclick="deleteLapangan()" class="w-full btn bg-red-600 hover:bg-red-700 text-white">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -189,64 +169,88 @@
   </div>
 
   <!-- Session Bookings Modal -->
-  <div id="sessionBookingsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-neutral-200">
-        <h3 class="text-xl font-semibold text-neutral-900" id="sessionModalTitle">Booking Sesi</h3>
-        <button onclick="closeSessionBookingsModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 transition-colors text-neutral-500 hover:text-neutral-700">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-      
-      <!-- Modal Body -->
-      <div class="flex-1 overflow-y-auto p-6">
-        <!-- Session Info -->
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-          <div class="flex items-center space-x-3">
-            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  <div id="sessionBookingsModal" class="fixed inset-0 bg-black/50 hidden z-50" aria-modal="true" role="dialog">
+    <div class="flex min-h-screen items-end sm:items-center justify-center p-0 sm:p-6">
+      <div class="bg-white w-full sm:max-w-4xl max-h-[100vh] sm:max-h-[90vh] overflow-hidden flex flex-col sm:rounded-2xl rounded-none shadow-2xl">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-neutral-200 sticky top-0 bg-white z-10">
+          <h3 class="text-xl font-semibold text-neutral-900" id="sessionModalTitle">Booking Sesi</h3>
+          <button onclick="closeSessionBookingsModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 transition-colors text-neutral-500 hover:text-neutral-700" aria-label="Tutup">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
-            <div>
-              <h4 class="font-semibold text-neutral-900" id="sessionInfoName">Sesi Pagi</h4>
-              <p class="text-sm text-neutral-600" id="sessionInfoTime">08:00 - 10:00</p>
+          </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="flex-1 overflow-y-auto p-6">
+          <!-- Session Info -->
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <div class="flex items-center space-x-3">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <div>
+                <h4 class="font-semibold text-neutral-900" id="sessionInfoName">Sesi</h4>
+                <p class="text-sm text-neutral-600" id="sessionInfoTime">--:-- - --:--</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Bookings List -->
-        <div id="sessionBookingsList">
-          <!-- Bookings will be loaded here -->
+          <!-- Bookings List -->
+          <div id="sessionBookingsList"></div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block script %}
 <script>
 const lapanganId = "{{ lapangan_id|default:'' }}";
 let lapanganData = null;
+let currentSessionId = null;
+
+// Helpers
+function formatCurrency(n) {
+  const num = parseInt(n || 0, 10);
+  return `Rp ${isNaN(num) ? 0 : num.toLocaleString('id-ID')}`;
+}
 
 // Load data on page load
 document.addEventListener('DOMContentLoaded', async function() {
+  if (!lapanganId) {
+    document.getElementById('lapanganLoading').classList.add('hidden');
+    document.getElementById('lapanganError').classList.remove('hidden');
+    return;
+  }
   await loadLapanganDetail();
+
+  // Close session modal on ESC
+  document.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('sessionBookingsModal');
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      closeSessionBookingsModal();
+    }
+  });
+
+  // Close modal when clicking backdrop
+  document.getElementById('sessionBookingsModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeSessionBookingsModal();
+  });
 });
 
 async function loadLapanganDetail() {
   try {
     const response = await makeAjaxRequest(`/api/courts/${lapanganId}/`);
-    
     if (response.success) {
-      lapanganData = response.data;
+      lapanganData = response.data || {};
       renderLapanganDetail(lapanganData);
-      
       document.getElementById('lapanganLoading').classList.add('hidden');
       document.getElementById('lapanganContent').classList.remove('hidden');
+    } else {
+      throw new Error(response.message || 'Gagal memuat');
     }
   } catch (error) {
     console.error('Error loading lapangan detail:', error);
@@ -255,24 +259,34 @@ async function loadLapanganDetail() {
   }
 }
 
-function renderLapanganDetail(lapangan) {
+function renderLapanganDetail(l) {
   // Header
-  document.getElementById('lapanganName').textContent = lapangan.name;
-  document.getElementById('breadcrumbLapanganName').textContent = lapangan.name;
-  document.getElementById('lapanganVenueName').textContent = lapangan.venue_name;
-  
-  // Images Section
+  document.getElementById('lapanganName').textContent = l.name || '-';
+  document.getElementById('breadcrumbLapanganName').textContent = l.name || 'Detail';
+  document.getElementById('lapanganVenueName').textContent = l.venue_name || '';
+
+  // Images Section (primary + grid)
   const imagesSection = document.getElementById('lapanganImagesSection');
-  if (lapangan.images && lapangan.images.length > 0) {
+  const images = Array.isArray(l.images) ? l.images : [];
+  if (images.length > 0) {
+    const primary = images.find(img => img.is_primary) || images[0];
+    const thumbs = images.filter(img => img !== primary).slice(0, 6);
     imagesSection.innerHTML = `
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        ${lapangan.images.map((img, index) => `
-          <div class="relative ${index === 0 ? 'md:col-span-2' : ''} group">
-            <img src="${img.url}" alt="${lapangan.name}" class="w-full ${index === 0 ? 'h-96' : 'h-64'} object-cover rounded-xl">
-            ${img.is_primary ? '<span class="absolute top-2 left-2 bg-primary-500 text-white text-xs px-2 py-1 rounded">Utama</span>' : ''}
-          </div>
-        `).join('')}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="md:col-span-2">
+          <img src="${primary.url}" loading="lazy" alt="${l.name || 'Lapangan'}"
+               class="w-full aspect-[16/9] object-cover rounded-xl">
+        </div>
+        <div class="grid grid-cols-3 md:grid-cols-1 lg:grid-cols-1 gap-3">
+          ${thumbs.map(t => `
+            <img src="${t.url}" loading="lazy" alt="${l.name || 'Lapangan'}"
+                 class="w-full aspect-[16/9] object-cover rounded-xl">
+          `).join('')}
+        </div>
       </div>
+      ${images.length - 1 - thumbs.length > 0 ? `
+        <p class="text-xs text-neutral-500 mt-3">+${images.length - 1 - thumbs.length} foto lainnya</p>
+      ` : '' }
     `;
   } else {
     imagesSection.innerHTML = `
@@ -286,105 +300,26 @@ function renderLapanganDetail(lapangan) {
       </div>
     `;
   }
-  
+
   // Description
-  if (lapangan.description) {
-    document.getElementById('lapanganDescription').textContent = lapangan.description;
-  } else {
-    document.getElementById('lapanganDescription').innerHTML = '<span class="text-neutral-400 italic">Tidak ada deskripsi</span>';
-  }
-  
-  // Maintenance Notes
-  if (lapangan.maintenance_notes) {
+  document.getElementById('lapanganDescription').innerHTML =
+    l.description ? escapeHtml(l.description) : '<span class="text-neutral-400 italic">Tidak ada deskripsi</span>';
+
+  // Maintenance
+  if (l.maintenance_notes) {
     document.getElementById('maintenanceSection').classList.remove('hidden');
-    document.getElementById('lapanganMaintenance').textContent = lapangan.maintenance_notes;
+    document.getElementById('lapanganMaintenance').textContent = l.maintenance_notes;
+  } else {
+    document.getElementById('maintenanceSection').classList.add('hidden');
   }
-  
+
   // Sessions
   const sessionsContainer = document.getElementById('sessionsContainer');
   const sessionCount = document.getElementById('sessionCount');
-  
-  if (lapangan.sessions && lapangan.sessions.length > 0) {
-    sessionCount.textContent = `${lapangan.sessions.length} sesi`;
-    
-    const activeSessions = lapangan.sessions.filter(s => s.is_active);
-    const inactiveSessions = lapangan.sessions.filter(s => !s.is_active);
-    
-    let sessionsHTML = '';
-    
-    // Active sessions
-    if (activeSessions.length > 0) {
-      sessionsHTML += '<div class="mb-4"><h3 class="text-sm font-semibold text-neutral-700 mb-3">Sesi Aktif</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">';
-      activeSessions.forEach(session => {
-        const hasBookings = session.total_bookings > 0;
-        const bookingBadge = hasBookings 
-          ? `<span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 ml-2">
-               ${session.total_bookings} booking
-             </span>`
-          : '';
-        
-        sessionsHTML += `
-          <div onclick="openSessionBookings(${session.id}, '${session.session_name}', '${session.start_time}', '${session.end_time}')" 
-               class="p-4 border ${hasBookings ? 'border-yellow-200 bg-yellow-50 hover:border-yellow-300' : 'border-green-200 bg-green-50 hover:border-green-300'} rounded-xl cursor-pointer transition-all hover:shadow-md">
-            <div class="flex items-start justify-between">
-              <div class="flex-1">
-                <div class="flex items-center mb-2">
-                  <svg class="w-4 h-4 ${hasBookings ? 'text-yellow-600' : 'text-green-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  <h4 class="font-semibold text-neutral-900 ml-2">${session.session_name}</h4>
-                  ${bookingBadge}
-                </div>
-                <div class="flex items-center space-x-2 text-sm text-neutral-700">
-                  <span>${session.start_time}</span>
-                  <span>-</span>
-                  <span>${session.end_time}</span>
-                </div>
-                ${hasBookings ? `<p class="text-xs text-yellow-700 mt-2">Klik untuk melihat detail booking</p>` : `<p class="text-xs text-neutral-500 mt-2">Klik untuk melihat detail</p>`}
-              </div>
-              <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Aktif</span>
-            </div>
-          </div>
-        `;
-      });
-      sessionsHTML += '</div></div>';
-    }
-    
-    // Inactive sessions
-    if (inactiveSessions.length > 0) {
-      sessionsHTML += '<div><h3 class="text-sm font-semibold text-neutral-700 mb-3">Sesi Nonaktif</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">';
-      inactiveSessions.forEach(session => {
-        const hasBookings = session.total_bookings > 0;
-        sessionsHTML += `
-          <div onclick="openSessionBookings(${session.id}, '${session.session_name}', '${session.start_time}', '${session.end_time}')" 
-               class="p-4 border border-neutral-200 bg-neutral-50 rounded-xl cursor-pointer hover:border-neutral-300 transition-all hover:shadow-md">
-            <div class="flex items-start justify-between">
-              <div class="flex-1">
-                <div class="flex items-center mb-2">
-                  <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  <h4 class="font-semibold text-neutral-600 ml-2">${session.session_name}</h4>
-                  ${hasBookings ? `<span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 ml-2">${session.total_bookings} booking</span>` : ''}
-                </div>
-                <div class="flex items-center space-x-2 text-sm text-neutral-500">
-                  <span>${session.start_time}</span>
-                  <span>-</span>
-                  <span>${session.end_time}</span>
-                </div>
-                <p class="text-xs text-neutral-400 mt-2">Klik untuk melihat detail</p>
-              </div>
-              <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-neutral-200 text-neutral-700">Nonaktif</span>
-            </div>
-          </div>
-        `;
-      });
-      sessionsHTML += '</div></div>';
-    }
-    
-    sessionsContainer.innerHTML = sessionsHTML;
-  } else {
-    sessionCount.textContent = '0 sesi';
+  const sessions = Array.isArray(l.sessions) ? l.sessions : [];
+  sessionCount.textContent = `${sessions.length} sesi`;
+
+  if (sessions.length === 0) {
     sessionsContainer.innerHTML = `
       <div class="text-center py-8">
         <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -396,29 +331,97 @@ function renderLapanganDetail(lapangan) {
         <p class="text-neutral-500 text-xs mt-1">Tambahkan sesi waktu untuk memudahkan booking</p>
       </div>
     `;
+  } else {
+    const active = sessions.filter(s => s.is_active);
+    const inactive = sessions.filter(s => !s.is_active);
+    let html = '';
+
+    if (active.length) {
+      html += `
+        <div class="mb-5">
+          <h3 class="text-sm font-semibold text-neutral-700 mb-3">Sesi Aktif</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${active.map(s => sessionCard(s, true)).join('')}
+          </div>
+        </div>`;
+    }
+    if (inactive.length) {
+      html += `
+        <div>
+          <h3 class="text-sm font-semibold text-neutral-700 mb-3">Sesi Nonaktif</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${inactive.map(s => sessionCard(s, false)).join('')}
+          </div>
+        </div>`;
+    }
+    sessionsContainer.innerHTML = html;
   }
-  
-  // Sidebar Info
-  const statusBadge = lapangan.is_active 
+
+  // Sidebar
+  const statusBadge = l.is_active
     ? '<span class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">Aktif</span>'
     : '<span class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800">Nonaktif</span>';
   document.getElementById('lapanganStatus').innerHTML = statusBadge;
-  
-  document.getElementById('lapanganCategory').textContent = lapangan.category || '-';
-  document.getElementById('lapanganPrice').textContent = `Rp ${parseInt(lapangan.price_per_hour || 0).toLocaleString('id-ID')}`;
-  document.getElementById('lapanganVenue').textContent = lapangan.venue_name;
-  document.getElementById('lapanganLocation').textContent = lapangan.venue_address || '-';
-  
-  // Update toggle button text
-  document.getElementById('toggleStatusBtn').innerHTML = lapangan.is_active 
+
+  document.getElementById('lapanganCategory').textContent = l.category_display || l.category || '-';
+  document.getElementById('lapanganPrice').textContent = formatCurrency(l.price_per_hour);
+  document.getElementById('lapanganVenue').textContent = l.venue_name || '-';
+  document.getElementById('lapanganLocation').textContent = l.venue_address || '-';
+
+  // Toggle button label
+  document.getElementById('toggleStatusBtn').innerHTML = l.is_active
     ? '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>Nonaktifkan'
     : '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Aktifkan';
-  
-  // TODO: Load actual statistics from bookings
+
+  // (Opsional) TODO: isi statistik aktual kalau API tersedia
   document.getElementById('statBookings').textContent = '0';
   document.getElementById('statRevenue').textContent = 'Rp 0';
   document.getElementById('statUpcoming').textContent = '0';
   document.getElementById('statRating').textContent = '0.0';
+}
+
+function sessionCard(session, isActive) {
+  const hasBookings = (session.total_bookings || 0) > 0;
+  const badge = hasBookings
+    ? `<span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 ml-2">
+        ${session.total_bookings} booking
+       </span>` : '';
+  const stateBadge = isActive
+    ? '<span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Aktif</span>'
+    : '<span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-neutral-200 text-neutral-700">Nonaktif</span>';
+
+  const containerClass = isActive
+    ? (hasBookings ? 'border-yellow-200 bg-yellow-50 hover:border-yellow-300' : 'border-green-200 bg-green-50 hover:border-green-300')
+    : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300';
+
+  const tip = hasBookings ? 'Klik untuk melihat detail booking' : 'Klik untuk melihat detail';
+
+  // Escape attributes
+  const nameSafe = (session.session_name || '').replace(/"/g, '&quot;');
+  const st = session.start_time || '';
+  const et = session.end_time || '';
+
+  return `
+    <div onclick="openSessionBookings(${session.id}, &quot;${nameSafe}&quot;, &quot;${st}&quot;, &quot;${et}&quot;)"
+         class="p-4 border ${containerClass} rounded-xl cursor-pointer transition-all hover:shadow-md">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <div class="flex items-center mb-2">
+            <svg class="w-4 h-4 ${isActive ? (hasBookings ? 'text-yellow-600' : 'text-green-600') : 'text-neutral-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h4 class="font-semibold text-neutral-900 ml-2 truncate">${session.session_name || '-'}</h4>
+            ${badge}
+          </div>
+          <div class="flex items-center space-x-2 text-sm ${isActive ? 'text-neutral-700' : 'text-neutral-500'}">
+            <span>${st}</span><span>-</span><span>${et}</span>
+          </div>
+          <p class="text-xs ${isActive ? (hasBookings ? 'text-yellow-700' : 'text-neutral-500') : 'text-neutral-400'} mt-2">${tip}</p>
+        </div>
+        ${stateBadge}
+      </div>
+    </div>
+  `;
 }
 
 function editLapangan() {
@@ -426,32 +429,32 @@ function editLapangan() {
 }
 
 async function toggleLapanganStatus() {
-  const newStatus = !lapanganData.is_active;
+  const newStatus = !lapanganData?.is_active;
   const action = newStatus ? 'mengaktifkan' : 'menonaktifkan';
-  
   if (!confirm(`Anda yakin ingin ${action} lapangan ini?`)) return;
-  
+
   try {
-    const formData = new FormData();
-    formData.append('venue', lapanganData.venue_id);
-    formData.append('name', lapanganData.name);
-    formData.append('category', lapanganData.category_id);
-    formData.append('price_per_hour', lapanganData.price_per_hour);
-    formData.append('is_active', newStatus);
-    formData.append('description', lapanganData.description || '');
-    formData.append('maintenance_notes', lapanganData.maintenance_notes || '');
-    
+    const fd = new FormData();
+    fd.append('venue', lapanganData.venue_id);
+    fd.append('name', lapanganData.name || '');
+    fd.append('category', lapanganData.category_id || '');
+    fd.append('price_per_hour', lapanganData.price_per_hour || 0);
+    if (newStatus) {
+      fd.append('is_active', 'on'); // konsisten dengan form create/edit
+    } else {
+      fd.append('is_active', '');    // beberapa backend treat empty as false
+    }
+    fd.append('description', lapanganData.description || '');
+    fd.append('maintenance_notes', lapanganData.maintenance_notes || '');
+
     const response = await fetch(`/api/courts/${lapanganId}/`, {
       method: 'POST',
-      headers: {
-        'X-CSRFToken': getCookie('csrftoken'),
-      },
-      body: formData,
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: fd,
       credentials: 'same-origin'
     });
-    
     const result = await response.json();
-    
+
     if (result.success) {
       showNotification(`Lapangan berhasil ${newStatus ? 'diaktifkan' : 'dinonaktifkan'}`, 'success');
       await loadLapanganDetail();
@@ -469,20 +472,14 @@ function viewBookings() {
 
 async function deleteLapangan() {
   if (!confirm('Anda yakin ingin menghapus lapangan ini? Tindakan ini tidak dapat dibatalkan!')) return;
-  
   try {
     const response = await makeAjaxRequest(`/api/courts/${lapanganId}/`, {
       method: 'DELETE',
-      headers: {
-        'X-CSRFToken': getCookie('csrftoken')
-      }
+      headers: { 'X-CSRFToken': getCookie('csrftoken') }
     });
-    
     if (response.success) {
       showNotification('Lapangan berhasil dihapus', 'success');
-      setTimeout(() => {
-        window.location.href = '/mitra/lapangan/';
-      }, 1500);
+      setTimeout(() => window.location.href = '/mitra/lapangan/', 1200);
     } else {
       showNotification(response.message || 'Gagal menghapus lapangan', 'error');
     }
@@ -491,52 +488,44 @@ async function deleteLapangan() {
   }
 }
 
-// Session Bookings Modal Functions
-let currentSessionId = null;
-
+// Session Bookings Modal
 async function openSessionBookings(sessionId, sessionName, startTime, endTime) {
   currentSessionId = sessionId;
-  
-  // Update modal header
-  document.getElementById('sessionInfoName').textContent = sessionName;
-  document.getElementById('sessionInfoTime').textContent = `${startTime} - ${endTime}`;
-  document.getElementById('sessionModalTitle').textContent = `Booking - ${sessionName}`;
-  
-  // Show modal
-  document.getElementById('sessionBookingsModal').classList.remove('hidden');
-  
-  // Load bookings for this session
+  document.getElementById('sessionInfoName').textContent = sessionName || 'Sesi';
+  document.getElementById('sessionInfoTime').textContent = `${startTime || '--:--'} - ${endTime || '--:--'}`;
+  document.getElementById('sessionModalTitle').textContent = `Booking - ${sessionName || 'Sesi'}`;
+
+  const modal = document.getElementById('sessionBookingsModal');
+  modal.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+
   await loadSessionBookings(sessionId);
 }
 
 function closeSessionBookingsModal() {
   document.getElementById('sessionBookingsModal').classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
   currentSessionId = null;
 }
 
 async function loadSessionBookings(sessionId) {
-  const bookingsListContainer = document.getElementById('sessionBookingsList');
-  bookingsListContainer.innerHTML = '<div class="text-center py-8"><div class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto"></div><p class="text-neutral-600 text-sm mt-3">Memuat data booking...</p></div>';
-  
+  const wrap = document.getElementById('sessionBookingsList');
+  wrap.innerHTML = `
+    <div class="text-center py-8">
+      <div class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-neutral-600 text-sm mt-3">Memuat data booking...</p>
+    </div>`;
+
   try {
-    // Fetch bookings for this session
-    const response = await fetch(`/api/bookings/?session=${sessionId}&court=${lapanganId}`, {
-      credentials: 'same-origin'
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
+    const response = await fetch(`/api/bookings/?session=${sessionId}&court=${lapanganId}`, { credentials: 'same-origin' });
+    if (!response.ok) throw new Error('Gagal memuat bookings');
     const result = await response.json();
-    console.log('Bookings result:', result); // Debug log
-    
-    const bookings = result.data?.bookings || result.data || [];
-    
-    if (result.success && bookings.length > 0) {
+
+    const bookings = result?.data?.bookings || result?.data || [];
+    if (result.success && Array.isArray(bookings) && bookings.length > 0) {
       renderSessionBookings(bookings);
     } else {
-      bookingsListContainer.innerHTML = `
+      wrap.innerHTML = `
         <div class="text-center py-12">
           <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -545,12 +534,11 @@ async function loadSessionBookings(sessionId) {
           </div>
           <p class="text-neutral-600 text-sm mb-2">Belum ada booking untuk sesi ini</p>
           <p class="text-neutral-500 text-xs">Sesi ini tersedia untuk dibooking oleh pelanggan</p>
-        </div>
-      `;
+        </div>`;
     }
   } catch (error) {
     console.error('Error loading session bookings:', error);
-    bookingsListContainer.innerHTML = `
+    wrap.innerHTML = `
       <div class="text-center py-12">
         <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -558,121 +546,112 @@ async function loadSessionBookings(sessionId) {
           </svg>
         </div>
         <p class="text-neutral-600 text-sm mb-2">Gagal memuat data booking</p>
-        <p class="text-neutral-500 text-xs mb-4">${error.message}</p>
         <button onclick="loadSessionBookings(${sessionId})" class="btn btn-primary">Coba Lagi</button>
-      </div>
-    `;
+      </div>`;
   }
 }
 
 function renderSessionBookings(bookings) {
-  const bookingsListContainer = document.getElementById('sessionBookingsList');
-  
-  let html = '<div class="space-y-4">';
-  
-  bookings.forEach(booking => {
-    const statusColors = {
-      'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'confirmed': 'bg-green-100 text-green-800 border-green-200',
-      'cancelled': 'bg-red-100 text-red-800 border-red-200',
-      'completed': 'bg-blue-100 text-blue-800 border-blue-200'
-    };
-    
-    const statusColor = statusColors[booking.booking_status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
-    const canManage = booking.booking_status === 'pending' || booking.booking_status === 'confirmed';
-    
-    html += `
-      <div class="border ${statusColor} rounded-xl p-4">
-        <div class="flex items-start justify-between mb-3">
-          <div class="flex-1">
-            <div class="flex items-center space-x-3 mb-2">
-              <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
+  const wrap = document.getElementById('sessionBookingsList');
+  const statusStyle = {
+    pending:  'bg-yellow-100 text-yellow-800 border-yellow-200',
+    confirmed:'bg-green-100 text-green-800 border-green-200',
+    cancelled:'bg-red-100 text-red-800 border-red-200',
+    completed:'bg-blue-100 text-blue-800 border-blue-200'
+  };
+
+  wrap.innerHTML = `
+    <div class="space-y-4">
+      ${bookings.map(b => {
+        const sclass = statusStyle[b.booking_status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
+        const canManage = ['pending','confirmed'].includes(b.booking_status);
+        return `
+          <div class="border ${sclass} rounded-xl p-4">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <h4 class="font-semibold text-neutral-900 truncate">${escapeHtml(b.user_name || 'User')}</h4>
+                    <p class="text-xs text-neutral-600 truncate">${escapeHtml(b.user_email || '')}</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span class="text-neutral-600">Tanggal:</span>
+                    <p class="font-medium text-neutral-900">${escapeHtml(b.booking_date || '-')}</p>
+                  </div>
+                  <div>
+                    <span class="text-neutral-600">Waktu:</span>
+                    <p class="font-medium text-neutral-900">${escapeHtml(b.start_time || '--:--')} - ${escapeHtml(b.end_time || '--:--')}</p>
+                  </div>
+                  <div>
+                    <span class="text-neutral-600">Total Harga:</span>
+                    <p class="font-medium text-neutral-900">${formatCurrency(b.total_price)}</p>
+                  </div>
+                  <div>
+                    <span class="text-neutral-600">Status:</span>
+                    <p class="font-medium capitalize">${escapeHtml(b.booking_status || '-')}</p>
+                  </div>
+                </div>
+
+                ${b.notes ? `<div class="mt-2 p-2 bg-white/60 rounded"><p class="text-xs text-neutral-700"><strong>Catatan:</strong> ${escapeHtml(b.notes)}</p></div>` : ''}
               </div>
-              <div>
-                <h4 class="font-semibold text-neutral-900">${booking.user_name || 'User'}</h4>
-                <p class="text-xs text-neutral-600">${booking.user_email || ''}</p>
-              </div>
+
+              <span class="inline-flex px-3 py-1 text-xs font-medium rounded-full ${sclass} capitalize whitespace-nowrap">
+                ${escapeHtml(b.booking_status || '-')}
+              </span>
             </div>
-            
-            <div class="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span class="text-neutral-600">Tanggal:</span>
-                <p class="font-medium text-neutral-900">${booking.booking_date}</p>
-              </div>
-              <div>
-                <span class="text-neutral-600">Waktu:</span>
-                <p class="font-medium text-neutral-900">${booking.start_time} - ${booking.end_time}</p>
-              </div>
-              <div>
-                <span class="text-neutral-600">Total Harga:</span>
-                <p class="font-medium text-neutral-900">Rp ${parseInt(booking.total_price).toLocaleString('id-ID')}</p>
-              </div>
-              <div>
-                <span class="text-neutral-600">Status:</span>
-                <p class="font-medium capitalize">${booking.booking_status}</p>
-              </div>
-            </div>
-            
-            ${booking.notes ? `<div class="mt-2 p-2 bg-white bg-opacity-50 rounded"><p class="text-xs text-neutral-700"><strong>Catatan:</strong> ${booking.notes}</p></div>` : ''}
+
+            ${canManage ? `
+              <div class="border-t ${sclass.replace('bg-','border-')} pt-3 mt-3">
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <button onclick="cancelBooking('${b.id}')" class="flex-1 btn btn-secondary text-sm py-2">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Batalkan Booking
+                  </button>
+                  <button onclick="showSuspendUserModal('${b.id}', '${(b.user_name || 'User').replace(/"/g,'&quot;')}')" class="flex-1 btn bg-red-600 hover:bg-red-700 text-white text-sm py-2">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                    </svg>
+                    Suspend User
+                  </button>
+                </div>
+              </div>` : ''
+            }
           </div>
-          
-          <span class="inline-flex px-3 py-1 text-xs font-medium rounded-full ${statusColor} capitalize">
-            ${booking.booking_status}
-          </span>
-        </div>
-        
-        ${canManage ? `
-          <div class="border-t ${statusColor.replace('bg-', 'border-')} pt-3 mt-3">
-            <div class="flex items-center space-x-2">
-              <button onclick="cancelBooking('${booking.id}')" class="flex-1 btn btn-secondary text-sm py-2">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                Batalkan Booking
-              </button>
-              <button onclick="showSuspendUserModal('${booking.id}', '${booking.user_name}')" class="flex-1 btn bg-red-600 hover:bg-red-700 text-white text-sm py-2">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
-                </svg>
-                Suspend User
-              </button>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-    `;
-  });
-  
-  html += '</div>';
-  bookingsListContainer.innerHTML = html;
+        `;
+      }).join('')}
+    </div>
+  `;
 }
 
 async function cancelBooking(bookingId) {
   if (!confirm('Anda yakin ingin membatalkan booking ini?')) return;
-  
   try {
-    const formData = new FormData();
-    formData.append('booking_status', 'cancelled');
-    formData.append('cancellation_reason', 'Dibatalkan oleh mitra');
-    
-    const response = await fetch(`/api/bookings/${bookingId}/`, {
+    const fd = new FormData();
+    fd.append('booking_status', 'cancelled');
+    fd.append('cancellation_reason', 'Dibatalkan oleh mitra');
+
+    const res = await fetch(`/api/bookings/${bookingId}/`, {
       method: 'POST',
-      headers: {
-        'X-CSRFToken': getCookie('csrftoken')
-      },
-      body: formData,
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: fd,
       credentials: 'same-origin'
     });
-    
-    const result = await response.json();
-    
+    const result = await res.json();
+
     if (result.success) {
       showNotification('Booking berhasil dibatalkan', 'success');
       await loadSessionBookings(currentSessionId);
-      await loadLapanganDetail(); // Refresh main page data
+      await loadLapanganDetail();
     } else {
       showNotification(result.message || 'Gagal membatalkan booking', 'error');
     }
@@ -683,33 +662,27 @@ async function cancelBooking(bookingId) {
 
 function showSuspendUserModal(bookingId, userName) {
   const reason = prompt(`Masukkan alasan suspend untuk user "${userName}":`);
-  
-  if (reason && reason.trim()) {
-    suspendUser(bookingId, reason.trim());
-  }
+  if (reason && reason.trim()) suspendUser(bookingId, reason.trim());
 }
 
 async function suspendUser(bookingId, reason) {
   try {
-    const formData = new FormData();
-    formData.append('booking_status', 'cancelled');
-    formData.append('cancellation_reason', `SUSPENDED: ${reason}`);
-    
-    const response = await fetch(`/api/bookings/${bookingId}/`, {
+    const fd = new FormData();
+    fd.append('booking_status', 'cancelled');
+    fd.append('cancellation_reason', `SUSPENDED: ${reason}`);
+
+    const res = await fetch(`/api/bookings/${bookingId}/`, {
       method: 'POST',
-      headers: {
-        'X-CSRFToken': getCookie('csrftoken')
-      },
-      body: formData,
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: fd,
       credentials: 'same-origin'
     });
-    
-    const result = await response.json();
-    
+    const result = await res.json();
+
     if (result.success) {
       showNotification('User berhasil di-suspend dari sesi ini', 'success');
       await loadSessionBookings(currentSessionId);
-      await loadLapanganDetail(); // Refresh main page data
+      await loadLapanganDetail();
     } else {
       showNotification(result.message || 'Gagal suspend user', 'error');
     }
@@ -718,12 +691,14 @@ async function suspendUser(bookingId, reason) {
   }
 }
 
-// Close modal when clicking outside
-document.addEventListener('click', function(event) {
-  const modal = document.getElementById('sessionBookingsModal');
-  if (event.target === modal) {
-    closeSessionBookingsModal();
-  }
-});
+// Utilities
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
 </script>
 {% endblock %}

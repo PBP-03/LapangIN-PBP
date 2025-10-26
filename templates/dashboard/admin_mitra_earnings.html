@@ -1,9 +1,5 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Total Earnings Mitra - LapangIN{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% load static %} {% block title %}Total Earnings
+Mitra - LapangIN{% endblock %} {% block content %}
 <div class="min-h-screen bg-neutral-50">
   <!-- Header -->
   <div class="bg-white border-b border-neutral-200">
@@ -409,7 +405,8 @@
             Are you sure?
           </h3>
           <p class="text-sm text-neutral-600">
-            This will restore the transaction to paid status and update the mitra's earnings accordingly.
+            This will restore the transaction to paid status and update the
+            mitra's earnings accordingly.
           </p>
         </div>
       </div>
@@ -431,9 +428,7 @@
   </div>
 </div>
 
-{% endblock %}
-
-{% block script %}
+{% endblock %} {% block script %}
 <script>
   const apiEarningsUrl = "/api/mitra/earnings/";
   const apiRefundsUrl = "/api/refunds/";
@@ -453,13 +448,13 @@
     try {
       const res = await fetch(apiEarningsUrl, { credentials: "same-origin" });
       const json = await res.json();
-      
+
       console.log("Earnings API Response:", json);
-      
+
       if (json.status !== "ok") {
         throw new Error(json.message || "Failed to load earnings");
       }
-      
+
       renderEarnings(json.data || []);
       document.getElementById("earningsLoading").classList.add("hidden");
       document.getElementById("earningsContent").classList.remove("hidden");
@@ -475,13 +470,13 @@
     try {
       const res = await fetch(apiRefundsUrl, { credentials: "same-origin" });
       const json = await res.json();
-      
+
       console.log("Refunds API Response:", json);
-      
+
       if (json.status !== "ok") {
         throw new Error(json.message || "Failed to load refunds");
       }
-      
+
       renderRefunds(json.data || []);
     } catch (err) {
       console.error("Error fetching refunds:", err);
@@ -494,7 +489,9 @@
   function renderRefunds(data) {
     const body = document.getElementById("refunds-body");
     const emptyState = document.getElementById("refundsEmptyState");
-    const table = document.querySelector("#refunds-table").closest(".overflow-x-auto");
+    const table = document
+      .querySelector("#refunds-table")
+      .closest(".overflow-x-auto");
 
     if (data.length === 0) {
       table.classList.add("hidden");
@@ -512,19 +509,33 @@
       row.innerHTML = `
         <td class="px-6 py-4 text-sm text-neutral-900">${idx + 1}</td>
         <td class="px-6 py-4">
-          <div class="text-sm font-medium text-neutral-900">${escapeHtml(r.mitra_name)}</div>
-          <div class="text-xs text-neutral-500">${escapeHtml(r.customer_name)}</div>
+          <div class="text-sm font-medium text-neutral-900">${escapeHtml(
+            r.mitra_name
+          )}</div>
+          <div class="text-xs text-neutral-500">${escapeHtml(
+            r.customer_name
+          )}</div>
         </td>
         <td class="px-6 py-4">
-          <div class="text-sm text-neutral-900">${escapeHtml(r.venue_name)}</div>
-          <div class="text-xs text-neutral-500">${escapeHtml(r.court_name)}</div>
+          <div class="text-sm text-neutral-900">${escapeHtml(
+            r.venue_name
+          )}</div>
+          <div class="text-xs text-neutral-500">${escapeHtml(
+            r.court_name
+          )}</div>
         </td>
         <td class="px-6 py-4">
-          <div class="font-bold text-red-600">Rp ${parseInt(r.amount).toLocaleString("id-ID")}</div>
-          <div class="text-xs text-neutral-500">${new Date(r.refunded_at).toLocaleDateString("id-ID")}</div>
+          <div class="font-bold text-red-600">Rp ${parseInt(
+            r.amount
+          ).toLocaleString("id-ID")}</div>
+          <div class="text-xs text-neutral-500">${new Date(
+            r.refunded_at
+          ).toLocaleDateString("id-ID")}</div>
         </td>
         <td class="px-6 py-4">
-          <div class="text-sm text-neutral-600">${escapeHtml(r.reason || "No reason provided")}</div>
+          <div class="text-sm text-neutral-600">${escapeHtml(
+            r.reason || "No reason provided"
+          )}</div>
         </td>
         <td class="px-6 py-4">
           <button 
@@ -546,32 +557,42 @@
   function renderEarnings(data) {
     const body = document.getElementById("earnings-body");
     const emptyState = document.getElementById("earningsEmptyState");
-    const table = document.querySelector("#earnings-table").closest(".overflow-x-auto");
-    
+    const table = document
+      .querySelector("#earnings-table")
+      .closest(".overflow-x-auto");
+
     if (data.length === 0) {
       table.classList.add("hidden");
       emptyState.classList.remove("hidden");
       return;
     }
-    
+
     table.classList.remove("hidden");
     emptyState.classList.add("hidden");
     body.innerHTML = "";
-    
+
     data.forEach((m, idx) => {
       const row = document.createElement("tr");
       row.className = "hover:bg-neutral-50 transition-colors";
       row.innerHTML = `
         <td class="px-6 py-4 text-sm text-neutral-900">${idx + 1}</td>
         <td class="px-6 py-4">
-          <div class="text-sm font-medium text-neutral-900">${escapeHtml(m.mitra_name)}</div>
-          <div class="text-xs text-neutral-500">${m.completed_transactions} transaksi selesai</div>
+          <div class="text-sm font-medium text-neutral-900">${escapeHtml(
+            m.mitra_name
+          )}</div>
+          <div class="text-xs text-neutral-500">${
+            m.completed_transactions
+          } transaksi selesai</div>
         </td>
         <td class="px-6 py-4">
-          <div class="text-sm text-neutral-600">${escapeHtml(m.mitra_email || "")}</div>
+          <div class="text-sm text-neutral-600">${escapeHtml(
+            m.mitra_email || ""
+          )}</div>
         </td>
         <td class="px-6 py-4">
-          <div class="font-bold text-primary-700">Rp ${parseInt(m.total_earnings).toLocaleString("id-ID")}</div>
+          <div class="font-bold text-primary-700">Rp ${parseInt(
+            m.total_earnings
+          ).toLocaleString("id-ID")}</div>
           <button 
             onclick="openTransactionDetailsModal('${m.mitra_id}')" 
             class="mt-1 text-xs text-primary-600 hover:text-primary-700 hover:underline"
@@ -586,7 +607,7 @@
 
   // Escape HTML to prevent XSS
   function escapeHtml(unsafe) {
-    if (!unsafe) return '';
+    if (!unsafe) return "";
     return String(unsafe)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
@@ -637,20 +658,28 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="bg-white rounded-lg p-3">
               <p class="text-xs text-neutral-500 mb-1">Nama</p>
-              <p class="text-sm font-medium text-neutral-900">${escapeHtml(mitra.name)}</p>
+              <p class="text-sm font-medium text-neutral-900">${escapeHtml(
+                mitra.name
+              )}</p>
             </div>
             <div class="bg-white rounded-lg p-3">
               <p class="text-xs text-neutral-500 mb-1">Email</p>
-              <p class="text-sm font-medium text-neutral-900">${escapeHtml(mitra.email)}</p>
+              <p class="text-sm font-medium text-neutral-900">${escapeHtml(
+                mitra.email
+              )}</p>
             </div>
             <div class="bg-white rounded-lg p-3">
               <p class="text-xs text-neutral-500 mb-1">Phone</p>
-              <p class="text-sm font-medium text-neutral-900">${escapeHtml(mitra.phone_number)}</p>
+              <p class="text-sm font-medium text-neutral-900">${escapeHtml(
+                mitra.phone_number
+              )}</p>
             </div>
             <div class="bg-white rounded-lg p-3">
               <p class="text-xs text-neutral-500 mb-1">Status</p>
-              <p class="text-sm font-medium ${mitra.is_verified ? 'text-green-600' : 'text-yellow-600'}">
-                ${mitra.is_verified ? 'Verified' : 'Not Verified'}
+              <p class="text-sm font-medium ${
+                mitra.is_verified ? "text-green-600" : "text-yellow-600"
+              }">
+                ${mitra.is_verified ? "Verified" : "Not Verified"}
               </p>
             </div>
           </div>
@@ -665,7 +694,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
-            <p class="text-2xl font-bold text-green-900">Rp ${parseInt(summary.total_earnings).toLocaleString("id-ID")}</p>
+            <p class="text-2xl font-bold text-green-900">Rp ${parseInt(
+              summary.total_earnings
+            ).toLocaleString("id-ID")}</p>
           </div>
           <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
             <div class="flex items-center justify-between mb-2">
@@ -674,7 +705,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
               </svg>
             </div>
-            <p class="text-2xl font-bold text-blue-900">Rp ${parseInt(summary.total_commission).toLocaleString("id-ID")}</p>
+            <p class="text-2xl font-bold text-blue-900">Rp ${parseInt(
+              summary.total_commission
+            ).toLocaleString("id-ID")}</p>
           </div>
           <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
             <div class="flex items-center justify-between mb-2">
@@ -683,7 +716,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
               </svg>
             </div>
-            <p class="text-2xl font-bold text-purple-900">${summary.total_transactions}</p>
+            <p class="text-2xl font-bold text-purple-900">${
+              summary.total_transactions
+            }</p>
           </div>
         </div>
         
@@ -707,15 +742,18 @@
             pendapatan_id: txn.pendapatan_id,
             id: txn.id,
             venue_name: txn.venue_name,
-            full_txn: txn
+            full_txn: txn,
           });
-          
+
           // Explicitly store the IDs in variables to ensure they're captured correctly
-          const pendapatanId = txn.pendapatan_id || txn.id || '';
-          const displayId = pendapatanId || 'MISSING';
-          
-          console.log(`Transaction ${idx} - pendapatanId for button:`, pendapatanId);
-          
+          const pendapatanId = txn.pendapatan_id || txn.id || "";
+          const displayId = pendapatanId || "MISSING";
+
+          console.log(
+            `Transaction ${idx} - pendapatanId for button:`,
+            pendapatanId
+          );
+
           const txnDate = new Date(txn.booking_date);
           const paidDate = txn.paid_at ? new Date(txn.paid_at) : null;
 
@@ -724,7 +762,9 @@
               <div class="flex items-start justify-between mb-3">
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-2">
-                    <h4 class="font-semibold text-neutral-900">${escapeHtml(txn.venue_name)}</h4>
+                    <h4 class="font-semibold text-neutral-900">${escapeHtml(
+                      txn.venue_name
+                    )}</h4>
                     <span class="inline-flex px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded">
                       ${escapeHtml(txn.court_name)}
                     </span>
@@ -740,23 +780,39 @@
                       <svg class="w-4 h-4 mr-1.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                       </svg>
-                      ${txnDate.toLocaleDateString("id-ID")} | ${escapeHtml(txn.time_slot)}
+                      ${txnDate.toLocaleDateString("id-ID")} | ${escapeHtml(
+            txn.time_slot
+          )}
                     </div>
-                    ${paidDate ? `
+                    ${
+                      paidDate
+                        ? `
                       <div class="flex items-center">
                         <svg class="w-4 h-4 mr-1.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        Dibayar: ${paidDate.toLocaleDateString("id-ID")} ${paidDate.toLocaleTimeString("id-ID")}
+                        Dibayar: ${paidDate.toLocaleDateString(
+                          "id-ID"
+                        )} ${paidDate.toLocaleTimeString("id-ID")}
                       </div>
-                    ` : ''}
+                    `
+                        : ""
+                    }
                   </div>
                 </div>
                 <div class="text-right ml-4">
                   <p class="text-xs text-neutral-500 mb-1">Total</p>
-                  <p class="text-lg font-bold text-neutral-900">Rp ${parseFloat(txn.amount).toLocaleString("id-ID")}</p>
-                  <p class="text-xs text-red-600 mt-1">- Komisi (${txn.commission_rate}%): Rp ${parseFloat(txn.commission_amount).toLocaleString("id-ID")}</p>
-                  <p class="text-sm font-bold text-primary-600 mt-1">Net: Rp ${parseFloat(txn.net_amount).toLocaleString("id-ID")}</p>
+                  <p class="text-lg font-bold text-neutral-900">Rp ${parseFloat(
+                    txn.amount
+                  ).toLocaleString("id-ID")}</p>
+                  <p class="text-xs text-red-600 mt-1">- Komisi (${
+                    txn.commission_rate
+                  }%): Rp ${parseFloat(txn.commission_amount).toLocaleString(
+            "id-ID"
+          )}</p>
+                  <p class="text-sm font-bold text-primary-600 mt-1">Net: Rp ${parseFloat(
+                    txn.net_amount
+                  ).toLocaleString("id-ID")}</p>
                   <p class="text-xs text-neutral-400 mt-1">ID: ${displayId}</p>
                   <button 
                     class="refund-btn mt-2 inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
@@ -776,21 +832,23 @@
       }
 
       content.innerHTML = html;
-      
+
       // Add event listeners to refund buttons after HTML is rendered
-      const refundButtons = document.querySelectorAll('.refund-btn');
-      console.log(`=== ATTACHING EVENT LISTENERS TO ${refundButtons.length} BUTTONS ===`);
-      
+      const refundButtons = document.querySelectorAll(".refund-btn");
+      console.log(
+        `=== ATTACHING EVENT LISTENERS TO ${refundButtons.length} BUTTONS ===`
+      );
+
       refundButtons.forEach((btn, idx) => {
-        const pendapatanId = btn.getAttribute('data-pendapatan-id');
+        const pendapatanId = btn.getAttribute("data-pendapatan-id");
         console.log(`Button ${idx}: data-pendapatan-id = "${pendapatanId}"`);
-        
-        btn.addEventListener('click', function() {
-          const id = this.getAttribute('data-pendapatan-id');
-          console.log('=== REFUND BUTTON CLICKED ===');
-          console.log('Button element:', this);
-          console.log('data-pendapatan-id attribute:', id);
-          console.log('Calling showRefundForm with:', id);
+
+        btn.addEventListener("click", function () {
+          const id = this.getAttribute("data-pendapatan-id");
+          console.log("=== REFUND BUTTON CLICKED ===");
+          console.log("Button element:", this);
+          console.log("data-pendapatan-id attribute:", id);
+          console.log("Calling showRefundForm with:", id);
           showRefundForm(id);
         });
       });
@@ -821,24 +879,33 @@
     console.log("Received pendapatanId:", pendapatanId);
     console.log("Type of pendapatanId:", typeof pendapatanId);
     console.log("pendapatanId is truthy?", !!pendapatanId);
-    console.log("Current value of currentRefundPendapatanId BEFORE setting:", currentRefundPendapatanId);
-    
-    if (!pendapatanId || pendapatanId === 'undefined' || pendapatanId === 'null') {
+    console.log(
+      "Current value of currentRefundPendapatanId BEFORE setting:",
+      currentRefundPendapatanId
+    );
+
+    if (
+      !pendapatanId ||
+      pendapatanId === "undefined" ||
+      pendapatanId === "null"
+    ) {
       showToast("Error: Invalid transaction ID", "error", 4000);
       return;
     }
-    
+
     currentRefundPendapatanId = pendapatanId;
     console.log("Set currentRefundPendapatanId to:", currentRefundPendapatanId);
     console.log("=== showRefundForm END ===");
-    
+
     document.getElementById("refundReasonInput").value = "";
     document.getElementById("refundReasonModal").classList.remove("hidden");
   }
 
   // Close refund reason modal
   function closeRefundReasonModal() {
-    console.log("=== closeRefundReasonModal - Setting currentRefundPendapatanId to null ===");
+    console.log(
+      "=== closeRefundReasonModal - Setting currentRefundPendapatanId to null ==="
+    );
     currentRefundPendapatanId = null;
     document.getElementById("refundReasonModal").classList.add("hidden");
   }
@@ -849,7 +916,7 @@
     console.log("currentRefundPendapatanId value:", currentRefundPendapatanId);
     console.log("Type:", typeof currentRefundPendapatanId);
     console.log("Is truthy?", !!currentRefundPendapatanId);
-    
+
     const reason = document.getElementById("refundReasonInput").value.trim();
     console.log("Refund reason:", reason);
 
@@ -862,12 +929,14 @@
     if (!currentRefundPendapatanId) {
       console.log("ERROR: currentRefundPendapatanId is falsy!");
       showToast("Error: Transaction ID is missing", "error", 4000);
-      console.error("submitRefund: currentRefundPendapatanId is null or undefined");
+      console.error(
+        "submitRefund: currentRefundPendapatanId is null or undefined"
+      );
       return;
     }
 
     console.log("All validations passed, calling processRefund");
-    
+
     // Store the ID in a local variable BEFORE closing the modal (which sets it to null)
     const pendapatanId = currentRefundPendapatanId;
     closeRefundReasonModal();
@@ -891,7 +960,7 @@
         pendapatan_id: pendapatanId,
         reason: reason,
       };
-      
+
       console.log("Sending refund request:", requestBody);
 
       const res = await fetch("/api/refunds/", {
@@ -903,7 +972,7 @@
         credentials: "same-origin",
         body: JSON.stringify(requestBody),
       });
-      
+
       const json = await res.json();
       console.log("Refund response:", json);
 
@@ -936,12 +1005,15 @@
   // Confirm cancel refund
   async function confirmCancelRefund() {
     if (!currentCancelRefundId) return;
+    console.log("Cancelling refund for ID:", currentCancelRefundId);
 
+    // Store the ID in a local variable BEFORE closing the modal (which sets it to null)
+    const refundId = currentCancelRefundId;
     closeCancelRefundModal();
     showToast("Cancelling refund...", "info", 0);
 
     try {
-      const res = await fetch(`/api/refunds/${currentCancelRefundId}/cancel/`, {
+      const res = await fetch(`/api/refunds/${refundId}/cancel/`, {
         method: "DELETE",
         credentials: "same-origin",
       });
@@ -978,38 +1050,43 @@
   // Toast notification function
   function showToast(message, type = "info", duration = 3000) {
     // Remove existing toasts
-    const existingToasts = document.querySelectorAll('.toast-notification');
-    existingToasts.forEach(toast => toast.remove());
+    const existingToasts = document.querySelectorAll(".toast-notification");
+    existingToasts.forEach((toast) => toast.remove());
 
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg border transition-all transform translate-x-0';
-    
+    const toast = document.createElement("div");
+    toast.className =
+      "toast-notification fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg border transition-all transform translate-x-0";
+
     let bgColor, borderColor, textColor, icon;
-    
-    if (type === 'success') {
-      bgColor = 'bg-green-50';
-      borderColor = 'border-green-200';
-      textColor = 'text-green-800';
-      icon = '<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
-    } else if (type === 'error') {
-      bgColor = 'bg-red-50';
-      borderColor = 'border-red-200';
-      textColor = 'text-red-800';
-      icon = '<svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
-    } else if (type === 'warning') {
-      bgColor = 'bg-yellow-50';
-      borderColor = 'border-yellow-200';
-      textColor = 'text-yellow-800';
-      icon = '<svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+
+    if (type === "success") {
+      bgColor = "bg-green-50";
+      borderColor = "border-green-200";
+      textColor = "text-green-800";
+      icon =
+        '<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+    } else if (type === "error") {
+      bgColor = "bg-red-50";
+      borderColor = "border-red-200";
+      textColor = "text-red-800";
+      icon =
+        '<svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+    } else if (type === "warning") {
+      bgColor = "bg-yellow-50";
+      borderColor = "border-yellow-200";
+      textColor = "text-yellow-800";
+      icon =
+        '<svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
     } else {
-      bgColor = 'bg-blue-50';
-      borderColor = 'border-blue-200';
-      textColor = 'text-blue-800';
-      icon = '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+      bgColor = "bg-blue-50";
+      borderColor = "border-blue-200";
+      textColor = "text-blue-800";
+      icon =
+        '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
     }
-    
+
     toast.className += ` ${bgColor} ${borderColor} ${textColor}`;
-    toast.style.minWidth = '300px';
+    toast.style.minWidth = "300px";
     toast.innerHTML = `
       <div class="flex items-center">
         ${icon}
@@ -1021,8 +1098,8 @@
 
     if (duration > 0) {
       setTimeout(() => {
-        toast.style.transform = 'translateX(400px)';
-        toast.style.opacity = '0';
+        toast.style.transform = "translateX(400px)";
+        toast.style.opacity = "0";
         setTimeout(() => toast.remove(), 300);
       }, duration);
     }

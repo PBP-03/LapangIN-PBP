@@ -206,9 +206,6 @@
           <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
             <div class="flex items-center justify-between mb-6">
               <h2 class="text-lg font-semibold text-neutral-900">Aktivitas Terbaru</h2>
-              <button onclick="viewAllActivities()" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                Lihat Semua
-              </button>
             </div>
 
             ${
@@ -268,7 +265,7 @@
           <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
             <h2 class="text-lg font-semibold text-neutral-900 mb-4">Aksi Cepat</h2>
             <div class="space-y-3">
-              <button onclick="manageUsers()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+              <a href="/admin/mitra" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
                 <div class="flex items-center">
                   <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -280,21 +277,7 @@
                     <p class="text-sm text-neutral-600">Lihat dan kelola user</p>
                   </div>
                 </div>
-              </button>
-
-              <button onclick="manageVenues()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
-                <div class="flex items-center">
-                  <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h3m6 0h3M7 11h3m6 0h3M7 15h3m6 0h3"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="font-medium text-neutral-900">Kelola Lapangan</h3>
-                    <p class="text-sm text-neutral-600">Moderasi lapangan</p>
-                  </div>
-                </div>
-              </button>
+              </a>
 
               <a href="/admin/mitra/earnings/" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
                 <div class="flex items-center">
@@ -309,50 +292,6 @@
                   </div>
                 </div>
               </a>
-
-              <button onclick="viewReports()" class="w-full flex items-center justify-between p-3 text-left border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
-                <div class="flex items-center">
-                  <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
-                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="font-medium text-neutral-900">Laporan Sistem</h3>
-                    <p class="text-sm text-neutral-600">Analisis platform</p>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- System Status -->
-          <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 p-6">
-            <h2 class="text-lg font-semibold text-neutral-900 mb-4">Status Sistem</h2>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-neutral-600">Server Status</span>
-                <div class="flex items-center">
-                  <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  <span class="text-sm text-green-600 font-medium">Online</span>
-                </div>
-              </div>
-              
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-neutral-600">Database</span>
-                <div class="flex items-center">
-                  <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  <span class="text-sm text-green-600 font-medium">Terhubung</span>
-                </div>
-              </div>
-              
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-neutral-600">API Services</span>
-                <div class="flex items-center">
-                  <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  <span class="text-sm text-green-600 font-medium">Aktif</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -384,23 +323,6 @@
       default:
         return "bg-neutral-100 text-neutral-800";
     }
-  }
-
-  // Navigation functions
-  function manageUsers() {
-    showNotification("Fitur kelola pengguna akan segera hadir!", "info");
-  }
-
-  function manageVenues() {
-    showNotification("Fitur kelola lapangan akan segera hadir!", "info");
-  }
-
-  function viewReports() {
-    showNotification("Fitur laporan sistem akan segera hadir!", "info");
-  }
-
-  function viewAllActivities() {
-    showNotification("Fitur lihat semua aktivitas akan segera hadir!", "info");
   }
 </script>
 {% endblock %}
