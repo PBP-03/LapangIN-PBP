@@ -6,9 +6,9 @@
   <div class="bg-white border-b border-neutral-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="py-6">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-4">
           <div>
-            <div class="flex items-center space-x-2 text-sm text-neutral-600 mb-2">
+            <div class="flex items-center flex-wrap gap-2 text-sm text-neutral-600 mb-2">
               <a href="/mitra/dashboard" class="hover:text-primary-600">Dashboard</a>
               <span>/</span>
               <span class="text-neutral-900">Lapangan</span>
@@ -20,14 +20,14 @@
               Kelola lapangan dari setiap venue Anda
             </p>
           </div>
-          <div class="flex items-center space-x-3">
-            <button onclick="openAddLapanganModal()" class="btn btn-primary">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="openAddLapanganModal()" class="btn btn-primary whitespace-nowrap">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
               </svg>
               Tambah Lapangan
             </button>
-            <a href="/mitra/dashboard" class="btn btn-secondary">
+            <a href="/mitra/dashboard" class="btn btn-secondary whitespace-nowrap">
               Kembali
             </a>
           </div>
@@ -39,12 +39,22 @@
   <!-- Filter -->
   <div class="bg-white border-b border-neutral-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div class="flex items-center space-x-4">
-        <label for="venueFilter" class="text-sm font-medium text-neutral-700">Filter by Venue:</label>
-        <select id="venueFilter" onchange="filterByVenue()"
-          class="px-4 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
-          <option value="">Semua Venue</option>
-        </select>
+      <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div class="flex items-center gap-2">
+          <label for="venueFilter" class="text-sm font-medium text-neutral-700 whitespace-nowrap">Filter Venue</label>
+          <select id="venueFilter" onchange="filterByVenue()"
+            class="px-3 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
+            <option value="">Semua Venue</option>
+          </select>
+        </div>
+        <div class="flex-1">
+          <div class="relative">
+            <input id="searchLapangan" type="text" placeholder="Cari lapangan (nama/kategori)..." class="w-full px-3 py-2 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200 pl-9">
+            <svg class="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10 18a8 8 0 110-16 8 8 0 010 16z"></path>
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -88,116 +98,117 @@
 </div>
 
 <!-- Add/Edit Lapangan Modal -->
-<div id="lapanganModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-8">
-  <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col my-8">
-    <div class="p-6 border-b border-neutral-200 flex-shrink-0">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-display font-bold text-neutral-900" id="modalTitle">Tambah Lapangan</h2>
-        <button onclick="closeLapanganModal()" class="text-neutral-400 hover:text-neutral-600">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-    
-    <form id="lapanganForm" class="p-6 space-y-4 overflow-y-auto flex-1">
-      <input type="hidden" id="lapanganId" name="lapangan_id">
-      
-      <div>
-        <label for="venue" class="block text-sm font-medium text-neutral-700 mb-2">Venue</label>
-        <select id="venue" name="venue" required
-          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
-          <option value="">Pilih Venue</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="lapanganName" class="block text-sm font-medium text-neutral-700 mb-2">Nama Lapangan</label>
-        <input type="text" id="lapanganName" name="name" required
-          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
-          placeholder="Contoh: Lapangan 1">
-      </div>
-
-      <div>
-        <label for="category" class="block text-sm font-medium text-neutral-700 mb-2">Kategori Olahraga</label>
-        <select id="category" name="category" required
-          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
-          <option value="">Pilih Kategori</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="price_per_hour" class="block text-sm font-medium text-neutral-700 mb-2">Harga per Jam (Rp)</label>
-        <input type="number" id="price_per_hour" name="price_per_hour" min="0" step="1000" required
-          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
-          placeholder="100000">
-      </div>
-
-      <div class="flex items-center">
-        <input type="checkbox" id="is_active" name="is_active" checked
-          class="w-4 h-4 text-primary-600 bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500 focus:ring-2">
-        <label for="is_active" class="ml-2 text-sm font-medium text-neutral-700">Lapangan Aktif</label>
-      </div>
-
-      <div>
-        <label for="description" class="block text-sm font-medium text-neutral-700 mb-2">Deskripsi Lapangan - Opsional</label>
-        <textarea id="description" name="description" rows="3"
-          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
-          placeholder="Deskripsi dan informasi tambahan tentang lapangan"></textarea>
-      </div>
-
-      <div>
-        <label for="maintenance_notes" class="block text-sm font-medium text-neutral-700 mb-2">Catatan Maintenance - Opsional</label>
-        <textarea id="maintenance_notes" name="maintenance_notes" rows="3"
-          class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
-          placeholder="Catatan tentang kondisi atau jadwal maintenance"></textarea>
-      </div>
-
-      <!-- Session Time Management Section -->
-      <div class="border-t border-neutral-200 pt-4">
-        <div class="flex items-center justify-between mb-3">
-          <label class="block text-sm font-medium text-neutral-700">Jadwal Sesi Lapangan</label>
-          <button type="button" onclick="addSessionSlot()" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-            + Tambah Sesi
+<div id="lapanganModal" class="fixed inset-0 bg-black/50 hidden z-50">
+  <div class="flex min-h-screen items-end sm:items-center justify-center p-0 sm:p-8">
+    <div class="bg-white w-full sm:max-w-lg max-h-[100vh] sm:max-h-[90vh] flex flex-col my-0 sm:my-8 sm:rounded-2xl rounded-none shadow-xl">
+      <div class="p-6 border-b border-neutral-200 flex-shrink-0 sticky top-0 bg-white z-10">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-display font-bold text-neutral-900" id="modalTitle">Tambah Lapangan</h2>
+          <button onclick="closeLapanganModal()" class="text-neutral-400 hover:text-neutral-600" aria-label="Tutup modal">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
           </button>
         </div>
-        <p class="text-xs text-neutral-500 mb-3">Tentukan waktu sesi untuk booking lapangan ini</p>
-        <div id="sessionSlotsContainer" class="space-y-2">
-          <!-- Session slots will be added here -->
-        </div>
       </div>
-
-      <!-- Image URL Section -->
-      <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-2">Gambar Lapangan (URL)</label>
-        <p class="text-xs text-neutral-500 mb-3">Masukkan URL gambar untuk thumbnail lapangan</p>
-        <div id="imageUrlsContainer" class="space-y-2">
-          <!-- Image URL inputs will be added here -->
-        </div>
-        <button type="button" onclick="addImageUrlInput()" class="btn btn-secondary btn-sm mt-2">
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-          </svg>
-          Tambah URL Gambar
-        </button>
+      
+      <form id="lapanganForm" class="p-6 space-y-4 overflow-y-auto flex-1">
+        <input type="hidden" id="lapanganId" name="lapangan_id">
         
-        <!-- Preview images -->
-        <div id="lapanganImagePreview" class="grid grid-cols-3 gap-2 mt-3 hidden"></div>
-      </div>
+        <div>
+          <label for="venue" class="block text-sm font-medium text-neutral-700 mb-2">Venue</label>
+          <select id="venue" name="venue" required
+            class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
+            <option value="">Pilih Venue</option>
+          </select>
+        </div>
 
-      <div class="flex space-x-3 pt-4">
-        <button type="submit" class="btn btn-primary flex-1" id="submitBtn">
-          Simpan
-        </button>
-        <button type="button" onclick="closeLapanganModal()" class="btn btn-secondary flex-1">
-          Batal
-        </button>
-      </div>
-    </form>
+        <div>
+          <label for="lapanganName" class="block text-sm font-medium text-neutral-700 mb-2">Nama Lapangan</label>
+          <input type="text" id="lapanganName" name="name" required
+            class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+            placeholder="Contoh: Lapangan 1" autocomplete="off">
+        </div>
+
+        <div>
+          <label for="category" class="block text-sm font-medium text-neutral-700 mb-2">Kategori Olahraga</label>
+          <select id="category" name="category" required
+            class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200">
+            <option value="">Pilih Kategori</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="price_per_hour" class="block text-sm font-medium text-neutral-700 mb-2">Harga per Jam (Rp)</label>
+          <input type="number" id="price_per_hour" name="price_per_hour" min="0" step="1000" required
+            class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+            placeholder="100000">
+        </div>
+
+        <div class="flex items-center">
+          <input type="checkbox" id="is_active" name="is_active" checked
+            class="w-4 h-4 text-primary-600 bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500 focus:ring-2">
+          <label for="is_active" class="ml-2 text-sm font-medium text-neutral-700">Lapangan Aktif</label>
+        </div>
+
+        <div>
+          <label for="description" class="block text-sm font-medium text-neutral-700 mb-2">Deskripsi Lapangan - Opsional</label>
+          <textarea id="description" name="description" rows="3"
+            class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+            placeholder="Deskripsi dan informasi tambahan tentang lapangan"></textarea>
+        </div>
+
+        <div>
+          <label for="maintenance_notes" class="block text-sm font-medium text-neutral-700 mb-2">Catatan Maintenance - Opsional</label>
+          <textarea id="maintenance_notes" name="maintenance_notes" rows="3"
+            class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200"
+            placeholder="Catatan tentang kondisi atau jadwal maintenance"></textarea>
+        </div>
+
+        <!-- Session Time Management Section -->
+        <div class="border-t border-neutral-200 pt-4">
+          <div class="flex items-center justify-between mb-3">
+            <label class="block text-sm font-medium text-neutral-700">Jadwal Sesi Lapangan</label>
+            <button type="button" onclick="addSessionSlot()" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+              + Tambah Sesi
+            </button>
+          </div>
+          <p class="text-xs text-neutral-500 mb-3">Tentukan waktu sesi untuk booking lapangan ini</p>
+          <div id="sessionSlotsContainer" class="space-y-2">
+            <!-- Session slots will be added here -->
+          </div>
+        </div>
+
+        <!-- Image URL Section -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-2">Gambar Lapangan (URL)</label>
+          <p class="text-xs text-neutral-500 mb-3">Masukkan URL gambar untuk thumbnail lapangan</p>
+          <div id="imageUrlsContainer" class="space-y-2">
+            <!-- Image URL inputs will be added here -->
+          </div>
+          <button type="button" onclick="addImageUrlInput()" class="btn btn-secondary btn-sm mt-2">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Tambah URL Gambar
+          </button>
+          
+          <!-- Preview images -->
+          <div id="lapanganImagePreview" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3 hidden"></div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-4">
+          <button type="submit" class="btn btn-primary flex-1" id="submitBtn">
+            Simpan
+          </button>
+          <button type="button" onclick="closeLapanganModal()" class="btn btn-secondary flex-1">
+            Batal
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block script %}
@@ -211,38 +222,50 @@ let currentLapanganImages = [];
 let sessionSlots = [];
 let sessionSlotCounter = 0;
 
+let imageUrlCounter = 0;
+let searchDebounce;
+
 // Load data on page load
 document.addEventListener('DOMContentLoaded', async function() {
-  // Check if there's a venue parameter in the URL
   const urlParams = new URLSearchParams(window.location.search);
   const venueParam = urlParams.get('venue');
-  
+
   await loadCategories();
   await loadVenues();
-  
-  // Set the venue filter if parameter exists
+
   if (venueParam) {
     selectedVenueFilter = venueParam;
     const venueFilterSelect = document.getElementById('venueFilter');
-    if (venueFilterSelect) {
-      venueFilterSelect.value = venueParam;
-    }
+    if (venueFilterSelect) venueFilterSelect.value = venueParam;
   }
-  
+
   await loadLapangan();
+
+  // Search debounce
+  document.getElementById('searchLapangan').addEventListener('input', (e) => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+      renderLapangan();
+    }, 300);
+  });
+
+  // Modal: close on ESC & backdrop
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !document.getElementById('lapanganModal').classList.contains('hidden')) {
+      closeLapanganModal();
+    }
+  });
+  document.getElementById('lapanganModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeLapanganModal();
+  });
 });
 
 async function deleteLapanganImage(imageId) {
   if (!confirm('Hapus gambar ini?')) return;
-  
   try {
-    const response = await makeAjaxRequest(`/api/court-images/${imageId}/delete/`, {
-      method: 'DELETE'
-    });
-    
+    const response = await makeAjaxRequest(`/api/court-images/${imageId}/delete/`, { method: 'DELETE' });
     if (response.success) {
       showNotification('Gambar berhasil dihapus', 'success');
-      // Reload lapangan list
       await loadLapangan();
     }
   } catch (error) {
@@ -250,85 +273,74 @@ async function deleteLapanganImage(imageId) {
   }
 }
 
-// Session Slot Management Functions
+// Session Slot Management
 function addSessionSlot(sessionData = null) {
   const container = document.getElementById('sessionSlotsContainer');
   const slotId = sessionData ? sessionData.id : `new-${sessionSlotCounter++}`;
-  
+
   const slotDiv = document.createElement('div');
-  slotDiv.className = 'flex items-center space-x-2 p-3 bg-neutral-50 rounded-lg';
+  slotDiv.className = 'flex flex-col sm:flex-row sm:items-center gap-2 p-3 bg-neutral-50 rounded-lg';
   slotDiv.id = `session-slot-${slotId}`;
-  
+
   slotDiv.innerHTML = `
-    <input type="text" 
-           class="flex-1 px-3 py-2 text-sm rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" 
-           placeholder="Nama Sesi (misal: Sesi Pagi)" 
-           value="${sessionData ? sessionData.session_name : ''}"
+    <input type="text"
+           class="w-full sm:flex-1 px-3 py-2 text-sm rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+           placeholder="Nama Sesi (misal: Sesi Pagi)"
+           value="${sessionData ? (sessionData.session_name || '') : ''}"
            data-session-id="${slotId}"
            data-field="name">
-    <input type="time" 
-           class="px-3 py-2 text-sm rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" 
-           value="${sessionData ? sessionData.start_time : ''}"
-           data-session-id="${slotId}"
-           data-field="start">
-    <span class="text-neutral-500">-</span>
-    <input type="time" 
-           class="px-3 py-2 text-sm rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" 
-           value="${sessionData ? sessionData.end_time : ''}"
-           data-session-id="${slotId}"
-           data-field="end">
+    <div class="flex items-center gap-2">
+      <input type="time"
+             class="px-3 py-2 text-sm rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+             value="${sessionData ? (sessionData.start_time || '') : ''}"
+             data-session-id="${slotId}"
+             data-field="start">
+      <span class="text-neutral-500">-</span>
+      <input type="time"
+             class="px-3 py-2 text-sm rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+             value="${sessionData ? (sessionData.end_time || '') : ''}"
+             data-session-id="${slotId}"
+             data-field="end">
+    </div>
     <label class="flex items-center">
-      <input type="checkbox" 
+      <input type="checkbox"
              class="w-4 h-4 text-primary-600 bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500 focus:ring-2"
-             ${sessionData && sessionData.is_active ? 'checked' : 'checked'}
+             ${sessionData && sessionData.is_active === false ? '' : 'checked'}
              data-session-id="${slotId}"
              data-field="active">
       <span class="ml-1 text-xs text-neutral-600">Aktif</span>
     </label>
-    <button type="button" onclick="removeSessionSlot('${slotId}')" class="text-red-600 hover:text-red-700 p-1">
+    <button type="button" onclick="removeSessionSlot('${slotId}')" class="text-red-600 hover:text-red-700 p-1 self-start sm:self-auto">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
   `;
-  
+
   container.appendChild(slotDiv);
-  
-  // Store in sessionSlots array
-  if (!sessionData) {
-    sessionSlots.push({
-      id: slotId,
-      isNew: true
-    });
-  }
+
+  if (!sessionData) sessionSlots.push({ id: slotId, isNew: true });
 }
 
 function removeSessionSlot(slotId) {
   const slotDiv = document.getElementById(`session-slot-${slotId}`);
-  if (slotDiv) {
-    slotDiv.remove();
-  }
-  
-  // Remove from sessionSlots array
+  if (slotDiv) slotDiv.remove();
   sessionSlots = sessionSlots.filter(slot => slot.id !== slotId);
 }
 
 function getSessionSlotsData() {
   const container = document.getElementById('sessionSlotsContainer');
   const slots = [];
-  
   container.querySelectorAll('[id^="session-slot-"]').forEach(slotDiv => {
-    const inputs = slotDiv.querySelectorAll('input');
-    const sessionId = inputs[0].getAttribute('data-session-id');
-    
     const nameInput = slotDiv.querySelector('[data-field="name"]');
     const startInput = slotDiv.querySelector('[data-field="start"]');
     const endInput = slotDiv.querySelector('[data-field="end"]');
     const activeInput = slotDiv.querySelector('[data-field="active"]');
-    
+
     if (nameInput.value && startInput.value && endInput.value) {
+      const sid = nameInput.getAttribute('data-session-id');
       slots.push({
-        id: sessionId.startsWith('new-') ? null : parseInt(sessionId),
+        id: sid && !sid.startsWith('new-') ? parseInt(sid) : null,
         session_name: nameInput.value,
         start_time: startInput.value,
         end_time: endInput.value,
@@ -336,123 +348,81 @@ function getSessionSlotsData() {
       });
     }
   });
-  
   return slots;
 }
 
 function clearSessionSlots() {
-  const container = document.getElementById('sessionSlotsContainer');
-  container.innerHTML = '';
+  document.getElementById('sessionSlotsContainer').innerHTML = '';
   sessionSlots = [];
   sessionSlotCounter = 0;
 }
 
-// Image URL Management Functions
-let imageUrlCounter = 0;
-
+// Image URL Management
 function addImageUrlInput(url = '') {
   imageUrlCounter++;
   const container = document.getElementById('imageUrlsContainer');
   const urlId = `imageUrl_${imageUrlCounter}`;
-  
+
   const urlDiv = document.createElement('div');
-  urlDiv.className = 'flex items-center space-x-2';
+  urlDiv.className = 'flex items-center gap-2';
   urlDiv.id = `urlDiv_${imageUrlCounter}`;
-  
+
   urlDiv.innerHTML = `
-    <input 
-      type="url" 
-      id="${urlId}" 
-      placeholder="https://example.com/image.jpg" 
-      value="${url}"
+    <input type="url" id="${urlId}" placeholder="https://example.com/image.jpg" value="${url}"
       class="flex-1 px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-      onchange="previewImageUrl('${urlId}')"
-    >
-    <button 
-      type="button" 
-      onclick="removeImageUrl(${imageUrlCounter})" 
-      class="btn btn-secondary btn-sm"
-      title="Hapus"
-    >
+      onchange="previewAllImages()">
+    <button type="button" onclick="removeImageUrl(${imageUrlCounter})" class="btn btn-secondary btn-sm" title="Hapus">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
       </svg>
     </button>
   `;
-  
   container.appendChild(urlDiv);
   previewAllImages();
 }
 
 function removeImageUrl(urlId) {
   const urlDiv = document.getElementById(`urlDiv_${urlId}`);
-  if (urlDiv) {
-    urlDiv.remove();
-    previewAllImages();
-  }
+  if (urlDiv) urlDiv.remove();
+  previewAllImages();
 }
 
 function getImageUrls() {
-  const container = document.getElementById('imageUrlsContainer');
-  const inputs = container.querySelectorAll('input[type="url"]');
+  const inputs = document.querySelectorAll('#imageUrlsContainer input[type="url"]');
   const urls = [];
-  
-  inputs.forEach(input => {
-    if (input.value && input.value.trim()) {
-      urls.push(input.value.trim());
-    }
-  });
-  
+  inputs.forEach(i => { if (i.value && i.value.trim()) urls.push(i.value.trim()); });
   return urls;
 }
 
 function clearImageUrls() {
-  const container = document.getElementById('imageUrlsContainer');
-  container.innerHTML = '';
+  document.getElementById('imageUrlsContainer').innerHTML = '';
   imageUrlCounter = 0;
-  previewAllImages();
-}
-
-function previewImageUrl(inputId) {
   previewAllImages();
 }
 
 function previewAllImages() {
   const urls = getImageUrls();
-  const previewContainer = document.getElementById('lapanganImagePreview');
-  
+  const preview = document.getElementById('lapanganImagePreview');
   if (urls.length === 0) {
-    previewContainer.classList.add('hidden');
-    previewContainer.innerHTML = '';
+    preview.classList.add('hidden');
+    preview.innerHTML = '';
     return;
   }
-  
-  previewContainer.classList.remove('hidden');
-  previewContainer.innerHTML = '';
-  
-  urls.forEach((url, index) => {
-    const imgWrapper = document.createElement('div');
-    imgWrapper.className = 'relative group';
-    imgWrapper.innerHTML = `
-      <img 
-        src="${url}" 
-        alt="Preview ${index + 1}" 
-        class="w-full h-24 object-cover rounded-lg"
-        onerror="this.src='https://via.placeholder.com/400?text=Invalid+URL'"
-      >
-      <div class="absolute top-1 right-1 bg-white rounded px-2 py-1 text-xs">
-        ${index === 0 ? '<span class="text-primary-600 font-semibold">Primary</span>' : index + 1}
-      </div>
-    `;
-    previewContainer.appendChild(imgWrapper);
-  });
+  preview.classList.remove('hidden');
+  preview.innerHTML = urls.map((url, i) => `
+    <div class="relative group">
+      <img src="${url}" loading="lazy" alt="Preview ${i+1}" class="w-full h-24 object-cover rounded-lg"
+           onerror="this.src='https://via.placeholder.com/400?text=Invalid+URL'">
+      <div class="absolute top-1 right-1 bg-white rounded px-2 py-1 text-xs shadow">${i === 0 ? '<span class="text-primary-600 font-semibold">Primary</span>' : i + 1}</div>
+    </div>
+  `).join('');
 }
 
 async function loadCategories() {
   try {
     const response = await makeAjaxRequest('/api/sports-categories/');
     if (response.success) {
-      categoriesData = response.data;
+      categoriesData = response.data || [];
       populateCategorySelect();
     }
   } catch (error) {
@@ -466,7 +436,7 @@ function populateCategorySelect() {
   categoriesData.forEach(cat => {
     const option = document.createElement('option');
     option.value = cat.id;
-    option.textContent = cat.display_name;
+    option.textContent = cat.display_name || cat.name;
     select.appendChild(option);
   });
 }
@@ -475,7 +445,7 @@ async function loadVenues() {
   try {
     const response = await makeAjaxRequest('/api/venues/');
     if (response.success) {
-      venuesData = response.data;
+      venuesData = response.data || [];
       populateVenueSelects();
     }
   } catch (error) {
@@ -484,39 +454,26 @@ async function loadVenues() {
 }
 
 function populateVenueSelects() {
-  // Populate venue filter
   const filter = document.getElementById('venueFilter');
   filter.innerHTML = '<option value="">Semua Venue</option>';
-  venuesData.forEach(venue => {
-    const option = document.createElement('option');
-    option.value = venue.id;
-    option.textContent = venue.name;
-    filter.appendChild(option);
+  venuesData.forEach(v => {
+    const op = document.createElement('option'); op.value = v.id; op.textContent = v.name; filter.appendChild(op);
   });
-  
-  // Populate venue select in modal
+
   const select = document.getElementById('venue');
   select.innerHTML = '<option value="">Pilih Venue</option>';
-  venuesData.forEach(venue => {
-    const option = document.createElement('option');
-    option.value = venue.id;
-    option.textContent = venue.name;
-    select.appendChild(option);
+  venuesData.forEach(v => {
+    const op = document.createElement('option'); op.value = v.id; op.textContent = v.name; select.appendChild(op);
   });
 }
 
 async function loadLapangan() {
   try {
-    const url = selectedVenueFilter ? 
-      `/api/courts/?venue_id=${selectedVenueFilter}` : 
-      '/api/courts/';
-    
+    const url = selectedVenueFilter ? `/api/courts/?venue_id=${selectedVenueFilter}` : '/api/courts/';
     const response = await makeAjaxRequest(url);
-    
     if (response.success) {
-      lapanganData = response.data;
+      lapanganData = response.data || [];
       renderLapangan();
-      
       document.getElementById('lapanganLoading').classList.add('hidden');
       document.getElementById('lapanganContent').classList.remove('hidden');
     }
@@ -537,110 +494,100 @@ function filterByVenue() {
 function renderLapangan() {
   const container = document.getElementById('lapanganContainer');
   const emptyState = document.getElementById('emptyState');
-  
-  if (lapanganData.length === 0) {
+
+  // text search filter
+  const q = (document.getElementById('searchLapangan').value || '').toLowerCase();
+
+  const filtered = lapanganData.filter(item => {
+    if (!q) return true;
+    const name = (item.name || '').toLowerCase();
+    const cat = (item.category || item.category_name || '').toLowerCase();
+    return name.includes(q) || cat.includes(q);
+  });
+
+  if (filtered.length === 0) {
     container.classList.add('hidden');
     emptyState.classList.remove('hidden');
     return;
   }
-  
+
   container.classList.remove('hidden');
   emptyState.classList.add('hidden');
-  
-  // Group lapangan by venue
-  const lapanganByVenue = {};
-  lapanganData.forEach(lapangan => {
-    if (!lapanganByVenue[lapangan.venue_id]) {
-      lapanganByVenue[lapangan.venue_id] = {
-        venue_name: lapangan.venue_name,
-        lapangan: []
-      };
-    }
-    lapanganByVenue[lapangan.venue_id].lapangan.push(lapangan);
+
+  // Group by venue
+  const byVenue = {};
+  filtered.forEach(l => {
+    if (!byVenue[l.venue_id]) byVenue[l.venue_id] = { venue_name: l.venue_name, lapangan: [] };
+    byVenue[l.venue_id].lapangan.push(l);
   });
-  
-  // Calculate total lapangan
-  const totalLapangan = lapanganData.length;
-  const venueCount = Object.keys(lapanganByVenue).length;
-  
-  // Generate header based on filter
-  let headerText = '';
-  if (selectedVenueFilter) {
-    // Filtered by specific venue
-    const venueName = Object.values(lapanganByVenue)[0].venue_name;
-    headerText = `Menampilkan ${totalLapangan} lapangan di ${venueName}`;
-  } else {
-    // Showing all lapangan from all venues
-    headerText = `Menampilkan ${totalLapangan} lapangan`;
-  }
-  
-  // Render header and grouped lapangan
+
+  const total = filtered.length;
+  const headerText = selectedVenueFilter
+    ? `Menampilkan ${total} lapangan di ${Object.values(byVenue)[0]?.venue_name || 'Venue'}`
+    : `Menampilkan ${total} lapangan`;
+
   container.innerHTML = `
     <div class="mb-6">
       <h3 class="text-lg font-semibold text-neutral-900">${headerText}</h3>
     </div>
-  ` + Object.entries(lapanganByVenue).map(([venueId, data]) => `
+  ` + Object.entries(byVenue).map(([venueId, data]) => `
     <div class="bg-white rounded-2xl shadow-soft border border-neutral-200 overflow-hidden">
-      <div class="bg-gradient-primary p-4">
-        <h2 class="text-lg font-semibold text-neutral-900">${data.venue_name}</h2>
-        <p class="text-neutral-900 text-sm">${data.lapangan.length} Lapangan</p>
+      <div class="bg-neutral-50 px-4 py-3">
+        <h2 class="text-base font-semibold text-neutral-900">${data.venue_name}</h2>
+        <p class="text-neutral-600 text-sm">${data.lapangan.length} Lapangan</p>
       </div>
-      
-      <div class="p-6">
+      <div class="p-4 sm:p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          ${data.lapangan.map(lapangan => `
+          ${data.lapangan.map(l => {
+            const hasImages = l.images && l.images.length > 0;
+            const primary = hasImages ? (l.images.find(i => i.is_primary)?.url || l.images[0].url) : null;
+            const cat = l.category_display || l.category || l.category_name || 'No Category';
+            const price = parseInt(l.price_per_hour || 0).toLocaleString('id-ID');
+            return `
             <div class="border border-neutral-200 rounded-xl overflow-hidden hover:border-primary-300 transition-colors">
-              ${lapangan.images && lapangan.images.length > 0 ? `
-              <div class="relative h-48 bg-neutral-100">
-                <img src="${lapangan.images.find(img => img.is_primary)?.url || lapangan.images[0].url}" 
-                     alt="${lapangan.name}" 
-                     class="w-full h-full object-cover">
-                ${lapangan.images.length > 1 ? `
-                <div class="absolute bottom-1 right-1 bg-black bg-opacity-60 text-white text-xs px-2 py-0.5 rounded">
-                  +${lapangan.images.length - 1}
-                </div>
-                ` : ''}
-              </div>
-              ` : `
-              <div class="relative h-48 bg-neutral-100 flex items-center justify-center">
-                <svg class="w-12 h-12 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-              </div>
-              `}
-              <div class="p-4">
-                <div class="flex items-start justify-between mb-3">
-                  <div class="flex-1">
-                    <h3 class="font-semibold text-neutral-900 mb-1">${lapangan.name}</h3>
-                    <p class="text-xs text-primary-600 font-medium mb-2">${lapangan.category || 'No Category'}</p>
-                    <p class="text-xs text-neutral-600 mb-1">Rp ${parseInt(lapangan.price_per_hour || 0).toLocaleString('id-ID')}/jam</p>
-                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full ${lapangan.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                      ${lapangan.is_active ? 'Aktif' : 'Nonaktif'}
-                    </span>
+              <div class="relative bg-neutral-100">
+                ${hasImages ? `
+                  <img src="${primary}" loading="lazy" alt="${l.name}" class="w-full aspect-[16/9] object-cover">
+                  ${l.images.length > 1 ? `<div class="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded">+${l.images.length - 1}</div>` : ``}
+                ` : `
+                  <div class="w-full aspect-[16/9] flex items-center justify-center">
+                    <svg class="w-12 h-12 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
                   </div>
+                `}
+              </div>
+              <div class="p-4">
+                <div class="flex items-start justify-between mb-3 gap-2">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-neutral-900 leading-tight line-clamp-2">${l.name}</h3>
+                    <p class="text-xs text-primary-600 font-medium mt-1">${cat}</p>
+                    <p class="text-xs text-neutral-600 mt-1">Rp ${price}/jam</p>
+                  </div>
+                  <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full ${l.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} whitespace-nowrap">
+                    ${l.is_active ? 'Aktif' : 'Nonaktif'}
+                  </span>
                 </div>
-                
-                ${lapangan.maintenance_notes ? `
-                  <p class="text-xs text-neutral-600 mb-3 line-clamp-2">
-                    <span class="font-medium">Catatan:</span> ${lapangan.maintenance_notes}
-                  </p>
+
+                ${l.maintenance_notes ? `
+                  <p class="text-xs text-neutral-600 mb-3 line-clamp-2"><span class="font-medium">Catatan:</span> ${l.maintenance_notes}</p>
                 ` : ''}
-                
-                <div class="flex space-x-2">
-                  <a href="/mitra/lapangan/${lapangan.id}/" class="flex-1 btn btn-primary text-xs py-2 text-center">
+
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <a href="/mitra/lapangan/${l.id}/" class="flex-1 btn btn-primary text-xs py-2 text-center">
                     <svg class="w-3 h-3 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                     </svg>
                     Detail
                   </a>
-                  <button onclick="editLapangan(${lapangan.id})" class="flex-1 btn btn-secondary text-xs py-2">
+                  <button onclick="editLapangan(${l.id})" class="flex-1 btn btn-secondary text-xs py-2">
                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
                     Edit
                   </button>
-                  <button onclick="deleteLapangan(${lapangan.id}, '${lapangan.name}')" class="btn btn-secondary text-xs py-2 text-red-600 hover:bg-red-50">
+                  <button onclick="deleteLapangan(${l.id}, '${(l.name || '').replace(/"/g, '&quot;')}')" class="btn btn-secondary text-xs py-2 text-red-600 hover:bg-red-50">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
@@ -648,7 +595,8 @@ function renderLapangan() {
                 </div>
               </div>
             </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </div>
     </div>
@@ -660,20 +608,20 @@ function openAddLapanganModal() {
     showNotification('Anda harus membuat venue terlebih dahulu sebelum menambahkan lapangan.', 'warning');
     return;
   }
-  
+
   editingLapanganId = null;
   clearSessionSlots();
   clearImageUrls();
-  
+
   document.getElementById('modalTitle').textContent = 'Tambah Lapangan';
   document.getElementById('lapanganForm').reset();
   document.getElementById('lapanganId').value = '';
   document.getElementById('is_active').checked = true;
-  document.getElementById('lapanganImagePreview').classList.add('hidden');
-  document.getElementById('lapanganImagePreview').innerHTML = '';
+  const pv = document.getElementById('lapanganImagePreview'); pv.classList.add('hidden'); pv.innerHTML = '';
+
   document.getElementById('lapanganModal').classList.remove('hidden');
-  
-  // Add one default session slot and image URL input
+  document.body.classList.add('overflow-hidden');
+
   addSessionSlot();
   addImageUrlInput();
 }
@@ -681,40 +629,32 @@ function openAddLapanganModal() {
 async function editLapangan(lapanganId) {
   try {
     const response = await makeAjaxRequest(`/api/courts/${lapanganId}/`);
-    
     if (response.success) {
       editingLapanganId = lapanganId;
-      const lapangan = response.data;
-      
+      const l = response.data;
+
       document.getElementById('modalTitle').textContent = 'Edit Lapangan';
-      document.getElementById('lapanganId').value = lapangan.id;
-      document.getElementById('venue').value = lapangan.venue_id;
-      document.getElementById('lapanganName').value = lapangan.name;
-      document.getElementById('category').value = lapangan.category_id || '';
-      document.getElementById('price_per_hour').value = lapangan.price_per_hour || 0;
-      document.getElementById('is_active').checked = lapangan.is_active;
-      document.getElementById('description').value = lapangan.description || '';
-      document.getElementById('maintenance_notes').value = lapangan.maintenance_notes || '';
-      
-      // Clear and load image URLs
+      document.getElementById('lapanganId').value = l.id;
+      document.getElementById('venue').value = l.venue_id;
+      document.getElementById('lapanganName').value = l.name || '';
+      document.getElementById('category').value = l.category_id || '';
+      document.getElementById('price_per_hour').value = l.price_per_hour || 0;
+      document.getElementById('is_active').checked = !!l.is_active;
+      document.getElementById('description').value = l.description || '';
+      document.getElementById('maintenance_notes').value = l.maintenance_notes || '';
+
+      // Images
       clearImageUrls();
-      if (lapangan.images && lapangan.images.length > 0) {
-        lapangan.images.forEach(img => addImageUrlInput(img.url));
-      } else {
-        // Add one default image URL input if no images exist
-        addImageUrlInput();
-      }
-      
-      // Clear and load sessions
+      if (l.images && l.images.length > 0) l.images.forEach(img => addImageUrlInput(img.url));
+      else addImageUrlInput();
+
+      // Sessions
       clearSessionSlots();
-      if (lapangan.sessions && lapangan.sessions.length > 0) {
-        lapangan.sessions.forEach(session => addSessionSlot(session));
-      } else {
-        // Add one default session slot if no sessions exist
-        addSessionSlot();
-      }
-      
+      if (l.sessions && l.sessions.length > 0) l.sessions.forEach(s => addSessionSlot(s));
+      else addSessionSlot();
+
       document.getElementById('lapanganModal').classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
     }
   } catch (error) {
     showNotification('Gagal memuat data lapangan', 'error');
@@ -723,85 +663,62 @@ async function editLapangan(lapanganId) {
 
 function closeLapanganModal() {
   document.getElementById('lapanganModal').classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
   document.getElementById('lapanganForm').reset();
-  
-  // Clear image preview
-  const previewContainer = document.getElementById('lapanganImagePreview');
-  if (previewContainer) {
-    previewContainer.classList.add('hidden');
-    previewContainer.innerHTML = '';
-  }
-  
-  // Clear image URL inputs
+
+  const preview = document.getElementById('lapanganImagePreview');
+  preview.classList.add('hidden'); preview.innerHTML = '';
+
   clearImageUrls();
-  
-  // Clear session slots
   clearSessionSlots();
-  
-  // Reset state
   editingLapanganId = null;
   currentLapanganImages = [];
 }
 
 document.getElementById('lapanganForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  
+
   const submitBtn = document.getElementById('submitBtn');
   setLoadingState(submitBtn, true);
-  
-  // Get session slots data
+
   const sessions = getSessionSlotsData();
-  
-  // Use FormData for file uploads
+
   const formData = new FormData();
   formData.append('venue', document.getElementById('venue').value);
   formData.append('name', document.getElementById('lapanganName').value);
   formData.append('category', document.getElementById('category').value);
   formData.append('price_per_hour', document.getElementById('price_per_hour').value);
-  // Send 'on' for checked checkbox (Django BooleanField expects 'on' or nothing)
-  if (document.getElementById('is_active').checked) {
-    formData.append('is_active', 'on');
-  }
+  if (document.getElementById('is_active').checked) formData.append('is_active', 'on');
   formData.append('description', document.getElementById('description').value);
   formData.append('maintenance_notes', document.getElementById('maintenance_notes').value);
-  
-  // Append session data as JSON
   formData.append('sessions', JSON.stringify(sessions));
-  
-  // Append image URLs as JSON
-  const imageUrls = getImageUrls();
-  formData.append('image_urls', JSON.stringify(imageUrls));
-  
+  formData.append('image_urls', JSON.stringify(getImageUrls()));
+
   try {
     let response;
     if (editingLapanganId) {
       response = await fetch(`/api/courts/${editingLapanganId}/`, {
         method: 'POST',
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
         body: formData,
         credentials: 'same-origin'
       });
-      response = await response.json();
     } else {
       response = await fetch('/api/courts/', {
         method: 'POST',
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
         body: formData,
         credentials: 'same-origin'
       });
-      response = await response.json();
     }
-    
-    if (response.success) {
-      showNotification(response.message, 'success');
+    const data = await response.json();
+
+    if (data.success) {
+      showNotification(data.message || 'Berhasil disimpan', 'success');
       closeLapanganModal();
       await loadLapangan();
     } else {
-      showNotification(response.message || 'Terjadi kesalahan', 'error');
+      showNotification(data.message || 'Terjadi kesalahan', 'error');
     }
   } catch (error) {
     showNotification(error.message || 'Terjadi kesalahan', 'error');
@@ -811,17 +728,11 @@ document.getElementById('lapanganForm').addEventListener('submit', async functio
 });
 
 async function deleteLapangan(lapanganId, lapanganName) {
-  if (!confirm(`Apakah Anda yakin ingin menghapus lapangan "${lapanganName}"?\n\nSemua booking terkait juga akan terhapus.`)) {
-    return;
-  }
-  
+  if (!confirm(`Apakah Anda yakin ingin menghapus lapangan "${lapanganName}"?\n\nSemua booking terkait juga akan terhapus.`)) return;
   try {
-    const response = await makeAjaxRequest(`/api/courts/${lapanganId}/`, {
-      method: 'DELETE'
-    });
-    
+    const response = await makeAjaxRequest(`/api/courts/${lapanganId}/`, { method: 'DELETE' });
     if (response.success) {
-      showNotification(response.message, 'success');
+      showNotification(response.message || 'Lapangan dihapus', 'success');
       await loadLapangan();
     }
   } catch (error) {
