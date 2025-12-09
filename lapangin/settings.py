@@ -31,7 +31,7 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1","muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1","muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id","10.0.2.2"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id"
@@ -64,16 +64,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # CORS before WhiteNoise to catch static files
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',  # Temporarily disabled for development to test CORS
-    'lapangin.middleware.CorsStaticMiddleware',  # Custom middleware for static file CORS
-    'lapangin.middleware.ManualCookieMiddleware',  # Parse Cookie header for Flutter Web
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'lapangin.urls'
@@ -124,6 +122,12 @@ else:
         }
     }
 
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -169,55 +173,20 @@ STATICFILES_DIRS = [
 # Direktori untuk mengumpulkan semua file static saat production
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # merujuk ke /staticfiles untuk collectstatic
 
-# WhiteNoise settings for CORS on static files
-WHITENOISE_ADD_HEADERS_FUNCTION = 'lapangin.middleware.add_cors_headers'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CORS Configuration for Flutter
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:50560",  # Flutter web dev server
+    "http://localhost:8080",
+    "http://127.0.0.1:50560",
+    "http://127.0.0.1:8080",
+]
+
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
-
-# CORS Settings for Flutter Mobile App
-# CRITICAL: Cannot use CORS_ALLOW_ALL_ORIGINS with CORS_ALLOW_CREDENTIALS
-# Browsers reject this combination as insecure
-CORS_ALLOW_ALL_ORIGINS = True  # For development - allow all origins
-CORS_ALLOW_CREDENTIALS = False  # Must be False when using wildcard origin
-
-# Add CORS headers to static files as well
-CORS_URLS_REGEX = r'^.*$'  # Match ALL URLs including static files
-
-# For production, specify allowed origins and enable credentials:
-# CORS_ALLOW_ALL_ORIGINS = False
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
-# ]
-# CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'HEAD',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
-
-# Expose all headers to allow reading response metadata
-CORS_EXPOSE_HEADERS = ['*']
