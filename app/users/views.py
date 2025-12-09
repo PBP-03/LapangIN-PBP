@@ -3,13 +3,11 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.db.models import Sum, Count, Q, Avg
 import json
 
 # Import models
 from .models import User
 from app.revenue.models import ActivityLog
-from app.bookings.models import Booking
 
 # Import forms
 from .forms import CustomUserCreationForm, CustomUserUpdateForm
