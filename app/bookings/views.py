@@ -1951,13 +1951,21 @@ def api_delete_court_image(request, image_id):
         }, status=500)
 
 
-# Booking Management APIs for Mitra
-@login_required
-@role_required('mitra')
+# Booking Management APIs for Mitra and Users
 def api_bookings(request):
-    """Get all bookings for mitra's venues"""
+    """Get all bookings - for mitra's venues or user's own bookings"""
     if request.method != 'GET':
         return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+    
+    # Debug session info
+    print(f"[api_bookings] Session key: {request.session.session_key}")
+    print(f"[api_bookings] User authenticated: {request.user.is_authenticated}")
+    print(f"[api_bookings] User: {request.user}")
+    print(f"[api_bookings] Cookies: {request.COOKIES}")
+    
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
     
     try:
         # Get filter parameters
@@ -1968,10 +1976,17 @@ def api_bookings(request):
         date_filter = request.GET.get('date', '')
         session_filter = request.GET.get('session', '')
         
-        # Get all bookings for mitra's courts
-        bookings_qs = Booking.objects.filter(
-            court__venue__owner=request.user
-        ).select_related('user', 'court', 'court__venue', 'payment', 'session').order_by('-created_at')
+        # Determine user role and get appropriate bookings
+        if request.user.role == 'mitra':
+            # Get all bookings for mitra's courts
+            bookings_qs = Booking.objects.filter(
+                court__venue__owner=request.user
+            ).select_related('user', 'court', 'court__venue', 'payment', 'session').order_by('-created_at')
+        else:
+            # Get all bookings for the regular user
+            bookings_qs = Booking.objects.filter(
+                user=request.user
+            ).select_related('user', 'court', 'court__venue', 'payment', 'session').order_by('-created_at')
         
         # Apply filters
         if status_filter != 'all':

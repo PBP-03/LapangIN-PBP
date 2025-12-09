@@ -172,11 +172,16 @@ def api_venue_detail_public(request, venue_id):
                     'is_active': s.is_active
                 } for s in c.sessions.all()
             ]
+            
+            # Get court images
+            court_images = [img.image_url for img in c.images.all()]
+            
             courts.append({
                 'id': c.id,
                 'name': c.name,
                 'is_active': c.is_active,
                 'price_per_hour': float(c.price_per_hour),
+                'images': court_images,
                 'sessions': sessions
             })
         

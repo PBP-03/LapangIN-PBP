@@ -2,7 +2,7 @@
 URL configuration for lapangin project.
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -14,7 +14,21 @@ from app.bookings import views as bookings_views
 from app.reviews import views as reviews_views
 from app.revenue import views as revenue_views
 
-urlpatterns = [
+# Import CORS static serve for development
+from lapangin.middleware import cors_static_serve
+
+# Start with static file serving FIRST (before any other patterns) in development
+urlpatterns = []
+
+if settings.DEBUG:
+    # Handle static files with CORS headers - MUST be first!
+    # This overrides django.contrib.staticfiles default handler
+    urlpatterns += [
+        re_path(r'^static/(?P<path>.*)$', cors_static_serve),
+    ]
+
+# Add all other URL patterns
+urlpatterns += [
     path('admin-django/', admin.site.urls),
     # Include main app URLs
     path('', include('app.main.urls')),
@@ -30,7 +44,7 @@ urlpatterns = [
     
     # Venues & Sports Categories (from venues app)
     path('api/public/venues/', venues_views.api_venue_list, name='api_public_venue_list'),  # Public venue list with pagination
-    path('api/public/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_public_venue_detail'),
+    path('api/public/venues/<uuid:venue_id>/', venues_views.api_venue_detail_public, name='api_public_venue_detail'),
     path('api/venues/', venues_views.api_venues, name='api_venues'),  # Mitra-only venue management
     path('api/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_venue_detail'),
     path('api/sports-categories/', venues_views.api_sports_categories, name='api_sports_categories'),
@@ -66,8 +80,4 @@ urlpatterns = [
     path('api/refunds/', revenue_views.api_refunds, name='api_refunds'),
     path('api/refunds/<uuid:pendapatan_id>/cancel/', revenue_views.api_cancel_refund, name='api_cancel_refund'),
 ]
-
-# Serve static and media files during development
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
 

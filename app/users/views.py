@@ -29,7 +29,11 @@ def api_login(request):
         username = data.get('username')
         password = data.get('password')
         
+        # Debug: Print login attempt
+        print(f"Login attempt - Username: {username}, Password length: {len(password) if password else 0}")
+        
         if not username or not password:
+            print("Login failed: Missing username or password")
             return JsonResponse({
                 'success': False,
                 'message': 'Username dan password harus diisi'
@@ -39,6 +43,14 @@ def api_login(request):
         
         if user is not None:
             login(request, user)
+            
+            # Ensure session is created and saved
+            if not request.session.session_key:
+                request.session.create()
+            request.session.save()
+            
+            print(f"Login successful for user: {user.username} (role: {user.role})")
+            print(f"Session ID: {request.session.session_key}")
             
             # Log the login activity
             ActivityLog.objects.create(
@@ -56,6 +68,14 @@ def api_login(request):
             elif user.role == 'mitra':
                 redirect_url = '/mitra/dashboard'
             
+            # Get session ID for Flutter Web compatibility
+            session_id = request.session.session_key
+            
+            # Create a simple auth token by encoding user_id:session_id
+            # This allows Flutter Web to send the auth info via Authorization header instead of cookies
+            import base64
+            auth_token = base64.b64encode(f"{user.id}:{session_id}".encode()).decode()
+            
             return JsonResponse({
                 'success': True,
                 'message': f'Login berhasil! Selamat datang, {user.first_name}',
@@ -63,25 +83,40 @@ def api_login(request):
                     'id': str(user.id),
                     'username': user.username,
                     'first_name': user.first_name,
-                    'role': user.role
+                    'last_name': user.last_name,
+                    'email': user.email,
+                    'role': user.role,
+                    'phone_number': user.phone_number or '',
+                    'address': user.address or '',
+                    'profile_picture': user.profile_picture or '',
+                    'is_verified': user.is_verified,
+                    'created_at': user.created_at.isoformat(),
+                    'updated_at': user.updated_at.isoformat(),
                 },
-                'redirect_url': redirect_url
+                'redirect_url': redirect_url,
+                'session_id': session_id,  # Keep for backwards compatibility
+                'auth_token': auth_token  # Add auth token for Flutter Web
             })
         else:
+            print(f"Login failed: Invalid credentials for username: {username}")
             return JsonResponse({
                 'success': False,
                 'message': 'Username atau password salah'
             }, status=401)
             
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"Login error: JSON decode failed - {e}")
         return JsonResponse({
             'success': False,
             'message': 'Format data tidak valid'
         }, status=400)
     except Exception as e:
+        print(f"Login error: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
-            'message': 'Terjadi kesalahan server'
+            'message': f'Terjadi kesalahan server: {str(e)}'
         }, status=500)
 
 
@@ -91,6 +126,10 @@ def api_register(request):
     """API endpoint for registration - for AJAX requests"""
     try:
         data = json.loads(request.body)
+        
+        # Debug: Print received data
+        print(f"Received registration data: {data}")
+        
         form = CustomUserCreationForm(data)
         
         if form.is_valid():
@@ -120,21 +159,28 @@ def api_register(request):
             for field, field_errors in form.errors.items():
                 errors[field] = [str(error) for error in field_errors]
             
+            # Debug: Print form errors
+            print(f"Form validation errors: {errors}")
+            
             return JsonResponse({
                 'success': False,
                 'message': 'Terjadi kesalahan pada form. Silakan periksa input Anda.',
                 'errors': errors
             }, status=400)
             
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e}")
         return JsonResponse({
             'success': False,
             'message': 'Format data tidak valid'
         }, status=400)
     except Exception as e:
+        print(f"Registration error: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
-            'message': 'Terjadi kesalahan server'
+            'message': f'Terjadi kesalahan server: {str(e)}'
         }, status=500)
 
 
