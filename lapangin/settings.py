@@ -34,7 +34,13 @@ DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1","muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id","10.0.2.2"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id"
+    "https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id",
+    "http://localhost:57627",
+    "http://localhost:50560",
+    "http://localhost:8080",
+    "http://127.0.0.1:57627",
+    "http://127.0.0.1:50560",
+    "http://127.0.0.1:8080",
 ]
 
 
@@ -67,6 +73,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'lapangin.middleware.DevCsrfMiddleware',  # Custom middleware for dev
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

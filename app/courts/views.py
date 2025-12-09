@@ -20,6 +20,7 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def api_courts(request):
     """API endpoint for listing and creating courts"""
@@ -147,6 +148,7 @@ def api_courts(request):
             }, status=500)
 
 
+@csrf_exempt
 @require_http_methods(["GET", "POST", "PUT", "DELETE"])
 def api_court_detail(request, court_id):
     """API endpoint for getting, updating, and deleting a specific court"""

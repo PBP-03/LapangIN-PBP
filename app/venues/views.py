@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, Avg
 import json
 
-from app.venues.models import Venue, SportsCategory, VenueFacility, Facility
+from app.venues.models import Venue, SportsCategory, VenueFacility, Facility, OperationalHour
 from app.users.forms import VenueForm
 from app.revenue.models import ActivityLog
 from app.reviews.models import Review
@@ -196,6 +196,7 @@ def api_public_venue_detail(request, venue_id):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def api_venues(request):
     """API endpoint for listing and creating venues"""
@@ -329,6 +330,7 @@ def api_venues(request):
             }, status=500)
 
 
+@csrf_exempt
 @require_http_methods(["GET", "POST", "PUT", "DELETE"])
 def api_venue_detail(request, venue_id):
     """API endpoint for getting, updating, and deleting a specific venue"""
@@ -580,3 +582,184 @@ def api_delete_venue_image(request, image_id):
             'success': False,
             'message': f'Terjadi kesalahan: {str(e)}'
         }, status=500)
+
+# Operational Hours API
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def api_venue_operational_hours(request, venue_id):
+    """API endpoint to get or create operational hours for a venue"""
+    
+    # Day name to number mapping
+    DAY_MAP = {
+        'Monday': 0,
+        'Tuesday': 1,
+        'Wednesday': 2,
+        'Thursday': 3,
+        'Friday': 4,
+        'Saturday': 5,
+        'Sunday': 6
+    }
+    
+    # Reverse mapping
+    DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    try:
+        venue = Venue.objects.get(id=venue_id, owner=request.user)
+    except Venue.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Venue tidak ditemukan'
+        }, status=404)
+    
+    if request.method == 'GET':
+        hours = OperationalHour.objects.filter(venue=venue).order_by('day_of_week')
+        data = [{
+            'id': hour.id,
+            'day_of_week': DAY_NAMES[hour.day_of_week],
+            'open_time': hour.open_time.strftime('%H:%M') if hour.open_time else None,
+            'close_time': hour.close_time.strftime('%H:%M') if hour.close_time else None,
+            'is_closed': hour.is_closed
+        } for hour in hours]
+        
+        return JsonResponse({
+            'success': True,
+            'data': data
+        })
+    
+    elif request.method == 'POST':
+        try:
+            day_of_week_str = request.POST.get('day_of_week')
+            open_time = request.POST.get('open_time')
+            close_time = request.POST.get('close_time')
+            is_closed = request.POST.get('is_closed', 'false').lower() == 'true'
+            
+            if not day_of_week_str:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Hari harus diisi'
+                }, status=400)
+            
+            # Convert day name to number
+            day_of_week = DAY_MAP.get(day_of_week_str)
+            if day_of_week is None:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Hari tidak valid: {day_of_week_str}'
+                }, status=400)
+            
+            # Create operational hour
+            hour = OperationalHour.objects.create(
+                venue=venue,
+                day_of_week=day_of_week,
+                open_time=open_time if not is_closed and open_time else None,
+                close_time=close_time if not is_closed and close_time else None,
+                is_closed=is_closed
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Jam operasional berhasil ditambahkan',
+                'data': {
+                    'id': hour.id,
+                    'day_of_week': DAY_NAMES[hour.day_of_week],
+                    'open_time': hour.open_time.strftime('%H:%M') if hour.open_time else None,
+                    'close_time': hour.close_time.strftime('%H:%M') if hour.close_time else None,
+                    'is_closed': hour.is_closed
+                }
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Terjadi kesalahan: {str(e)}'
+            }, status=500)
+
+@csrf_exempt
+@require_http_methods(["GET", "PUT", "DELETE"])
+def api_venue_operational_hour_detail(request, venue_id, hour_id):
+    """API endpoint to update or delete a specific operational hour"""
+    
+    # Day name to number mapping
+    DAY_MAP = {
+        'Monday': 0,
+        'Tuesday': 1,
+        'Wednesday': 2,
+        'Thursday': 3,
+        'Friday': 4,
+        'Saturday': 5,
+        'Sunday': 6
+    }
+    
+    # Reverse mapping
+    DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    try:
+        venue = Venue.objects.get(id=venue_id, owner=request.user)
+        hour = OperationalHour.objects.get(id=hour_id, venue=venue)
+    except Venue.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Venue tidak ditemukan'
+        }, status=404)
+    except OperationalHour.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Jam operasional tidak ditemukan'
+        }, status=404)
+    
+    if request.method == 'GET':
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'id': hour.id,
+                'day_of_week': DAY_NAMES[hour.day_of_week],
+                'open_time': hour.open_time.strftime('%H:%M') if hour.open_time else None,
+                'close_time': hour.close_time.strftime('%H:%M') if hour.close_time else None,
+                'is_closed': hour.is_closed
+            }
+        })
+    
+    elif request.method == 'PUT' or request.POST.get('_method') == 'PUT':
+        try:
+            day_of_week_str = request.POST.get('day_of_week')
+            open_time = request.POST.get('open_time')
+            close_time = request.POST.get('close_time')
+            is_closed = request.POST.get('is_closed', 'false').lower() == 'true'
+            
+            # Convert day name to number if provided
+            if day_of_week_str:
+                day_of_week = DAY_MAP.get(day_of_week_str)
+                if day_of_week is None:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Hari tidak valid: {day_of_week_str}'
+                    }, status=400)
+                hour.day_of_week = day_of_week
+            
+            hour.open_time = open_time if not is_closed and open_time else None
+            hour.close_time = close_time if not is_closed and close_time else None
+            hour.is_closed = is_closed
+            hour.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Jam operasional berhasil diupdate',
+                'data': {
+                    'id': hour.id,
+                    'day_of_week': DAY_NAMES[hour.day_of_week],
+                    'open_time': hour.open_time.strftime('%H:%M') if hour.open_time else None,
+                    'close_time': hour.close_time.strftime('%H:%M') if hour.close_time else None,
+                    'is_closed': hour.is_closed
+                }
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Terjadi kesalahan: {str(e)}'
+            }, status=500)
+    
+    elif request.method == 'DELETE' or request.POST.get('_method') == 'DELETE':
+        hour.delete()
+        return JsonResponse({
+            'success': True,
+            'message': 'Jam operasional berhasil dihapus'
+        })
