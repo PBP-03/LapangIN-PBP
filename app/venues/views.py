@@ -251,6 +251,42 @@ def api_venues(request):
     elif request.method == 'POST':
         # Create a new venue
         try:
+            # Try to parse JSON body first (from Flutter)
+            try:
+                body = json.loads(request.body)
+                # Create venue from JSON data
+                venue = Venue(
+                    owner=request.user,
+                    name=body.get('name', ''),
+                    address=body.get('address', ''),
+                    location_url=body.get('location_url', ''),
+                    contact=body.get('contact', ''),
+                    description=body.get('description', ''),
+                    number_of_courts=0
+                )
+                venue.save()
+                
+                # Log the activity
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action_type='create',
+                    description=f'Created new venue: {venue.name}',
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Venue berhasil ditambahkan!',
+                    'data': {
+                        'id': str(venue.id),
+                        'name': venue.name,
+                    }
+                })
+            except (json.JSONDecodeError, KeyError):
+                # Fall back to form data handling (for web forms)
+                pass
+            
             # Handle form data
             form = VenueForm(request.POST)
             
@@ -331,7 +367,6 @@ def api_venues(request):
 
 
 @csrf_exempt
-@require_http_methods(["GET", "POST", "PUT", "DELETE"])
 def api_venue_detail(request, venue_id):
     """API endpoint for getting, updating, and deleting a specific venue"""
     if not request.user.is_authenticated:
@@ -354,7 +389,18 @@ def api_venue_detail(request, venue_id):
             'message': 'Venue tidak ditemukan'
         }, status=404)
     
-    if request.method == 'GET':
+    # Handle method override from Flutter (JSON body with _method field)
+    actual_method = request.method
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            if body.get('_method'):
+                actual_method = body.get('_method').upper()
+        except:
+            pass
+    
+    if request.method == 'GET' or actual_method == 'GET':
+        # Get venue details
         # Get venue details
         # Get venue images
         images = []
@@ -363,7 +409,7 @@ def api_venue_detail(request, venue_id):
                 'id': img.id,
                 'url': img.image_url,
                 'is_primary': img.is_primary,
-                'caption': img.caption
+                'caption': img.caption or ''
             })
         
         # Get venue facilities
@@ -371,16 +417,16 @@ def api_venue_detail(request, venue_id):
         for vf in VenueFacility.objects.filter(venue=venue).select_related('facility'):
             facilities.append({
                 'name': vf.facility.name,
-                'icon': vf.facility.icon
+                'icon': vf.facility.icon or ''
             })
         
         venue_data = {
             'id': str(venue.id),
             'name': venue.name,
             'address': venue.address,
-            'location_url': venue.location_url,
-            'contact': venue.contact,
-            'description': venue.description,
+            'location_url': venue.location_url or '',
+            'contact': venue.contact or '',
+            'description': venue.description or '',
             'number_of_courts': venue.number_of_courts,
             'verification_status': venue.verification_status,
             'is_verified': venue.is_verified,
@@ -395,8 +441,123 @@ def api_venue_detail(request, venue_id):
             'data': venue_data
         })
     
-    elif request.method in ['POST', 'PUT']:
+    elif actual_method in ['PUT', 'PATCH']:
         # Update venue
+        try:
+            # Parse JSON body
+            body = json.loads(request.body)
+            
+            # Update basic fields
+            venue.name = body.get('name', venue.name)
+            venue.address = body.get('address', venue.address)
+            venue.location_url = body.get('location_url', '')
+            venue.contact = body.get('contact', '')
+            venue.description = body.get('description', '')
+            venue.save()
+            
+            # Handle image URLs
+            image_urls_data = body.get('image_urls', '[]')
+            try:
+                if isinstance(image_urls_data, str):
+                    image_urls = json.loads(image_urls_data)
+                else:
+                    image_urls = image_urls_data
+                
+                # Clean submitted URLs
+                submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
+                
+                # Delete images not in submitted list
+                venue.images.exclude(image_url__in=submitted_urls).delete()
+                
+                # Get existing URLs
+                existing_urls = set(venue.images.values_list('image_url', flat=True))
+                
+                # Add new images
+                from app.venues.models import VenueImage
+                for idx, url in enumerate(submitted_urls):
+                    if url not in existing_urls:
+                        is_primary = (idx == 0 and not venue.images.filter(is_primary=True).exists())
+                        VenueImage.objects.create(
+                            venue=venue,
+                            image_url=url,
+                            is_primary=is_primary
+                        )
+            except (json.JSONDecodeError, ValueError):
+                pass
+            
+            # Handle facilities
+            facilities_data = body.get('facilities', '[]')
+            try:
+                if isinstance(facilities_data, str):
+                    facilities = json.loads(facilities_data)
+                else:
+                    facilities = facilities_data
+                
+                # Get current facility names
+                current_facility_names = set(
+                    VenueFacility.objects.filter(venue=venue).values_list('facility__name', flat=True)
+                )
+                
+                # Get submitted facility names
+                submitted_facility_names = set()
+                for facility_data in facilities:
+                    if facility_data.get('name'):
+                        submitted_facility_names.add(facility_data['name'])
+                        # Get or create facility
+                        facility, created = Facility.objects.get_or_create(
+                            name=facility_data['name'],
+                            defaults={'icon': facility_data.get('icon', '')}
+                        )
+                        # Update icon if different
+                        if not created and facility_data.get('icon') and facility.icon != facility_data.get('icon'):
+                            facility.icon = facility_data.get('icon')
+                            facility.save()
+                        # Create venue-facility relationship
+                        VenueFacility.objects.get_or_create(
+                            venue=venue,
+                            facility=facility
+                        )
+                
+                # Remove facilities no longer in list
+                facilities_to_remove = current_facility_names - submitted_facility_names
+                if facilities_to_remove:
+                    VenueFacility.objects.filter(
+                        venue=venue,
+                        facility__name__in=facilities_to_remove
+                    ).delete()
+            except (json.JSONDecodeError, ValueError):
+                pass
+            
+            # Log activity
+            ActivityLog.objects.create(
+                user=request.user,
+                action_type='update',
+                description=f'Updated venue: {venue.name}',
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Venue berhasil diupdate!',
+                'data': {
+                    'id': str(venue.id),
+                    'name': venue.name,
+                }
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid JSON format'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Terjadi kesalahan: {str(e)}'
+            }, status=500)
+    
+    elif request.method == 'POST' and actual_method not in ['PUT', 'PATCH', 'DELETE']:
+        # Handle form data (for web forms)
         try:
             form = VenueForm(request.POST, instance=venue)
             
@@ -503,7 +664,7 @@ def api_venue_detail(request, venue_id):
                 'message': f'Terjadi kesalahan: {str(e)}'
             }, status=500)
     
-    elif request.method == 'DELETE':
+    elif actual_method == 'DELETE':
         # Delete venue
         try:
             venue_name = venue.name
@@ -527,6 +688,11 @@ def api_venue_detail(request, venue_id):
                 'success': False,
                 'message': f'Terjadi kesalahan: {str(e)}'
             }, status=500)
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Method not allowed'
+    }, status=405)
 
 @require_http_methods(["GET"])
 def api_sports_categories(request):
