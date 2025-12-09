@@ -71,6 +71,7 @@ def api_login(request):
             return JsonResponse({
                 'success': False,
                 'message': 'Username atau password salah'
+                # 'role' : user.role
             }, status=401)
             
     except json.JSONDecodeError:
