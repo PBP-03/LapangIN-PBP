@@ -40,6 +40,7 @@ urlpatterns = [
     path('api/courts/', courts_views.api_courts, name='api_courts'),
     path('api/courts/<int:court_id>/', courts_views.api_court_detail, name='api_court_detail'),
     path('api/courts/<int:court_id>/sessions/', courts_views.api_court_sessions, name='api_court_sessions'),
+    path('api/courts/<int:court_id>/sessions/<int:session_id>/', courts_views.api_court_session_detail, name='api_court_session_detail'),
     path('api/court-images/<int:image_id>/delete/', courts_views.api_delete_court_image, name='api_delete_court_image'),
     
     # Bookings & Payments (from bookings app)
