@@ -79,7 +79,20 @@ def api_courts(request):
     elif request.method == 'POST':
         # Create a new court
         try:
-            form = CourtForm(request.POST, user=request.user)
+            # Convert category name to category ID if needed
+            post_data = request.POST.copy()
+            category_value = post_data.get('category')
+            
+            # If category is a string name (like 'FUTSAL'), find the ID
+            if category_value and not category_value.isdigit():
+                from app.venues.models import SportsCategory
+                try:
+                    category_obj = SportsCategory.objects.get(name=category_value)
+                    post_data['category'] = str(category_obj.id)
+                except SportsCategory.DoesNotExist:
+                    pass  # Let form validation handle the error
+            
+            form = CourtForm(post_data, user=request.user)
             
             if form.is_valid():
                 court = form.save()
@@ -227,7 +240,20 @@ def api_court_detail(request, court_id):
     elif request.method in ['POST', 'PUT']:
         # Update court
         try:
-            form = CourtForm(request.POST, instance=court, user=request.user)
+            # Convert category name to category ID if needed
+            post_data = request.POST.copy()
+            category_value = post_data.get('category')
+            
+            # If category is a string name (like 'FUTSAL'), find the ID
+            if category_value and not category_value.isdigit():
+                from app.venues.models import SportsCategory
+                try:
+                    category_obj = SportsCategory.objects.get(name=category_value)
+                    post_data['category'] = str(category_obj.id)
+                except SportsCategory.DoesNotExist:
+                    pass  # Let form validation handle the error
+            
+            form = CourtForm(post_data, instance=court, user=request.user)
             
             if form.is_valid():
                 court = form.save()

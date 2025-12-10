@@ -228,6 +228,15 @@ def api_venues(request):
                     'caption': img.caption
                 })
             
+            # Get venue facilities
+            facilities = []
+            for vf in VenueFacility.objects.filter(venue=venue).select_related('facility'):
+                facilities.append({
+                    'id': vf.facility.id,
+                    'name': vf.facility.name,
+                    'icon': vf.facility.icon
+                })
+            
             venues_data.append({
                 'id': str(venue.id),
                 'name': venue.name,
@@ -240,7 +249,8 @@ def api_venues(request):
                 'is_verified': venue.is_verified,
                 'created_at': venue.created_at.isoformat(),
                 'updated_at': venue.updated_at.isoformat(),
-                'images': images
+                'images': images,
+                'facilities': facilities
             })
         
         return JsonResponse({
