@@ -195,6 +195,7 @@ def api_user_status(request):
         })
 
 
+@csrf_exempt
 @require_http_methods(["GET", "PUT", "DELETE", "POST"])
 def api_profile(request):
     if not request.user.is_authenticated:
