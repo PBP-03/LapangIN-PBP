@@ -13,6 +13,7 @@ from app.courts import views as courts_views
 from app.bookings import views as bookings_views
 from app.reviews import views as reviews_views
 from app.revenue import views as revenue_views
+from app.main import views as main_views
 
 urlpatterns = [
     path('admin-django/', admin.site.urls),
@@ -61,6 +62,9 @@ urlpatterns = [
     path('api/mitra/<uuid:mitra_id>/', revenue_views.api_mitra_update_status, name='api_mitra_update_status'),
     path('api/mitra/<uuid:mitra_id>/venues/', revenue_views.api_mitra_venue_details, name='api_mitra_venue_details'),
     path('api/mitra/<uuid:mitra_id>/earnings/', revenue_views.api_mitra_earnings_detail, name='api_mitra_earnings_detail'),
+    
+    # Image Proxy (from main app)
+    path('api/proxy-image/', main_views.proxy_image, name='api_proxy_image'),
 
 ]
 

@@ -245,13 +245,23 @@ def booking_history_view(request):
 @csrf_exempt
 @require_http_methods(["GET"])
 def proxy_image(request):
-    """Proxy external images to bypass CORS"""
+    """Proxy external images and local static files to bypass CORS"""
     image_url = unquote(request.GET.get('url', ''))
     
-    if not image_url or not image_url.startswith(('http://', 'https://')):
-        return JsonResponse({'error': 'Invalid URL'}, status=400)
+    if not image_url:
+        return JsonResponse({'error': 'No URL provided'}, status=400)
     
     try:
+        # Handle local static file paths
+        if image_url.startswith('/'):
+            # Convert relative path to absolute URL
+            # Get the scheme and host from the request
+            scheme = 'https' if request.is_secure() else 'http'
+            host = request.get_host()
+            image_url = f'{scheme}://{host}{image_url}'
+        elif not image_url.startswith(('http://', 'https://')):
+            return JsonResponse({'error': 'Invalid URL'}, status=400)
+        
         response = requests.get(image_url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
         if response.status_code == 200:
             http_response = HttpResponse(response.content, content_type=response.headers.get('Content-Type', 'image/jpeg'))
