@@ -30,7 +30,7 @@ urlpatterns = [
     
     # Venues & Sports Categories (from venues app)
     path('api/public/venues/', venues_views.api_venue_list, name='api_public_venue_list'),  # Public venue list with pagination
-    path('api/public/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_public_venue_detail'),
+    path('api/public/venues/<uuid:venue_id>/', venues_views.api_public_venue_detail, name='api_public_venue_detail'),
     path('api/venues/', venues_views.api_venues, name='api_venues'),  # Mitra-only venue management
     path('api/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_venue_detail'),
     path('api/sports-categories/', venues_views.api_sports_categories, name='api_sports_categories'),
@@ -40,6 +40,7 @@ urlpatterns = [
     path('api/courts/', courts_views.api_courts, name='api_courts'),
     path('api/courts/<int:court_id>/', courts_views.api_court_detail, name='api_court_detail'),
     path('api/courts/<int:court_id>/sessions/', courts_views.api_court_sessions, name='api_court_sessions'),
+    path('api/courts/<int:court_id>/sessions/<int:session_id>/', courts_views.api_court_session_detail, name='api_court_session_detail'),
     path('api/court-images/<int:image_id>/delete/', courts_views.api_delete_court_image, name='api_delete_court_image'),
     
     # Bookings & Payments (from bookings app)
@@ -60,11 +61,7 @@ urlpatterns = [
     path('api/mitra/<uuid:mitra_id>/', revenue_views.api_mitra_update_status, name='api_mitra_update_status'),
     path('api/mitra/<uuid:mitra_id>/venues/', revenue_views.api_mitra_venue_details, name='api_mitra_venue_details'),
     path('api/mitra/<uuid:mitra_id>/earnings/', revenue_views.api_mitra_earnings_detail, name='api_mitra_earnings_detail'),
-    path('api/venues/<uuid:venue_id>/status/', revenue_views.api_venue_update_status, name='api_venue_update_status'),
-    
-    # Refund Management APIs
-    path('api/refunds/', revenue_views.api_refunds, name='api_refunds'),
-    path('api/refunds/<uuid:pendapatan_id>/cancel/', revenue_views.api_cancel_refund, name='api_cancel_refund'),
+
 ]
 
 # Serve static and media files during development
