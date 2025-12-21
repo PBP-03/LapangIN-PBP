@@ -84,7 +84,7 @@ class Command(BaseCommand):
         self.stdout.write('Creating users...')
         
         # Create superuser/admin
-        admin_user, created = User.objects.get_or_create(
+        admin_user, created = User.objects.update_or_create(
             username='admin',
             defaults={
                 'email': 'admin@lapangin.com',
@@ -96,7 +96,7 @@ class Command(BaseCommand):
                 'is_verified': True,
                 'is_staff': True,
                 'is_superuser': True,
-            }
+            },
         )
         if created:
             admin_user.set_password('admin123')
