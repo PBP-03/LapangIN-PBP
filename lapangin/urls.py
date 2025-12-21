@@ -62,6 +62,16 @@ urlpatterns = [
     path('api/mitra/<uuid:mitra_id>/', revenue_views.api_mitra_update_status, name='api_mitra_update_status'),
     path('api/mitra/<uuid:mitra_id>/venues/', revenue_views.api_mitra_venue_details, name='api_mitra_venue_details'),
     path('api/mitra/<uuid:mitra_id>/earnings/', revenue_views.api_mitra_earnings_detail, name='api_mitra_earnings_detail'),
+
+    # Refunds (admin)
+    path('api/refunds/', revenue_views.api_refunds, name='api_refunds'),
+    path('api/refunds/<uuid:pendapatan_id>/cancel/', revenue_views.api_cancel_refund, name='api_refunds_cancel'),
+
+    # Back-compat: revenue-prefixed refund endpoints used by tests
+    path('api/revenue/refunds/', revenue_views.api_refunds, name='api_revenue_refunds'),
+    path('api/revenue/refunds/list/', revenue_views.api_list_refunds, name='api_revenue_refunds_list'),
+    path('api/revenue/refunds/<uuid:pendapatan_id>/create/', revenue_views.api_create_refund, name='api_revenue_refunds_create'),
+    path('api/revenue/refunds/<uuid:pendapatan_id>/cancel/', revenue_views.api_cancel_refund, name='api_revenue_refunds_cancel'),
     
     # Image Proxy (from main app)
     path('api/proxy-image/', main_views.proxy_image, name='api_proxy_image'),
