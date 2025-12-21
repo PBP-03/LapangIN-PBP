@@ -1,10 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse, StreamingHttpResponse
 from django.utils.safestring import mark_safe
 from django.db.models import Avg
 from urllib.parse import unquote
+from urllib.parse import urlparse
+from django.conf import settings
+from django.contrib.staticfiles import finders
+import mimetypes
 import requests
 import json
 
@@ -252,22 +256,75 @@ def proxy_image(request):
         return JsonResponse({'error': 'No URL provided'}, status=400)
     
     try:
-        # Handle local static file paths
+        # 1) Fast-path for local static files: avoid HTTP requests back to ourselves.
+        # Example: /static/img/dataset-photos/xxx.jpg
+        static_url = getattr(settings, 'STATIC_URL', '/static/') or '/static/'
+        if image_url.startswith(static_url):
+            relative_path = image_url[len(static_url):].lstrip('/')
+            fs_path = finders.find(relative_path)
+            if not fs_path:
+                return JsonResponse({'error': 'Static file not found'}, status=404)
+
+            content_type, _ = mimetypes.guess_type(fs_path)
+            file_response = FileResponse(open(fs_path, 'rb'), content_type=content_type or 'application/octet-stream')
+            file_response['Access-Control-Allow-Origin'] = '*'
+            file_response['Cache-Control'] = 'public, max-age=86400'
+            return file_response
+
+        # If the caller sends any other absolute path, reject it.
         if image_url.startswith('/'):
-            # Convert relative path to absolute URL
-            # Get the scheme and host from the request
-            scheme = 'https' if request.is_secure() else 'http'
-            host = request.get_host()
-            image_url = f'{scheme}://{host}{image_url}'
-        elif not image_url.startswith(('http://', 'https://')):
+            return JsonResponse({'error': 'Only /static/... paths are allowed'}, status=400)
+
+        # 2) External (or absolute) URLs: validate scheme and stream to avoid buffering big files.
+        if not image_url.startswith(('http://', 'https://')):
             return JsonResponse({'error': 'Invalid URL'}, status=400)
-        
-        response = requests.get(image_url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
-        if response.status_code == 200:
-            http_response = HttpResponse(response.content, content_type=response.headers.get('Content-Type', 'image/jpeg'))
-            http_response['Access-Control-Allow-Origin'] = '*'
-            http_response['Cache-Control'] = 'public, max-age=86400'
-            return http_response
-        return JsonResponse({'error': f'Failed: {response.status_code}'}, status=response.status_code)
+
+        parsed = urlparse(image_url)
+        if parsed.netloc == request.get_host() and parsed.path.startswith(static_url):
+            # Also avoid self-HTTP calls when a full URL points to our /static/.
+            relative_path = parsed.path[len(static_url):].lstrip('/')
+            fs_path = finders.find(relative_path)
+            if not fs_path:
+                return JsonResponse({'error': 'Static file not found'}, status=404)
+
+            content_type, _ = mimetypes.guess_type(fs_path)
+            file_response = FileResponse(open(fs_path, 'rb'), content_type=content_type or 'application/octet-stream')
+            file_response['Access-Control-Allow-Origin'] = '*'
+            file_response['Cache-Control'] = 'public, max-age=86400'
+            return file_response
+
+        # Use a tuple timeout: (connect timeout, read timeout)
+        upstream = requests.get(
+            image_url,
+            stream=True,
+            timeout=(5, 60),
+            headers={
+                'User-Agent': 'Mozilla/5.0',
+                'Accept': 'image/*,*/*;q=0.8',
+            },
+        )
+
+        if upstream.status_code != 200:
+            upstream.close()
+            return JsonResponse({'error': f'Failed: {upstream.status_code}'}, status=upstream.status_code)
+
+        def stream_chunks():
+            try:
+                for chunk in upstream.iter_content(chunk_size=64 * 1024):
+                    if chunk:
+                        yield chunk
+            finally:
+                upstream.close()
+
+        content_type = upstream.headers.get('Content-Type') or 'application/octet-stream'
+        streaming_response = StreamingHttpResponse(stream_chunks(), content_type=content_type)
+        content_length = upstream.headers.get('Content-Length')
+        if content_length:
+            streaming_response['Content-Length'] = content_length
+        streaming_response['Access-Control-Allow-Origin'] = '*'
+        streaming_response['Cache-Control'] = 'public, max-age=86400'
+        return streaming_response
+    except requests.exceptions.Timeout:
+        return JsonResponse({'error': 'Upstream timed out'}, status=504)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
