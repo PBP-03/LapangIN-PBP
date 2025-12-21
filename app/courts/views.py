@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.utils import timezone
 import json
 from datetime import datetime, date
 
@@ -527,10 +528,39 @@ def api_court_sessions(request, court_id):
             }, status=400)
         
         # Get all active sessions for this court
-        sessions = CourtSession.objects.filter(
+        sessions_qs = CourtSession.objects.filter(
             court=court,
             is_active=True
         ).order_by('start_time')
+
+        target_day = date_obj.strftime('%A')  # e.g. Monday
+        today = timezone.localdate()
+        now_time = timezone.localtime(timezone.now()).time()
+
+        def extract_day_of_week(session_name):
+            if not session_name:
+                return None
+            parts = session_name.split(' ')
+            return parts[0] if parts else None
+
+        valid_days = {
+            'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+        }
+
+        sessions = []
+        for s in sessions_qs:
+            session_day = extract_day_of_week(getattr(s, 'session_name', None))
+
+            # If session_name encodes a weekday (e.g. "Monday 08:00"), filter by requested date's weekday.
+            # Otherwise, assume the session applies to any day.
+            if session_day in valid_days and session_day != target_day:
+                continue
+
+            # If checking availability for today, only include sessions strictly after the current time.
+            if date_obj == today and s.start_time <= now_time:
+                continue
+
+            sessions.append(s)
         
         sessions_data = []
         for session in sessions:
