@@ -535,19 +535,19 @@ class ApiMitraDashboardTests(RevenueTestCase):
     
     def test_mitra_dashboard_unauthenticated(self):
         """Test accessing mitra dashboard without authentication"""
-        response = self.client.get('/api/revenue/mitra-dashboard/')
+        response = self.client.get('/api/mitra-dashboard/')
         self.assertEqual(response.status_code, 401)
     
     def test_mitra_dashboard_wrong_role(self):
         """Test accessing mitra dashboard with wrong role"""
         self.client.login(username='user1', password='user123')
-        response = self.client.get('/api/revenue/mitra-dashboard/')
+        response = self.client.get('/api/mitra-dashboard/')
         self.assertEqual(response.status_code, 403)
     
     def test_mitra_dashboard_success(self):
         """Test successful mitra dashboard access"""
         self.client.login(username='mitra1', password='mitra123')
-        response = self.client.get('/api/revenue/mitra-dashboard/')
+        response = self.client.get('/api/mitra-dashboard/')
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertTrue(data['success'])

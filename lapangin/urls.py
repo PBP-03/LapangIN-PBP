@@ -13,6 +13,7 @@ from app.courts import views as courts_views
 from app.bookings import views as bookings_views
 from app.reviews import views as reviews_views
 from app.revenue import views as revenue_views
+from app.main import views as main_views
 
 urlpatterns = [
     path('admin-django/', admin.site.urls),
@@ -33,6 +34,7 @@ urlpatterns = [
     path('api/public/venues/<uuid:venue_id>/', venues_views.api_public_venue_detail, name='api_public_venue_detail'),
     path('api/venues/', venues_views.api_venues, name='api_venues'),  # Mitra-only venue management
     path('api/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_venue_detail'),
+    path('api/venues/<uuid:venue_id>/status/', venues_views.api_venue_update_status, name='api_venue_update_status'),
     path('api/sports-categories/', venues_views.api_sports_categories, name='api_sports_categories'),
     path('api/venue-images/<int:image_id>/delete/', venues_views.api_delete_venue_image, name='api_delete_venue_image'),
     
@@ -40,6 +42,7 @@ urlpatterns = [
     path('api/courts/', courts_views.api_courts, name='api_courts'),
     path('api/courts/<int:court_id>/', courts_views.api_court_detail, name='api_court_detail'),
     path('api/courts/<int:court_id>/sessions/', courts_views.api_court_sessions, name='api_court_sessions'),
+    path('api/courts/<int:court_id>/sessions/<int:session_id>/', courts_views.api_court_session_detail, name='api_court_session_detail'),
     path('api/court-images/<int:image_id>/delete/', courts_views.api_delete_court_image, name='api_delete_court_image'),
     
     # Bookings & Payments (from bookings app)
@@ -49,7 +52,9 @@ urlpatterns = [
     
     # Reviews (from reviews app)
     path('api/venues/<uuid:venue_id>/reviews/', reviews_views.api_venue_reviews, name='api_venue_reviews'),
-    path('api/reviews/<uuid:review_id>/', reviews_views.api_manage_review, name='api_manage_review'),
+    path('api/reviews/<int:review_id>/', reviews_views.api_manage_review, name='api_manage_review'),
+    path('api/reviews/<int:review_id>/update/', reviews_views.api_update_review_post, name='api_update_review_post'),
+    path('api/reviews/<int:review_id>/delete/', reviews_views.api_delete_review_post, name='api_delete_review_post'),
     
     # Revenue, Dashboards & Admin (from revenue app)
     path('api/pendapatan/', revenue_views.api_pendapatan, name='api_pendapatan'),
@@ -60,6 +65,19 @@ urlpatterns = [
     path('api/mitra/<uuid:mitra_id>/', revenue_views.api_mitra_update_status, name='api_mitra_update_status'),
     path('api/mitra/<uuid:mitra_id>/venues/', revenue_views.api_mitra_venue_details, name='api_mitra_venue_details'),
     path('api/mitra/<uuid:mitra_id>/earnings/', revenue_views.api_mitra_earnings_detail, name='api_mitra_earnings_detail'),
+
+    # Refunds (admin)
+    path('api/refunds/', revenue_views.api_refunds, name='api_refunds'),
+    path('api/refunds/<uuid:pendapatan_id>/cancel/', revenue_views.api_cancel_refund, name='api_refunds_cancel'),
+
+    # Back-compat: revenue-prefixed refund endpoints used by tests
+    path('api/revenue/refunds/', revenue_views.api_refunds, name='api_revenue_refunds'),
+    path('api/revenue/refunds/list/', revenue_views.api_list_refunds, name='api_revenue_refunds_list'),
+    path('api/revenue/refunds/<uuid:pendapatan_id>/create/', revenue_views.api_create_refund, name='api_revenue_refunds_create'),
+    path('api/revenue/refunds/<uuid:pendapatan_id>/cancel/', revenue_views.api_cancel_refund, name='api_revenue_refunds_cancel'),
+    
+    # Image Proxy (from main app)
+    path('api/proxy-image/', main_views.proxy_image, name='api_proxy_image'),
 
 ]
 

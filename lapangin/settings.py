@@ -34,7 +34,15 @@ DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1","muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id","10.0.2.2"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id"
+    "https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id",
+    "http://localhost:57627",
+    "http://localhost:50560",
+    "http://localhost:8080",
+    "http://127.0.0.1:57627",
+    "http://127.0.0.1:50560",
+    "http://127.0.0.1:8080",
+    "http://localhost:54625",
+    "http://127.0.0.1:54625",
 ]
 
 
@@ -67,6 +75,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'lapangin.middleware.DevCsrfMiddleware',  # Custom middleware for dev
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -115,10 +124,18 @@ if PRODUCTION:
     }
 else:
     # Development: gunakan SQLite
+    sqlite_path = os.getenv('SQLITE_DB_PATH', '').strip()
+    sqlite_db = Path(sqlite_path) if sqlite_path else (BASE_DIR / 'db.sqlite3')
+    # Ensure parent directory exists (useful if SQLITE_DB_PATH points to a new folder).
+    sqlite_db.parent.mkdir(parents=True, exist_ok=True)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': str(sqlite_db),
+            'OPTIONS': {
+                # Helps with brief write contention in development.
+                'timeout': 20,
+            },
         }
     }
 
@@ -153,7 +170,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Jakarta'
 
 USE_I18N = True
 

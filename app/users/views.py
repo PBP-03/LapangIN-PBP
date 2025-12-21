@@ -195,7 +195,8 @@ def api_user_status(request):
         })
 
 
-@require_http_methods(["GET", "PUT", "DELETE"])
+@csrf_exempt
+@require_http_methods(["GET", "PUT", "DELETE", "POST"])
 def api_profile(request):
     if not request.user.is_authenticated:
         return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
@@ -218,10 +219,26 @@ def api_profile(request):
         }
         return JsonResponse({'success': True, 'data': {'user': user_data}})
 
-    # Update
-    if request.method == 'PUT':
+    # Update (accept PUT and POST for client compatibility)
+    if request.method in ['PUT', 'POST']:
         try:
             data = json.loads(request.body or '{}')
+            # Optional: allow POST-triggered delete for clients that can't send DELETE.
+            if request.method == 'POST' and data.get('_action') == 'delete':
+                ActivityLog.objects.create(
+                    user=user,
+                    action_type='delete',
+                    description=f'User {user.username} requested account deletion via API',
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+
+                username = user.username
+                logout(request)
+                user.delete()
+
+                return JsonResponse({'success': True, 'message': f'Account {username} deleted'})
+
             password = data.pop('password', None)
 
             # Username uniqueness validation

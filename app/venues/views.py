@@ -2,14 +2,69 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, Avg
+from django.utils import timezone
 import json
 
-from app.venues.models import Venue, SportsCategory, VenueFacility, Facility
+from app.venues.models import Venue, SportsCategory, VenueFacility, Facility, OperationalHour
 from app.users.forms import VenueForm
 from app.revenue.models import ActivityLog
 from app.reviews.models import Review
 from app.courts.models import Court
 from app.users.decorators import login_required, role_required
+
+
+@csrf_exempt
+@require_http_methods(["PATCH", "POST"])
+def api_venue_update_status(request, venue_id):
+    """Admin endpoint to approve/reject a venue.
+
+    Supports PATCH (web dashboard) and POST (pbp_django_auth clients).
+    Body: {"status": "approved"|"rejected", "rejection_reason": "..."}
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+
+    if getattr(request.user, 'role', None) != 'admin':
+        return JsonResponse({'status': 'error', 'message': 'Access denied. Admin role required.'}, status=403)
+
+    try:
+        venue = Venue.objects.get(id=venue_id)
+    except Venue.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Venue not found'}, status=404)
+
+    try:
+        if request.body:
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request body'}, status=400)
+
+    new_status = data.get('status')
+    rejection_reason = data.get('rejection_reason', '')
+
+    if new_status not in ['approved', 'rejected']:
+        return JsonResponse({'status': 'error', 'message': 'Invalid status'}, status=400)
+
+    venue.verification_status = new_status
+    venue.verified_by = request.user
+    venue.verification_date = timezone.now()
+
+    if new_status == 'rejected':
+        venue.rejection_reason = rejection_reason or ''
+    else:
+        venue.rejection_reason = ''
+
+    venue.save(update_fields=['verification_status', 'verified_by', 'verification_date', 'rejection_reason'])
+
+    return JsonResponse({
+        'status': 'ok',
+        'message': f'Venue {new_status} successfully.',
+        'data': {
+            'id': str(venue.id),
+            'status': venue.verification_status,
+        }
+    })
 
 def get_client_ip(request):
     """Helper function to get client IP address"""
@@ -196,6 +251,7 @@ def api_public_venue_detail(request, venue_id):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def api_venues(request):
     """API endpoint for listing and creating venues"""
@@ -227,6 +283,15 @@ def api_venues(request):
                     'caption': img.caption
                 })
             
+            # Get venue facilities
+            facilities = []
+            for vf in VenueFacility.objects.filter(venue=venue).select_related('facility'):
+                facilities.append({
+                    'id': vf.facility.id,
+                    'name': vf.facility.name,
+                    'icon': vf.facility.icon
+                })
+            
             venues_data.append({
                 'id': str(venue.id),
                 'name': venue.name,
@@ -239,7 +304,8 @@ def api_venues(request):
                 'is_verified': venue.is_verified,
                 'created_at': venue.created_at.isoformat(),
                 'updated_at': venue.updated_at.isoformat(),
-                'images': images
+                'images': images,
+                'facilities': facilities
             })
         
         return JsonResponse({
@@ -250,6 +316,91 @@ def api_venues(request):
     elif request.method == 'POST':
         # Create a new venue
         try:
+            # Try to parse JSON body first (from Flutter)
+            try:
+                body = json.loads(request.body)
+                # Create venue from JSON data
+                venue = Venue(
+                    owner=request.user,
+                    name=body.get('name', ''),
+                    address=body.get('address', ''),
+                    location_url=body.get('location_url', ''),
+                    contact=body.get('contact', ''),
+                    description=body.get('description', ''),
+                    number_of_courts=0
+                )
+                venue.save()
+
+                # Handle image URLs (list or JSON string)
+                image_urls_data = body.get('image_urls', [])
+                try:
+                    if isinstance(image_urls_data, str):
+                        image_urls = json.loads(image_urls_data)
+                    else:
+                        image_urls = image_urls_data
+
+                    from app.venues.models import VenueImage
+                    for idx, url in enumerate(image_urls or []):
+                        if url and str(url).strip():
+                            VenueImage.objects.create(
+                                venue=venue,
+                                image_url=str(url).strip(),
+                                is_primary=(idx == 0),
+                            )
+                except (json.JSONDecodeError, ValueError, TypeError):
+                    pass  # Continue without images if parsing fails
+
+                # Handle facilities (list or JSON string)
+                facilities_data = body.get('facilities', [])
+                try:
+                    if isinstance(facilities_data, str):
+                        facilities = json.loads(facilities_data)
+                    else:
+                        facilities = facilities_data
+
+                    for facility_data in facilities or []:
+                        if not isinstance(facility_data, dict):
+                            continue
+                        if facility_data.get('name'):
+                            facility, created = Facility.objects.get_or_create(
+                                name=facility_data['name'],
+                                defaults={'icon': facility_data.get('icon', '')}
+                            )
+                            if (
+                                not created
+                                and facility_data.get('icon')
+                                and facility.icon != facility_data.get('icon')
+                            ):
+                                facility.icon = facility_data.get('icon')
+                                facility.save()
+                            VenueFacility.objects.get_or_create(
+                                venue=venue,
+                                facility=facility
+                            )
+                except (json.JSONDecodeError, ValueError, TypeError):
+                    pass  # Continue without facilities if parsing fails
+                
+                # Log the activity
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action_type='create',
+                    description=f'Created new venue: {venue.name}',
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Venue berhasil ditambahkan!',
+                    'data': {
+                        'id': str(venue.id),
+                        'name': venue.name,
+                    }
+                })
+            except (json.JSONDecodeError, KeyError):
+                # Fall back to form data handling (for web forms)
+                pass
+            
             # Handle form data
             form = VenueForm(request.POST)
             
@@ -329,7 +480,7 @@ def api_venues(request):
             }, status=500)
 
 
-@require_http_methods(["GET", "POST", "PUT", "DELETE"])
+@csrf_exempt
 def api_venue_detail(request, venue_id):
     """API endpoint for getting, updating, and deleting a specific venue"""
     if not request.user.is_authenticated:
@@ -352,7 +503,18 @@ def api_venue_detail(request, venue_id):
             'message': 'Venue tidak ditemukan'
         }, status=404)
     
-    if request.method == 'GET':
+    # Handle method override from Flutter (JSON body with _method field)
+    actual_method = request.method
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            if body.get('_method'):
+                actual_method = body.get('_method').upper()
+        except:
+            pass
+    
+    if request.method == 'GET' or actual_method == 'GET':
+        # Get venue details
         # Get venue details
         # Get venue images
         images = []
@@ -361,7 +523,7 @@ def api_venue_detail(request, venue_id):
                 'id': img.id,
                 'url': img.image_url,
                 'is_primary': img.is_primary,
-                'caption': img.caption
+                'caption': img.caption or ''
             })
         
         # Get venue facilities
@@ -369,16 +531,16 @@ def api_venue_detail(request, venue_id):
         for vf in VenueFacility.objects.filter(venue=venue).select_related('facility'):
             facilities.append({
                 'name': vf.facility.name,
-                'icon': vf.facility.icon
+                'icon': vf.facility.icon or ''
             })
         
         venue_data = {
             'id': str(venue.id),
             'name': venue.name,
             'address': venue.address,
-            'location_url': venue.location_url,
-            'contact': venue.contact,
-            'description': venue.description,
+            'location_url': venue.location_url or '',
+            'contact': venue.contact or '',
+            'description': venue.description or '',
             'number_of_courts': venue.number_of_courts,
             'verification_status': venue.verification_status,
             'is_verified': venue.is_verified,
@@ -393,8 +555,123 @@ def api_venue_detail(request, venue_id):
             'data': venue_data
         })
     
-    elif request.method in ['POST', 'PUT']:
+    elif actual_method in ['PUT', 'PATCH']:
         # Update venue
+        try:
+            # Parse JSON body
+            body = json.loads(request.body)
+            
+            # Update basic fields
+            venue.name = body.get('name', venue.name)
+            venue.address = body.get('address', venue.address)
+            venue.location_url = body.get('location_url', '')
+            venue.contact = body.get('contact', '')
+            venue.description = body.get('description', '')
+            venue.save()
+            
+            # Handle image URLs
+            image_urls_data = body.get('image_urls', '[]')
+            try:
+                if isinstance(image_urls_data, str):
+                    image_urls = json.loads(image_urls_data)
+                else:
+                    image_urls = image_urls_data
+                
+                # Clean submitted URLs
+                submitted_urls = [url.strip() for url in image_urls if url and url.strip()]
+                
+                # Delete images not in submitted list
+                venue.images.exclude(image_url__in=submitted_urls).delete()
+                
+                # Get existing URLs
+                existing_urls = set(venue.images.values_list('image_url', flat=True))
+                
+                # Add new images
+                from app.venues.models import VenueImage
+                for idx, url in enumerate(submitted_urls):
+                    if url not in existing_urls:
+                        is_primary = (idx == 0 and not venue.images.filter(is_primary=True).exists())
+                        VenueImage.objects.create(
+                            venue=venue,
+                            image_url=url,
+                            is_primary=is_primary
+                        )
+            except (json.JSONDecodeError, ValueError):
+                pass
+            
+            # Handle facilities
+            facilities_data = body.get('facilities', '[]')
+            try:
+                if isinstance(facilities_data, str):
+                    facilities = json.loads(facilities_data)
+                else:
+                    facilities = facilities_data
+                
+                # Get current facility names
+                current_facility_names = set(
+                    VenueFacility.objects.filter(venue=venue).values_list('facility__name', flat=True)
+                )
+                
+                # Get submitted facility names
+                submitted_facility_names = set()
+                for facility_data in facilities:
+                    if facility_data.get('name'):
+                        submitted_facility_names.add(facility_data['name'])
+                        # Get or create facility
+                        facility, created = Facility.objects.get_or_create(
+                            name=facility_data['name'],
+                            defaults={'icon': facility_data.get('icon', '')}
+                        )
+                        # Update icon if different
+                        if not created and facility_data.get('icon') and facility.icon != facility_data.get('icon'):
+                            facility.icon = facility_data.get('icon')
+                            facility.save()
+                        # Create venue-facility relationship
+                        VenueFacility.objects.get_or_create(
+                            venue=venue,
+                            facility=facility
+                        )
+                
+                # Remove facilities no longer in list
+                facilities_to_remove = current_facility_names - submitted_facility_names
+                if facilities_to_remove:
+                    VenueFacility.objects.filter(
+                        venue=venue,
+                        facility__name__in=facilities_to_remove
+                    ).delete()
+            except (json.JSONDecodeError, ValueError):
+                pass
+            
+            # Log activity
+            ActivityLog.objects.create(
+                user=request.user,
+                action_type='update',
+                description=f'Updated venue: {venue.name}',
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Venue berhasil diupdate!',
+                'data': {
+                    'id': str(venue.id),
+                    'name': venue.name,
+                }
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid JSON format'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Terjadi kesalahan: {str(e)}'
+            }, status=500)
+    
+    elif request.method == 'POST' and actual_method not in ['PUT', 'PATCH', 'DELETE']:
+        # Handle form data (for web forms)
         try:
             form = VenueForm(request.POST, instance=venue)
             
@@ -501,7 +778,7 @@ def api_venue_detail(request, venue_id):
                 'message': f'Terjadi kesalahan: {str(e)}'
             }, status=500)
     
-    elif request.method == 'DELETE':
+    elif actual_method == 'DELETE':
         # Delete venue
         try:
             venue_name = venue.name
@@ -525,6 +802,11 @@ def api_venue_detail(request, venue_id):
                 'success': False,
                 'message': f'Terjadi kesalahan: {str(e)}'
             }, status=500)
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Method not allowed'
+    }, status=405)
 
 @require_http_methods(["GET"])
 def api_sports_categories(request):
@@ -580,3 +862,184 @@ def api_delete_venue_image(request, image_id):
             'success': False,
             'message': f'Terjadi kesalahan: {str(e)}'
         }, status=500)
+
+# Operational Hours API
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def api_venue_operational_hours(request, venue_id):
+    """API endpoint to get or create operational hours for a venue"""
+    
+    # Day name to number mapping
+    DAY_MAP = {
+        'Monday': 0,
+        'Tuesday': 1,
+        'Wednesday': 2,
+        'Thursday': 3,
+        'Friday': 4,
+        'Saturday': 5,
+        'Sunday': 6
+    }
+    
+    # Reverse mapping
+    DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    try:
+        venue = Venue.objects.get(id=venue_id, owner=request.user)
+    except Venue.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Venue tidak ditemukan'
+        }, status=404)
+    
+    if request.method == 'GET':
+        hours = OperationalHour.objects.filter(venue=venue).order_by('day_of_week')
+        data = [{
+            'id': hour.id,
+            'day_of_week': DAY_NAMES[hour.day_of_week],
+            'open_time': hour.open_time.strftime('%H:%M') if hour.open_time else None,
+            'close_time': hour.close_time.strftime('%H:%M') if hour.close_time else None,
+            'is_closed': hour.is_closed
+        } for hour in hours]
+        
+        return JsonResponse({
+            'success': True,
+            'data': data
+        })
+    
+    elif request.method == 'POST':
+        try:
+            day_of_week_str = request.POST.get('day_of_week')
+            open_time = request.POST.get('open_time')
+            close_time = request.POST.get('close_time')
+            is_closed = request.POST.get('is_closed', 'false').lower() == 'true'
+            
+            if not day_of_week_str:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Hari harus diisi'
+                }, status=400)
+            
+            # Convert day name to number
+            day_of_week = DAY_MAP.get(day_of_week_str)
+            if day_of_week is None:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Hari tidak valid: {day_of_week_str}'
+                }, status=400)
+            
+            # Create operational hour
+            hour = OperationalHour.objects.create(
+                venue=venue,
+                day_of_week=day_of_week,
+                open_time=open_time if not is_closed and open_time else None,
+                close_time=close_time if not is_closed and close_time else None,
+                is_closed=is_closed
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Jam operasional berhasil ditambahkan',
+                'data': {
+                    'id': hour.id,
+                    'day_of_week': DAY_NAMES[hour.day_of_week],
+                    'open_time': hour.open_time.strftime('%H:%M') if hour.open_time else None,
+                    'close_time': hour.close_time.strftime('%H:%M') if hour.close_time else None,
+                    'is_closed': hour.is_closed
+                }
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Terjadi kesalahan: {str(e)}'
+            }, status=500)
+
+@csrf_exempt
+@require_http_methods(["GET", "PUT", "DELETE"])
+def api_venue_operational_hour_detail(request, venue_id, hour_id):
+    """API endpoint to update or delete a specific operational hour"""
+    
+    # Day name to number mapping
+    DAY_MAP = {
+        'Monday': 0,
+        'Tuesday': 1,
+        'Wednesday': 2,
+        'Thursday': 3,
+        'Friday': 4,
+        'Saturday': 5,
+        'Sunday': 6
+    }
+    
+    # Reverse mapping
+    DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    try:
+        venue = Venue.objects.get(id=venue_id, owner=request.user)
+        hour = OperationalHour.objects.get(id=hour_id, venue=venue)
+    except Venue.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Venue tidak ditemukan'
+        }, status=404)
+    except OperationalHour.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Jam operasional tidak ditemukan'
+        }, status=404)
+    
+    if request.method == 'GET':
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'id': hour.id,
+                'day_of_week': DAY_NAMES[hour.day_of_week],
+                'open_time': hour.open_time.strftime('%H:%M') if hour.open_time else None,
+                'close_time': hour.close_time.strftime('%H:%M') if hour.close_time else None,
+                'is_closed': hour.is_closed
+            }
+        })
+    
+    elif request.method == 'PUT' or request.POST.get('_method') == 'PUT':
+        try:
+            day_of_week_str = request.POST.get('day_of_week')
+            open_time = request.POST.get('open_time')
+            close_time = request.POST.get('close_time')
+            is_closed = request.POST.get('is_closed', 'false').lower() == 'true'
+            
+            # Convert day name to number if provided
+            if day_of_week_str:
+                day_of_week = DAY_MAP.get(day_of_week_str)
+                if day_of_week is None:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Hari tidak valid: {day_of_week_str}'
+                    }, status=400)
+                hour.day_of_week = day_of_week
+            
+            hour.open_time = open_time if not is_closed and open_time else None
+            hour.close_time = close_time if not is_closed and close_time else None
+            hour.is_closed = is_closed
+            hour.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Jam operasional berhasil diupdate',
+                'data': {
+                    'id': hour.id,
+                    'day_of_week': DAY_NAMES[hour.day_of_week],
+                    'open_time': hour.open_time.strftime('%H:%M') if hour.open_time else None,
+                    'close_time': hour.close_time.strftime('%H:%M') if hour.close_time else None,
+                    'is_closed': hour.is_closed
+                }
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Terjadi kesalahan: {str(e)}'
+            }, status=500)
+    
+    elif request.method == 'DELETE' or request.POST.get('_method') == 'DELETE':
+        hour.delete()
+        return JsonResponse({
+            'success': True,
+            'message': 'Jam operasional berhasil dihapus'
+        })

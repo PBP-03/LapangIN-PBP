@@ -8,6 +8,10 @@ class Review(models.Model):
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def review_text(self):
+        return self.comment
     
     def __str__(self):
         return f"Review for {self.booking.court.venue.name} - {self.rating} stars"

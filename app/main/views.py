@@ -1,7 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.http import HttpResponse, JsonResponse
 from django.utils.safestring import mark_safe
 from django.db.models import Avg
+from urllib.parse import unquote
+import requests
 import json
 
 from app.users.decorators import login_required, anonymous_required, user_required, mitra_required, admin_required
@@ -236,3 +240,34 @@ def booking_checkout_view(request):
 def booking_history_view(request):
     """Booking history page"""
     return render(request, 'booking_history.html')
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def proxy_image(request):
+    """Proxy external images and local static files to bypass CORS"""
+    image_url = unquote(request.GET.get('url', ''))
+    
+    if not image_url:
+        return JsonResponse({'error': 'No URL provided'}, status=400)
+    
+    try:
+        # Handle local static file paths
+        if image_url.startswith('/'):
+            # Convert relative path to absolute URL
+            # Get the scheme and host from the request
+            scheme = 'https' if request.is_secure() else 'http'
+            host = request.get_host()
+            image_url = f'{scheme}://{host}{image_url}'
+        elif not image_url.startswith(('http://', 'https://')):
+            return JsonResponse({'error': 'Invalid URL'}, status=400)
+        
+        response = requests.get(image_url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+        if response.status_code == 200:
+            http_response = HttpResponse(response.content, content_type=response.headers.get('Content-Type', 'image/jpeg'))
+            http_response['Access-Control-Allow-Origin'] = '*'
+            http_response['Cache-Control'] = 'public, max-age=86400'
+            return http_response
+        return JsonResponse({'error': f'Failed: {response.status_code}'}, status=response.status_code)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

@@ -31,4 +31,7 @@ urlpatterns = [
     path('tentang/', views.about_view, name='about'),
     path('kontak/', views.contact_view, name='contact'),
     path('daftar-mitra/', views.daftar_mitra_view, name='daftar_mitra'),
+    
+    # Image proxy for CORS bypass
+    path('api/proxy-image/', views.proxy_image, name='proxy_image'),
 ]
