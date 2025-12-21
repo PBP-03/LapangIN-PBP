@@ -51,7 +51,9 @@ urlpatterns = [
     
     # Reviews (from reviews app)
     path('api/venues/<uuid:venue_id>/reviews/', reviews_views.api_venue_reviews, name='api_venue_reviews'),
-    path('api/reviews/<uuid:review_id>/', reviews_views.api_manage_review, name='api_manage_review'),
+    path('api/reviews/<int:review_id>/', reviews_views.api_manage_review, name='api_manage_review'),
+    path('api/reviews/<int:review_id>/update/', reviews_views.api_update_review_post, name='api_update_review_post'),
+    path('api/reviews/<int:review_id>/delete/', reviews_views.api_delete_review_post, name='api_delete_review_post'),
     
     # Revenue, Dashboards & Admin (from revenue app)
     path('api/pendapatan/', revenue_views.api_pendapatan, name='api_pendapatan'),

@@ -152,3 +152,72 @@ def api_manage_review(request, review_id):
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_update_review_post(request, review_id):
+    """POST alternative for updating reviews (mobile-friendly)."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Login required'}, status=401)
+
+    try:
+        review = Review.objects.get(pk=review_id)
+
+        if review.booking and review.booking.user != request.user:
+            return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+
+        data = json.loads(request.body or '{}')
+        rating = data.get('rating')
+        comment = data.get('comment', review.comment)
+
+        if rating is not None:
+            if not isinstance(rating, (int, float)) or rating < 1 or rating > 5:
+                return JsonResponse(
+                    {'status': 'error', 'message': 'Rating harus antara 1 dan 5'},
+                    status=400,
+                )
+            review.rating = rating
+
+        review.comment = comment
+        review.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Review berhasil diupdate',
+            'data': {
+                'id': str(review.id),
+                'rating': float(review.rating),
+                'comment': review.comment,
+                'created_at': review.created_at.isoformat(),
+            }
+        })
+
+    except Review.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Review not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_delete_review_post(request, review_id):
+    """POST alternative for deleting reviews (mobile-friendly)."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Login required'}, status=401)
+
+    try:
+        review = Review.objects.get(pk=review_id)
+
+        if review.booking and review.booking.user != request.user:
+            return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+
+        review.delete()
+        return JsonResponse({'status': 'success', 'message': 'Review berhasil dihapus'})
+
+    except Review.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Review not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
