@@ -265,10 +265,10 @@ def create_booking(request):
         return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
     
     # Only users can create bookings, not mitra or admin
-    if request.user.role != 'user':
+    if request.user.role == 'admin':
         return JsonResponse({
             'success': False,
-            'message': 'Only regular users can create bookings. Mitra and admin accounts cannot book venues.'
+            'message': 'Admins cannot create bookings'
         }, status=403)
     
     try:
@@ -436,11 +436,11 @@ def api_user_booking_history(request):
             'message': 'Authentication required'
         }, status=401)
     
-    if request.user.role != 'user':
-        return JsonResponse({
-            'success': False,
-            'message': 'This endpoint is for users only'
-        }, status=403)
+    # if request.user.role != 'user':
+    #     return JsonResponse({
+    #         'success': False,
+    #         'message': 'This endpoint is for users only'
+    #     }, status=403)
     
     try:
         # Get filter parameters
