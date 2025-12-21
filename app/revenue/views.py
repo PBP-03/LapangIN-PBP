@@ -174,6 +174,7 @@ def api_mitra_dashboard(request):
             reviews_data.append({
                 'id': str(review.id),
                 'rating': review.rating,
+                'comment': review.comment,
                 'review_text': review.review_text,
                 'created_at': review.created_at.isoformat() if review.created_at else None,
                 'user': {

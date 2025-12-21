@@ -275,6 +275,55 @@ def api_venues(request):
                     number_of_courts=0
                 )
                 venue.save()
+
+                # Handle image URLs (list or JSON string)
+                image_urls_data = body.get('image_urls', [])
+                try:
+                    if isinstance(image_urls_data, str):
+                        image_urls = json.loads(image_urls_data)
+                    else:
+                        image_urls = image_urls_data
+
+                    from app.venues.models import VenueImage
+                    for idx, url in enumerate(image_urls or []):
+                        if url and str(url).strip():
+                            VenueImage.objects.create(
+                                venue=venue,
+                                image_url=str(url).strip(),
+                                is_primary=(idx == 0),
+                            )
+                except (json.JSONDecodeError, ValueError, TypeError):
+                    pass  # Continue without images if parsing fails
+
+                # Handle facilities (list or JSON string)
+                facilities_data = body.get('facilities', [])
+                try:
+                    if isinstance(facilities_data, str):
+                        facilities = json.loads(facilities_data)
+                    else:
+                        facilities = facilities_data
+
+                    for facility_data in facilities or []:
+                        if not isinstance(facility_data, dict):
+                            continue
+                        if facility_data.get('name'):
+                            facility, created = Facility.objects.get_or_create(
+                                name=facility_data['name'],
+                                defaults={'icon': facility_data.get('icon', '')}
+                            )
+                            if (
+                                not created
+                                and facility_data.get('icon')
+                                and facility.icon != facility_data.get('icon')
+                            ):
+                                facility.icon = facility_data.get('icon')
+                                facility.save()
+                            VenueFacility.objects.get_or_create(
+                                venue=venue,
+                                facility=facility
+                            )
+                except (json.JSONDecodeError, ValueError, TypeError):
+                    pass  # Continue without facilities if parsing fails
                 
                 # Log the activity
                 ActivityLog.objects.create(
