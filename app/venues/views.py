@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, Avg
+from django.utils import timezone
 import json
 
 from app.venues.models import Venue, SportsCategory, VenueFacility, Facility, OperationalHour
@@ -10,6 +11,60 @@ from app.revenue.models import ActivityLog
 from app.reviews.models import Review
 from app.courts.models import Court
 from app.users.decorators import login_required, role_required
+
+
+@csrf_exempt
+@require_http_methods(["PATCH", "POST"])
+def api_venue_update_status(request, venue_id):
+    """Admin endpoint to approve/reject a venue.
+
+    Supports PATCH (web dashboard) and POST (pbp_django_auth clients).
+    Body: {"status": "approved"|"rejected", "rejection_reason": "..."}
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+
+    if getattr(request.user, 'role', None) != 'admin':
+        return JsonResponse({'status': 'error', 'message': 'Access denied. Admin role required.'}, status=403)
+
+    try:
+        venue = Venue.objects.get(id=venue_id)
+    except Venue.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Venue not found'}, status=404)
+
+    try:
+        if request.body:
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request body'}, status=400)
+
+    new_status = data.get('status')
+    rejection_reason = data.get('rejection_reason', '')
+
+    if new_status not in ['approved', 'rejected']:
+        return JsonResponse({'status': 'error', 'message': 'Invalid status'}, status=400)
+
+    venue.verification_status = new_status
+    venue.verified_by = request.user
+    venue.verification_date = timezone.now()
+
+    if new_status == 'rejected':
+        venue.rejection_reason = rejection_reason or ''
+    else:
+        venue.rejection_reason = ''
+
+    venue.save(update_fields=['verification_status', 'verified_by', 'verification_date', 'rejection_reason'])
+
+    return JsonResponse({
+        'status': 'ok',
+        'message': f'Venue {new_status} successfully.',
+        'data': {
+            'id': str(venue.id),
+            'status': venue.verification_status,
+        }
+    })
 
 def get_client_ip(request):
     """Helper function to get client IP address"""

@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/public/venues/<uuid:venue_id>/', venues_views.api_public_venue_detail, name='api_public_venue_detail'),
     path('api/venues/', venues_views.api_venues, name='api_venues'),  # Mitra-only venue management
     path('api/venues/<uuid:venue_id>/', venues_views.api_venue_detail, name='api_venue_detail'),
+    path('api/venues/<uuid:venue_id>/status/', venues_views.api_venue_update_status, name='api_venue_update_status'),
     path('api/sports-categories/', venues_views.api_sports_categories, name='api_sports_categories'),
     path('api/venue-images/<int:image_id>/delete/', venues_views.api_delete_venue_image, name='api_delete_venue_image'),
     

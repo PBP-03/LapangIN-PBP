@@ -424,9 +424,13 @@ def api_mitra_earnings(request):
     return JsonResponse({'status': 'ok', 'data': data})
 
 @csrf_exempt
-@require_http_methods(["PATCH"])
+@require_http_methods(["PATCH", "POST"])
 def api_mitra_update_status(request, mitra_id):
-    """Patch endpoint to update mitra status. Body: {"status": "approved"|"rejected", "rejection_reason": "..."} """
+    """Update mitra status.
+
+    Supports PATCH (tests) and POST (used by some clients like pbp_django_auth).
+    Body: {"status": "approved"|"rejected", "rejection_reason": "..."}
+    """
     try:
         try:
             mitra = User.objects.get(id=mitra_id, role='mitra')
@@ -434,9 +438,13 @@ def api_mitra_update_status(request, mitra_id):
             return JsonResponse({'status': 'error', 'message': 'Mitra not found'}, status=404)
 
         try:
-            data = json.loads(request.body)
+            if request.body:
+                data = json.loads(request.body)
+            else:
+                # Fallback for form-encoded clients.
+                data = request.POST
         except Exception:
-            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+            return JsonResponse({'status': 'error', 'message': 'Invalid request body'}, status=400)
 
         new_status = data.get('status')
         rejection_reason = data.get('rejection_reason', '')  # Accept rejection reason (not stored due to model constraints)
