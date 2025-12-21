@@ -124,10 +124,18 @@ if PRODUCTION:
     }
 else:
     # Development: gunakan SQLite
+    sqlite_path = os.getenv('SQLITE_DB_PATH', '').strip()
+    sqlite_db = Path(sqlite_path) if sqlite_path else (BASE_DIR / 'db.sqlite3')
+    # Ensure parent directory exists (useful if SQLITE_DB_PATH points to a new folder).
+    sqlite_db.parent.mkdir(parents=True, exist_ok=True)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': str(sqlite_db),
+            'OPTIONS': {
+                # Helps with brief write contention in development.
+                'timeout': 20,
+            },
         }
     }
 
