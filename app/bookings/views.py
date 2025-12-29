@@ -141,6 +141,7 @@ def api_bookings(request):
         }, status=500)
 
 
+@csrf_exempt
 @login_required
 @role_required('mitra')
 def api_booking_detail(request, booking_id):

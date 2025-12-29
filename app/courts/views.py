@@ -205,7 +205,7 @@ def api_court_detail(request, court_id):
             total_bookings = Booking.objects.filter(
                 court=court,
                 session=session,
-                booking_status__in=['pending', 'confirmed']
+                booking_status__in=['pending', 'confirmed','completed']
             ).count()
             
             sessions.append({
