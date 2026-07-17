@@ -123,12 +123,16 @@ WSGI_APPLICATION = 'lapangin.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Database configuration
-if PRODUCTION and os.getenv('DATABASE_URL'):
-    # Production on Vercel: Neon (or any provider) injects a single DATABASE_URL
+# Neon (via Vercel) injects DATABASE_URL (pooled) and/or DATABASE_URL_UNPOOLED (direct);
+# prefer the pooled one when both are present, since Vercel functions can open many
+# concurrent connections and pooling avoids exhausting Neon's direct connection limit.
+_database_url = os.getenv('DATABASE_URL') or os.getenv('DATABASE_URL_UNPOOLED')
+if PRODUCTION and _database_url:
+    # Production on Vercel
     import dj_database_url
     DATABASES = {
-        'default': dj_database_url.config(
-            env='DATABASE_URL',
+        'default': dj_database_url.parse(
+            _database_url,
             conn_max_age=600,
             ssl_require=True,
         )
