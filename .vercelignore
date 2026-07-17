@@ -2,7 +2,7 @@ db.sqlite3
 media/
 htmlcov/
 .coverage
-staticfiles_build/
+staticfiles/
 .git/
 .github/
 node_modules/

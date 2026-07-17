@@ -214,8 +214,8 @@ STATICFILES_DIRS = [
 ]
 
 # Direktori untuk mengumpulkan semua file static saat production
-# Nested 'static' segment matters for the Vercel static-build route (see vercel.json)
-STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
+# Vercel auto-detects this and runs collectstatic + serves the result from its CDN
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -5,7 +5,7 @@
 **pycache**
 db.sqlite3
 media
-staticfiles_build
+staticfiles
 # Backup files
 *.bak
 # If you are using PyCharm
