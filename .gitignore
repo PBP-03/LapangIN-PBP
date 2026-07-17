@@ -5,6 +5,7 @@
 **pycache**
 db.sqlite3
 media
+staticfiles_build
 # Backup files
 *.bak
 # If you are using PyCharm
@@ -113,3 +114,4 @@ GitHub.sublime-settings
 !.vscode/launch.json
 !.vscode/extensions.json
 .history
+README_Rayyan_Planning.md

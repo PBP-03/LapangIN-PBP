@@ -24,18 +24,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y-q59!^vi4mb^(^*@m-480g!2f*%x6o%s#+f+(x8ca8^m%$4at'
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure-y-q59!^vi4mb^(^*@m-480g!2f*%x6o%s#+f+(x8ca8^m%$4at',
+)
 
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not PRODUCTION
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1","muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS += [h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',') if h.strip()]
+if PRODUCTION:
+    # Vercel preview/production deployments get a *.vercel.app subdomain
+    ALLOWED_HOSTS.append('.vercel.app')
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id"
+    "https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id",
 ]
+CSRF_TRUSTED_ORIGINS += [o.strip() for o in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
+if PRODUCTION:
+    CSRF_TRUSTED_ORIGINS.append('https://*.vercel.app')
+    # Both Vercel and the PWS reverse proxy terminate TLS and forward plain HTTP,
+    # so Django needs this to recognize the request was actually HTTPS.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
 
 # Application definition
@@ -96,8 +114,18 @@ WSGI_APPLICATION = 'lapangin.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Database configuration
-if PRODUCTION:
-    # Production: gunakan PostgreSQL dengan kredensial dari environment variables
+if PRODUCTION and os.getenv('DATABASE_URL'):
+    # Production on Vercel: Neon (or any provider) injects a single DATABASE_URL
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(
+            env='DATABASE_URL',
+            conn_max_age=600,
+            ssl_require=True,
+        )
+    }
+elif PRODUCTION:
+    # Production on PWS: gunakan PostgreSQL dengan kredensial dari environment variables
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -163,7 +191,8 @@ STATICFILES_DIRS = [
 ]
 
 # Direktori untuk mengumpulkan semua file static saat production
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # merujuk ke /staticfiles untuk collectstatic
+# Nested 'static' segment matters for the Vercel static-build route (see vercel.json)
+STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

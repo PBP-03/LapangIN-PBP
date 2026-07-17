@@ -2,6 +2,7 @@ django
 gunicorn
 whitenoise
 psycopg2-binary
+dj-database-url
 requests
 urllib3
 python-dotenv

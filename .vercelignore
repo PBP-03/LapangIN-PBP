@@ -1,0 +1,8 @@
+db.sqlite3
+media/
+htmlcov/
+.coverage
+staticfiles_build/
+.git/
+.github/
+node_modules/
