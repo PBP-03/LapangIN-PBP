@@ -109,6 +109,10 @@ class OperationalHour(models.Model):
     open_time = models.TimeField()
     close_time = models.TimeField()
     is_closed = models.BooleanField(default=False)
+
+    @property
+    def is_open(self):
+        return not self.is_closed
     
     def __str__(self):
         return f"{self.venue.name} - {self.get_day_of_week_display()}: {self.open_time}-{self.close_time}"

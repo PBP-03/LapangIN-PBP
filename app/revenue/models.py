@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from app.users.models import User
 from app.bookings.models import Booking
 import uuid
+from decimal import Decimal
 
 # Pendapatan/Revenue Model (for mitra revenue tracking)
 class Pendapatan(models.Model):
@@ -10,7 +11,7 @@ class Pendapatan(models.Model):
     mitra = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'mitra'}, related_name='pendapatan')
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='pendapatan')
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
-    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=10.00, validators=[MinValueValidator(0), MaxValueValidator(100)])  # Platform commission percentage
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('10.00'), validators=[MinValueValidator(0), MaxValueValidator(100)])  # Platform commission percentage
     commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)])
     net_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)])  # Amount after commission
     payment_status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('paid', 'Paid'), ('cancelled', 'Cancelled'), ('refunded', 'Refunded')], default='pending')
@@ -21,7 +22,8 @@ class Pendapatan(models.Model):
     
     def save(self, *args, **kwargs):
         # Calculate commission and net amount
-        self.commission_amount = (self.amount * self.commission_rate) / 100
+        commission_rate = Decimal(str(self.commission_rate))
+        self.commission_amount = (self.amount * commission_rate) / Decimal('100')
         self.net_amount = self.amount - self.commission_amount
         super().save(*args, **kwargs)
     

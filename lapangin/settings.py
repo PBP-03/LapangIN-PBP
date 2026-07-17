@@ -34,7 +34,7 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = not PRODUCTION
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id", "10.0.2.2"]
 ALLOWED_HOSTS += [h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',') if h.strip()]
 if PRODUCTION:
     # Vercel preview/production deployments get a *.vercel.app subdomain
@@ -42,6 +42,14 @@ if PRODUCTION:
 
 CSRF_TRUSTED_ORIGINS = [
     "https://muhammad-fauzan44-lapangin.pbp.cs.ui.ac.id",
+    "http://localhost:57627",
+    "http://localhost:50560",
+    "http://localhost:8080",
+    "http://127.0.0.1:57627",
+    "http://127.0.0.1:50560",
+    "http://127.0.0.1:8080",
+    "http://localhost:54625",
+    "http://127.0.0.1:54625",
 ]
 CSRF_TRUSTED_ORIGINS += [o.strip() for o in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
 if PRODUCTION:
@@ -50,8 +58,6 @@ if PRODUCTION:
     # so Django needs this to recognize the request was actually HTTPS.
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
@@ -66,6 +72,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'corsheaders',
     # New separated apps
     'app.users',
     'app.venues',
@@ -81,8 +88,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'lapangin.middleware.DevCsrfMiddleware',  # Custom middleware for dev
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -141,13 +150,27 @@ elif PRODUCTION:
     }
 else:
     # Development: gunakan SQLite
+    sqlite_path = os.getenv('SQLITE_DB_PATH', '').strip()
+    sqlite_db = Path(sqlite_path) if sqlite_path else (BASE_DIR / 'db.sqlite3')
+    # Ensure parent directory exists (useful if SQLITE_DB_PATH points to a new folder).
+    sqlite_db.parent.mkdir(parents=True, exist_ok=True)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': str(sqlite_db),
+            'OPTIONS': {
+                # Helps with brief write contention in development.
+                'timeout': 20,
+            },
         }
     }
 
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -173,7 +196,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Jakarta'
 
 USE_I18N = True
 
@@ -198,6 +221,16 @@ STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CORS Configuration for Flutter
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:50560",  # Flutter web dev server
+    "http://localhost:8080",
+    "http://127.0.0.1:50560",
+    "http://127.0.0.1:8080",
+]
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'

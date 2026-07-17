@@ -14,4 +14,8 @@ urlpatterns = [
     
     # Image Management
     path('venue-images/<int:image_id>/delete/', views.api_delete_venue_image, name='api_delete_venue_image'),
+    
+    # Operational Hours
+    path('<uuid:venue_id>/operational-hours/', views.api_venue_operational_hours, name='api_venue_operational_hours'),
+    path('<uuid:venue_id>/operational-hours/<int:hour_id>/', views.api_venue_operational_hour_detail, name='api_venue_operational_hour_detail'),
 ]

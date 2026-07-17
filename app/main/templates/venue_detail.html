@@ -1,11 +1,15 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block content %}
+{% extends 'base.html' %} {% load static %} {% block content %}
 <!-- Hero Section with Gradient Background -->
-<section class="relative bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-12">
+<section
+  class="relative bg-gradient-to-br from-neutral-50 via-light-100 to-accent-50 py-12"
+>
   <div class="absolute inset-0 overflow-hidden">
-    <div class="absolute -top-40 -right-40 w-80 h-80 rounded-full gradient-accent opacity-20 blur-3xl"></div>
-    <div class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full gradient-primary opacity-20 blur-3xl"></div>
+    <div
+      class="absolute -top-40 -right-40 w-80 h-80 rounded-full gradient-accent opacity-20 blur-3xl"
+    ></div>
+    <div
+      class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full gradient-primary opacity-20 blur-3xl"
+    ></div>
   </div>
 </section>
 
@@ -16,78 +20,134 @@
       <!-- Image Gallery -->
       <div class="relative">
         {% if images %}
+        <img
+          src="{{ images.0.image_url }}"
+          alt="{{ venue.name }}"
+          class="w-full h-96 object-cover rounded-2xl shadow-medium"
+        />
+        <div class="flex mt-4 space-x-3 overflow-x-auto pb-2">
+          {% for image in images %}
           <img
-            src="{{ images.0.image_url }}"
-            alt="{{ venue.name }}"
-            class="w-full h-96 object-cover rounded-2xl shadow-medium"
+            src="{{ image.image_url }}"
+            alt=""
+            class="w-24 h-24 object-cover rounded-xl cursor-pointer hover:scale-105 transition-transform shadow-soft"
           />
-          <div class="flex mt-4 space-x-3 overflow-x-auto pb-2">
-            {% for image in images %}
-              <img
-                src="{{ image.image_url }}"
-                alt=""
-                class="w-24 h-24 object-cover rounded-xl cursor-pointer hover:scale-105 transition-transform shadow-soft"
-              />
-            {% endfor %}
-          </div>
+          {% endfor %}
+        </div>
         {% else %}
-          <div class="w-full h-96 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-2xl flex items-center justify-center shadow-soft">
-            <div class="text-center">
-              <svg class="w-16 h-16 text-neutral-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <span class="text-neutral-500 font-medium">No images available</span>
-            </div>
+        <div
+          class="w-full h-96 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-2xl flex items-center justify-center shadow-soft"
+        >
+          <div class="text-center">
+            <svg
+              class="w-16 h-16 text-neutral-400 mx-auto mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <span class="text-neutral-500 font-medium"
+              >No images available</span
+            >
           </div>
+        </div>
         {% endif %}
       </div>
 
       <!-- Venue Info -->
       <div>
-        <h1 class="text-3xl font-bold text-neutral-900 mb-2">{{ venue.name }}</h1>
+        <h1 class="text-3xl font-bold text-neutral-900 mb-2">
+          {{ venue.name }}
+        </h1>
 
         <!-- Rating -->
         <div class="flex items-center mb-4">
-          <div class="flex items-center bg-yellow-500 text-white px-2 py-1 rounded text-sm">
+          <div
+            class="flex items-center bg-yellow-500 text-white px-2 py-1 rounded text-sm"
+          >
             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
+              <path
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"
+              />
             </svg>
             <span class="font-medium">{{ avg_rating }}</span>
           </div>
-          <span class="ml-2 text-neutral-600 text-sm">{{ review_count }} reviews</span>
+          <span class="ml-2 text-neutral-600 text-sm"
+            >{{ review_count }} reviews</span
+          >
         </div>
 
         <!-- Description -->
-        <p class="text-neutral-700 mb-6 leading-relaxed">{{ venue.description }}</p>
+        <p class="text-neutral-700 mb-6 leading-relaxed">
+          {{ venue.description }}
+        </p>
 
         <!-- Venue Details -->
         <div class="space-y-4">
           <!-- Location -->
           <div class="flex items-start space-x-3">
-            <div class="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <div
+              class="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5"
+            >
+              <svg
+                class="w-4 h-4 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
               </svg>
             </div>
             <div>
-              <h3 class="text-sm font-medium text-neutral-900 mb-1">Location</h3>
+              <h3 class="text-sm font-medium text-neutral-900 mb-1">
+                Location
+              </h3>
               <p class="text-sm text-neutral-600">{{ venue.address }}</p>
               {% if venue.location_url %}
-                <a href="{{ venue.location_url }}" target="_blank" class="text-primary-600 hover:text-primary-700 text-sm font-medium">View on Maps →</a>
+              <a
+                href="{{ venue.location_url }}"
+                target="_blank"
+                class="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                >View on Maps →</a
+              >
               {% endif %}
             </div>
           </div>
 
           <!-- Contact -->
           <div class="flex items-start space-x-3">
-            <div class="w-8 h-8 rounded-lg bg-accent-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg class="w-4 h-4 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+            <div
+              class="w-8 h-8 rounded-lg bg-accent-100 flex items-center justify-center flex-shrink-0 mt-0.5"
+            >
+              <svg
+                class="w-4 h-4 text-accent-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                />
               </svg>
             </div>
             <div>
@@ -107,16 +167,34 @@
     <h3 class="text-lg font-semibold text-neutral-900 mb-4">Facilities</h3>
     <div class="flex flex-wrap gap-2">
       {% for facility in facilities %}
-        <div class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-neutral-50 border border-neutral-200">
-          {% if facility.facility.icon %}
-            <img src="{{ facility.facility.icon }}" alt="{{ facility.facility.name }}" class="w-4 h-4"/>
-          {% else %}
-            <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-          {% endif %}
-          <span class="text-sm text-neutral-700">{{ facility.facility.name }}</span>
-        </div>
+      <div
+        class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-neutral-50 border border-neutral-200"
+      >
+        {% if facility.facility.icon %}
+        <img
+          src="{{ facility.facility.icon }}"
+          alt="{{ facility.facility.name }}"
+          class="w-4 h-4"
+        />
+        {% else %}
+        <svg
+          class="w-4 h-4 text-primary-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          ></path>
+        </svg>
+        {% endif %}
+        <span class="text-sm text-neutral-700"
+          >{{ facility.facility.name }}</span
+        >
+      </div>
       {% endfor %}
     </div>
   </div>
@@ -124,12 +202,18 @@
 
   <!-- Courts and Booking -->
   <div class="bg-white rounded-2xl shadow-soft p-8 mb-8">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <h2 class="text-3xl font-display font-bold text-neutral-900">Select a Court</h2>
+    <div
+      class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4"
+    >
+      <h2 class="text-3xl font-display font-bold text-neutral-900">
+        Select a Court
+      </h2>
 
       <!-- Date Selection -->
       <div class="flex items-center gap-3">
-        <label class="text-sm font-medium text-neutral-700">Booking Date:</label>
+        <label class="text-sm font-medium text-neutral-700"
+          >Booking Date:</label
+        >
         <div class="relative">
           <input
             type="date"
@@ -137,9 +221,18 @@
             class="border-2 border-neutral-300 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-neutral-900 font-medium"
             min="{{ today }}"
           />
-          <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          <svg
+            class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            ></path>
           </svg>
         </div>
       </div>
@@ -148,45 +241,59 @@
     <!-- Court Selection List -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
       {% for court in courts %}
-        <div
-          onclick="selectCourt('{{ court.id }}', '{{ court.name }}', '{{ court.price_per_hour }}')"
-          id="court-card-{{ court.id }}"
-          data-court-id="{{ court.id }}"
-          data-court-name="{{ court.name }}"
-          data-court-price="{{ court.price_per_hour }}"
-          data-sessions="{{ court.sessions|safe }}"
-          class="court-card border-2 border-primary-700 rounded-lg p-3 cursor-pointer hover:border-primary-500 hover:shadow-md transition-all bg-primary-700"
-        >
-          <div class="flex items-start justify-between mb-2">
-            <div class="flex-1">
-              <h3 class="text-sm font-bold text-white mb-1">{{ court.name }}</h3>
-              {% if court.category %}
-                <span class="inline-block px-1.5 py-0.5 bg-white bg-opacity-20 text-white rounded-full text-xs font-medium">
-                  {{ court.category.get_name_display }}
-                </span>
-              {% endif %}
-            </div>
-            <div class="court-check hidden">
-              <svg class="w-5 h-5 text-primary-700 bg-white rounded-full p-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"/>
-              </svg>
-            </div>
+      <div
+        onclick="selectCourt('{{ court.id }}', '{{ court.name }}', '{{ court.price_per_hour }}')"
+        id="court-card-{{ court.id }}"
+        data-court-id="{{ court.id }}"
+        data-court-name="{{ court.name }}"
+        data-court-price="{{ court.price_per_hour }}"
+        data-sessions="{{ court.sessions|safe }}"
+        class="court-card border-2 border-primary-700 rounded-lg p-3 cursor-pointer hover:border-primary-500 hover:shadow-md transition-all bg-primary-700"
+      >
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex-1">
+            <h3 class="text-sm font-bold text-white mb-1">{{ court.name }}</h3>
+            {% if court.category %}
+            <span
+              class="inline-block px-1.5 py-0.5 bg-white bg-opacity-20 text-white rounded-full text-xs font-medium"
+            >
+              {{ court.category.get_name_display }}
+            </span>
+            {% endif %}
           </div>
-          <p class="text-lg font-bold text-white mb-1">
-            Rp {{ court.price_per_hour|floatformat:0 }}
-            <span class="text-xs font-normal text-white text-opacity-80">/hour</span>
-          </p>
-          <p class="text-xs text-white text-opacity-80">
-            {{ court.sessions|length }} session{{ court.sessions|length|pluralize }} available
-          </p>
-
-          <!-- Hidden data for JavaScript -->
-          <script type="application/json" class="court-sessions-data" data-court="{{ court.id }}">
-            {{ court.sessions|safe }}
-          </script>
+          <div class="court-check hidden">
+            <svg
+              class="w-5 h-5 text-primary-700 bg-white rounded-full p-0.5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
         </div>
+        <p class="text-lg font-bold text-white mb-1">
+          Rp {{ court.price_per_hour|floatformat:0 }}
+          <span class="text-xs font-normal text-white text-opacity-80"
+            >/hour</span
+          >
+        </p>
+        <p class="text-xs text-white text-opacity-80">
+          {{ court.sessions|length }} session{{ court.sessions|length|pluralize}} available
+        </p>
+
+        <!-- Hidden data for JavaScript -->
+        <script
+          type="application/json"
+          class="court-sessions-data"
+          data-court="{{ court.id }}"
+        >
+          {{ court.sessions|safe }}
+        </script>
+      </div>
       {% endfor %}
     </div>
 
@@ -195,63 +302,94 @@
       <div class="border-t flex flex-col border-neutral-200 pt-6">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-xl font-bold text-neutral-900">
-            Select Time Slots for <span id="selected-court-name" class="text-primary-600"></span>
+            Select Time Slots for
+            <span id="selected-court-name" class="text-primary-600"></span>
           </h3>
-          <button onclick="clearCourtSelection()" class="text-sm text-neutral-600 hover:text-neutral-900 font-medium">
+          <button
+            onclick="clearCourtSelection()"
+            class="text-sm text-neutral-600 hover:text-neutral-900 font-medium"
+          >
             ← Back to courts
           </button>
         </div>
 
-        <div id="sessions-grid" class="grid grid-cols-4 md:grid-cols-6 gap-3 mb-6">
+        <div
+          id="sessions-grid"
+          class="grid grid-cols-4 md:grid-cols-6 gap-3 mb-6"
+        >
           <!-- Sessions will be loaded here dynamically -->
         </div>
 
-        <div id="booking-summary" class="hidden bg-neutral-50 rounded-xl p-6 mb-4">
+        <div
+          id="booking-summary"
+          class="hidden bg-neutral-50 rounded-xl p-6 mb-4"
+        >
           <h4 class="font-semibold text-neutral-900 mb-3">Booking Summary</h4>
 
           <!-- Booking Date Display -->
           <div class="mb-4 p-3 bg-white rounded-lg border border-neutral-200">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                <svg
+                  class="w-5 h-5 text-primary-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
                 </svg>
                 <span class="text-sm text-neutral-600">Booking Date:</span>
               </div>
-              <span class="font-semibold text-neutral-900" id="display-booking-date">-</span>
+              <span
+                class="font-semibold text-neutral-900"
+                id="display-booking-date"
+                >-</span
+              >
             </div>
           </div>
 
-          <h5 class="font-medium text-neutral-700 mb-2 text-sm">Selected Sessions:</h5>
+          <h5 class="font-medium text-neutral-700 mb-2 text-sm">
+            Selected Sessions:
+          </h5>
           <div id="selected-sessions-list" class="space-y-2 mb-4"></div>
-          <div class="flex items-center justify-between pt-4 border-t border-neutral-200">
+          <div
+            class="flex items-center justify-between pt-4 border-t border-neutral-200"
+          >
             <div>
               <p class="text-sm text-neutral-600">Total Duration</p>
-              <p class="text-xl font-bold text-neutral-900"><span id="total-duration">0</span> minutes</p>
+              <p class="text-xl font-bold text-neutral-900">
+                <span id="total-duration">0</span> minutes
+              </p>
             </div>
             <div class="text-right">
               <p class="text-sm text-neutral-600">Estimated Price</p>
-              <p class="text-xl font-bold text-primary-600">Rp <span id="total-price">0</span></p>
+              <p class="text-xl font-bold text-primary-600">
+                Rp <span id="total-price">0</span>
+              </p>
             </div>
           </div>
         </div>
 
         {% if is_authenticated %}
-          <button
-            id="proceed-booking-btn"
-            onclick="proceedToBooking()"
-            class="hidden w-fit self-end gradient-primary text-white py-4 px-6 rounded-xl font-medium hover:shadow-medium transition-all transform"
-          >
-            Proceed to Booking
-          </button>
+        <button
+          id="proceed-booking-btn"
+          onclick="proceedToBooking()"
+          class="hidden w-fit self-end gradient-primary text-white py-4 px-6 rounded-xl font-medium hover:shadow-medium transition-all transform"
+        >
+          Proceed to Booking
+        </button>
         {% else %}
-          <button
-            onclick="window.location.href='/login'"
-            class="w-fit self-end bg-neutral-600 text-white py-4 px-6 rounded-xl font-medium hover:bg-neutral-700 transition-all"
-          >
-            Login to Book
-          </button>
+        <button
+          onclick="window.location.href='/login'"
+          class="w-fit self-end bg-neutral-600 text-white py-4 px-6 rounded-xl font-medium hover:bg-neutral-700 transition-all"
+        >
+          Login to Book
+        </button>
         {% endif %}
       </div>
     </div>
@@ -262,143 +400,208 @@
     <div class="flex justify-between items-center mb-4">
       <div>
         <h2 class="text-2xl font-bold text-neutral-900">Reviews</h2>
-        <p class="text-sm text-neutral-600 mt-1">{{ review_count }} reviews • {{ avg_rating }} average rating</p>
+        <p class="text-sm text-neutral-600 mt-1">
+          {{ review_count }} reviews • {{ avg_rating }} average rating
+        </p>
       </div>
 
       {% if can_review %}
-        <button onclick="openReviewModal()" class="gradient-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-md transition-all">
-          Write Review
-        </button>
+      <button
+        onclick="openReviewModal()"
+        class="gradient-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-md transition-all"
+      >
+        Write Review
+      </button>
       {% elif is_authenticated %}
-        <div class="text-neutral-500 text-xs italic">Complete booking to review</div>
+      <div class="text-neutral-500 text-xs italic">
+        Complete booking to review
+      </div>
       {% else %}
-        <a href="/login" class="gradient-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-md transition-all">
-          Login to Review
-        </a>
+      <a
+        href="/login"
+        class="gradient-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-md transition-all"
+      >
+        Login to Review
+      </a>
       {% endif %}
     </div>
 
     <!-- Review List - Horizontal Cards -->
     <div id="review-list" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {% for review in reviews %}
-        <article id="review-{{ review.id }}" class="group h-full rounded-xl border border-neutral-200 bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.05)] hover:shadow-md transition-shadow">
-          <header class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3 min-w-0">
-              <!-- Avatar -->
-              <div class="relative">
-                <div class="w-10 h-10 rounded-full bg-primary-600 text-white grid place-items-center font-semibold text-sm">
-                  {{ review.booking.user.username|slice:":1"|upper }}
-                </div>
-              </div>
-
-              <!-- Name & meta -->
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <h3 class="font-semibold text-neutral-900 text-sm truncate">{{ review.booking.user.username }}</h3>
-                  <!-- Numeric rating chip -->
-                  <span class="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 text-[11px] font-medium">
-                    {{ review.rating }}★
-                  </span>
-                </div>
-                <time class="block text-xs text-neutral-500 mt-0.5">
-                  {{ review.created_at|date:"M d, Y" }}
-                </time>
+      <article
+        id="review-{{ review.id }}"
+        class="group h-full rounded-xl border border-neutral-200 bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.05)] hover:shadow-md transition-shadow"
+      >
+        <header class="flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3 min-w-0">
+            <!-- Avatar -->
+            <div class="relative">
+              <div
+                class="w-10 h-10 rounded-full bg-primary-600 text-white grid place-items-center font-semibold text-sm"
+              >
+                {{ review.booking.user.username|slice:":1"|upper }}
               </div>
             </div>
 
-            <!-- Edit/Delete for own review -->
-            {% if is_authenticated and review.booking.user == request.user %}
-              <div class="flex gap-1 flex-shrink-0">
-                <button
-                  onclick="openEditReviewModal('{{ review.id }}', '{{ review.rating }}', '{{ review.comment|escapejs }}')"
-                  class="px-2 py-1 text-xs border border-primary-500 text-primary-600 rounded hover:bg-primary-50 transition-colors"
+            <!-- Name & meta -->
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <h3 class="font-semibold text-neutral-900 text-sm truncate">
+                  {{ review.booking.user.username }}
+                </h3>
+                <!-- Numeric rating chip -->
+                <span
+                  class="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 text-[11px] font-medium"
                 >
-                  Edit
-                </button>
-                <button
-                  onclick="deleteReview('{{ review.id }}')"
-                  class="px-2 py-1 text-xs border border-red-500 text-red-600 rounded hover:bg-red-50 transition-colors"
-                >
-                  Delete
-                </button>
+                  {{ review.rating }}★
+                </span>
               </div>
-            {% endif %}
-          </header>
-
-          <!-- Stars -->
-          <div class="mt-3 flex items-center gap-1" aria-hidden="true">
-            {% for i in "12345"|make_list %}
-              <svg
-                class="w-4 h-4 {% if forloop.counter <= review.rating %}text-yellow-400{% else %}text-neutral-300{% endif %}"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
-              </svg>
-            {% endfor %}
+              <time class="block text-xs text-neutral-500 mt-0.5">
+                {{ review.created_at|date:"M d, Y" }}
+              </time>
+            </div>
           </div>
 
-          <!-- Comment -->
-          {% if review.comment %}
-            <p class="mt-3 text-sm leading-relaxed text-neutral-700 break-words">
-              {{ review.comment }}
-            </p>
+          <!-- Edit/Delete for own review -->
+          {% if is_authenticated and review.booking.user == request.user %}
+          <div class="flex gap-1 flex-shrink-0">
+            <button
+              onclick="openEditReviewModal('{{ review.id }}', '{{ review.rating }}', '{{ review.comment|escapejs }}')"
+              class="px-2 py-1 text-xs border border-primary-500 text-primary-600 rounded hover:bg-primary-50 transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              onclick="deleteReview('{{ review.id }}')"
+              class="px-2 py-1 text-xs border border-red-500 text-red-600 rounded hover:bg-red-50 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
           {% endif %}
-        </article>
-      {% empty %}
-        <div class="col-span-full">
-          <div class="text-center py-10 rounded-xl border border-dashed border-neutral-200 bg-neutral-50">
-            <svg class="w-12 h-12 text-neutral-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-            </svg>
-            <p class="text-neutral-600 text-sm">No reviews yet. Be the first to review!</p>
-          </div>
+        </header>
+
+        <!-- Stars -->
+        <div class="mt-3 flex items-center gap-1" aria-hidden="true">
+          {% for i in "12345"|make_list %}
+          <svg
+            class="w-4 h-4 {% if forloop.counter <= review.rating %}text-yellow-400{% else %}text-neutral-300{% endif %}"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"
+            />
+          </svg>
+          {% endfor %}
         </div>
+
+        <!-- Comment -->
+        {% if review.comment %}
+        <p class="mt-3 text-sm leading-relaxed text-neutral-700 break-words">
+          {{ review.comment }}
+        </p>
+        {% endif %}
+      </article>
+      {% empty %}
+      <div class="col-span-full">
+        <div
+          class="text-center py-10 rounded-xl border border-dashed border-neutral-200 bg-neutral-50"
+        >
+          <svg
+            class="w-12 h-12 text-neutral-300 mx-auto mb-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
+          </svg>
+          <p class="text-neutral-600 text-sm">
+            No reviews yet. Be the first to review!
+          </p>
+        </div>
+      </div>
       {% endfor %}
     </div>
 
     <!-- Pagination (FIXED) -->
     {% if reviews.has_other_pages %}
-      <div class="flex items-center justify-center space-x-2 mt-6 pt-4 border-t border-neutral-200">
-        {% if reviews.has_previous %}
-          <a href="?page={{ reviews.previous_page_number }}" class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">Previous</a>
-        {% endif %}
+    <div
+      class="flex items-center justify-center space-x-2 mt-6 pt-4 border-t border-neutral-200"
+    >
+      {% if reviews.has_previous %}
+      <a
+        href="?page={{ reviews.previous_page_number }}"
+        class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+        >Previous</a
+      >
+      {% endif %}
 
-        <div class="flex items-center space-x-1">
-          {% for num in reviews.paginator.page_range %}
-            {% if num == reviews.number %}
-              <span class="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg font-medium">{{ num }}</span>
-            {% elif num >= reviews.number|add:'-2' and num <= reviews.number|add:'2' %}
-              <a href="?page={{ num }}" class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">{{ num }}</a>
-            {% endif %}
-          {% empty %}
-            <span class="text-sm text-neutral-500">No pages</span>
-          {% endfor %}
-        </div>
-
-        {% if reviews.has_next %}
-          <a href="?page={{ reviews.next_page_number }}" class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">Next</a>
-        {% endif %}
+      <div class="flex items-center space-x-1">
+        {% for num in reviews.paginator.page_range %}
+          {% if num == reviews.number %}
+            <span
+              class="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg font-medium"
+              >{{ num }}</span
+            >
+          {% elif num >= reviews.number|add:'-2' and num <= reviews.number|add:'2' %}
+            <a
+              href="?page={{ num }}"
+              class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+              >{{ num }}</a
+            >
+          {% endif %}
+        {% empty %}
+          <span class="text-sm text-neutral-500">No pages</span>
+        {% endfor %}
       </div>
+
+      {% if reviews.has_next %}
+      <a
+        href="?page={{ reviews.next_page_number }}"
+        class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+        >Next</a
+      >
+      {% endif %}
+    </div>
     {% endif %}
   </div>
 
   <!-- Review Modal -->
-  <div id="review-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div
+    id="review-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+  >
     <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 shadow-strong">
-      <h3 class="text-2xl font-display font-bold text-neutral-900 mb-6">Write a Review</h3>
+      <h3 class="text-2xl font-display font-bold text-neutral-900 mb-6">
+        Write a Review
+      </h3>
 
       <!-- Star Rating -->
       <div class="flex items-center mb-6">
         <div class="flex items-center" id="star-rating">
           {% for i in "12345"|make_list %}
-            <svg class="star-icon w-10 h-10 text-neutral-300 cursor-pointer transition-colors" data-rating="{{ forloop.counter }}" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
-            </svg>
+          <svg
+            class="star-icon w-10 h-10 text-neutral-300 cursor-pointer transition-colors"
+            data-rating="{{ forloop.counter }}"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"
+            />
+          </svg>
           {% endfor %}
         </div>
-        <span class="ml-3 text-2xl font-bold text-neutral-900" id="rating-value">0.0</span>
+        <span class="ml-3 text-2xl font-bold text-neutral-900" id="rating-value"
+          >0.0</span
+        >
       </div>
 
       <!-- Review Comment -->
@@ -410,10 +613,17 @@
 
       <!-- Buttons -->
       <div class="flex justify-end space-x-3">
-        <button onclick="closeReviewModal()" class="px-6 py-3 border border-neutral-300 rounded-xl hover:bg-neutral-50 transition-colors font-medium text-neutral-700">
+        <button
+          onclick="closeReviewModal()"
+          class="px-6 py-3 border border-neutral-300 rounded-xl hover:bg-neutral-50 transition-colors font-medium text-neutral-700"
+        >
           Cancel
         </button>
-        <button onclick="submitReview(event)" id="submit-review-btn" class="px-6 py-3 gradient-primary text-white rounded-xl hover:shadow-medium transition-all font-medium">
+        <button
+          onclick="submitReview(event)"
+          id="submit-review-btn"
+          class="px-6 py-3 gradient-primary text-white rounded-xl hover:shadow-medium transition-all font-medium"
+        >
           Submit Review
         </button>
       </div>
@@ -421,20 +631,36 @@
   </div>
 
   <!-- Edit Review Modal -->
-  <div id="edit-review-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div
+    id="edit-review-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+  >
     <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 shadow-strong">
-      <h3 class="text-2xl font-display font-bold text-neutral-900 mb-6">Edit Review</h3>
+      <h3 class="text-2xl font-display font-bold text-neutral-900 mb-6">
+        Edit Review
+      </h3>
 
       <!-- Star Rating -->
       <div class="flex items-center mb-6">
         <div class="flex items-center" id="edit-star-rating">
           {% for i in "12345"|make_list %}
-            <svg class="edit-star-icon w-10 h-10 text-neutral-300 cursor-pointer transition-colors" data-rating="{{ forloop.counter }}" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"/>
-            </svg>
+          <svg
+            class="edit-star-icon w-10 h-10 text-neutral-300 cursor-pointer transition-colors"
+            data-rating="{{ forloop.counter }}"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.839-.197-1.54-1.118l1.286-3.974a1 1 0 00-.364-1.118l-3.38-2.455c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.287-3.974z"
+            />
+          </svg>
           {% endfor %}
         </div>
-        <span class="ml-3 text-2xl font-bold text-neutral-900" id="edit-rating-value">0.0</span>
+        <span
+          class="ml-3 text-2xl font-bold text-neutral-900"
+          id="edit-rating-value"
+          >0.0</span
+        >
       </div>
 
       <!-- Review Comment -->
@@ -448,10 +674,17 @@
 
       <!-- Buttons -->
       <div class="flex justify-end space-x-3">
-        <button onclick="closeEditReviewModal()" class="px-6 py-3 border border-neutral-300 rounded-xl hover:bg-neutral-50 transition-colors font-medium text-neutral-700">
+        <button
+          onclick="closeEditReviewModal()"
+          class="px-6 py-3 border border-neutral-300 rounded-xl hover:bg-neutral-50 transition-colors font-medium text-neutral-700"
+        >
           Cancel
         </button>
-        <button onclick="updateReview(event)" id="update-review-btn" class="px-6 py-3 gradient-primary text-white rounded-xl hover:shadow-medium transition-all font-medium">
+        <button
+          onclick="updateReview(event)"
+          id="update-review-btn"
+          class="px-6 py-3 gradient-primary text-white rounded-xl hover:shadow-medium transition-all font-medium"
+        >
           Update Review
         </button>
       </div>
@@ -554,6 +787,7 @@
     }
 
     function submitReview(event) {
+      if (event && typeof event.preventDefault === 'function') event.preventDefault();
       if (currentRating === 0) { showNotification("Please select a rating", "error"); return; }
       const comment = document.getElementById("review-comment").value;
       const submitBtn = event ? event.target : document.querySelector("#submit-review-btn");
@@ -562,6 +796,7 @@
 
       fetch(`/api/venues/${venueId}/reviews/`, {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken") },
         body: JSON.stringify({ rating: parseInt(currentRating), comment: comment }),
       })
@@ -589,8 +824,10 @@
     }
 
     function updateReview(event) {
+      if (event && typeof event.preventDefault === 'function') event.preventDefault();
       if (editCurrentRating === 0) { showNotification("Please select a rating", "error"); return; }
       const reviewId = document.getElementById("edit-review-id").value;
+      if (!reviewId) { showNotification("Review id not found", "error"); return; }
       const comment = document.getElementById("edit-review-comment").value;
       const updateBtn = event ? event.target : document.querySelector("#update-review-btn");
       const originalText = updateBtn.textContent;
@@ -598,6 +835,7 @@
 
       fetch(`/api/reviews/${reviewId}/`, {
         method: "PUT",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken") },
         body: JSON.stringify({ rating: parseInt(editCurrentRating), comment: comment }),
       })
@@ -629,6 +867,7 @@
 
       fetch(`/api/reviews/${reviewId}/`, {
         method: "DELETE",
+        credentials: "same-origin",
         headers: { "X-CSRFToken": getCookie("csrftoken") },
       })
       .then((response) => {
@@ -943,7 +1182,7 @@
     #booking-date-input::-webkit-calendar-picker-indicator {
       cursor: pointer;
     }
-    .tes{
+    .tes {
       cursor: pointer;
     }
   </style>
